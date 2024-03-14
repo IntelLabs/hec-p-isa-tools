@@ -1,11 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
 
 import json
-from pathlib import Path
-
 
 class Generators:
+    def __init__(self, op_to_object_map: dict[str, str]):
+        self.map = op_to_object_map
+
     @classmethod
-    def from_manifest(cls, filepath: str | Path):
+    def from_manifest(cls, filepath: str):
         """"""
-        return cls
+        with open(filepath) as manifest_file:
+            return cls(json.load(manifest_file))
+
