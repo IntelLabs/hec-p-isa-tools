@@ -2,6 +2,8 @@
 
 # Copyright (C) 2024 Intel Corporation
 
+"""Module for generating p-isa kernels"""
+
 from typing import NamedTuple
 
 from generators import Generators
@@ -10,16 +12,22 @@ MANIFEST_PATH = "./pisa_generators/manifest.json"
 
 
 class Command(NamedTuple):
+    """Class representing a command consiting of an operation with input(s) and
+    output"""
+
     op: str
     inputs: list[str]
     output: str
 
 
 class Data(NamedTuple):
+    """Class representing a data type with related attributes"""
+
     name: str
 
 
 def main():
+    """Main entrypoint. Load available p-isa ops and parse isa instructions."""
     generators = Generators.from_manifest(MANIFEST_PATH)
     print("Available p-isa ops\n", generators.available_pisa_ops(), sep="")
 
