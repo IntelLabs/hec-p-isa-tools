@@ -1,12 +1,11 @@
+# Copyright (C) 2024 Intel Corporation
+
 import json
 from pathlib import Path
 
-class Generators:
 
+class Generators:
     @classmethod
     def from_manifest(cls, filepath: str | Path):
         """"""
         return cls
-
-
-
