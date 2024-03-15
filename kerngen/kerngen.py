@@ -4,26 +4,10 @@
 
 """Module for generating p-isa kernels"""
 
-from typing import NamedTuple
-
+from command import Command
 from generators import Generators
 
 MANIFEST_PATH = "./pisa_generators/manifest.json"
-
-
-class Command(NamedTuple):
-    """Class representing a command consiting of an operation with input(s) and
-    output"""
-
-    op: str
-    inputs: list[str]
-    output: str
-
-
-class Data(NamedTuple):
-    """Class representing a data type with related attributes"""
-
-    name: str
 
 
 def main():
