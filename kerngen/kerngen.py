@@ -12,7 +12,7 @@ MANIFEST_PATH = "./pisa_generators/manifest.json"
 def main():
     
     generators = Generators.from_manifest(MANIFEST_PATH)
-
+    print("Available p-isa ops\n", generators.available_pisa_ops())
 
     # TODO dynamic creation
     he_ops: list = [Add(["a", "b"], "c"), Add(["c", "d"], "e")]

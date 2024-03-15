@@ -12,3 +12,5 @@ class Generators:
         with open(filepath) as manifest_file:
             return cls(json.load(manifest_file))
 
+    def available_pisa_ops(self) -> str:
+        return "\n".join(f"{op}" for op in self.map.keys())
