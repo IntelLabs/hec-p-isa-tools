@@ -2,21 +2,31 @@
 
 # Copyright (C) 2024 Intel Corporation
 
-from generators import Generators
-from pisa_generators.add import Add
+from typing import NamedTuple
 
+from generators import Generators
 
 MANIFEST_PATH = "./pisa_generators/manifest.json"
 
 
+class Command(NamedTuple):
+    op: str
+    inputs: list[str]
+    output: str
+
+
+class Data(NamedTuple):
+    name: str
+
+
 def main():
     generators = Generators.from_manifest(MANIFEST_PATH)
-    print("Available p-isa ops\n", generators.available_pisa_ops())
+    print("Available p-isa ops\n", generators.available_pisa_ops(), sep="")
 
-    Klass = generators.get_pisa_op("Add")
-
-    # TODO dynamic creation
-    he_ops: list = [Add(["a", "b"], "c"), Add(["c", "d"], "e")]
+    commands = [Command("Add", ["a", "b"], "c"), Command("Add", ["c", "d"], "e")]
+    he_ops = [
+        generators.get_pisa_op(op)(inputs, output) for op, inputs, output in commands
+    ]
 
     # string blocks of the p-isa instructions
     pisa_ops = ("\n".join(map(str, he_op.to_pisa())) for he_op in he_ops)

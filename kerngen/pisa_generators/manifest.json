@@ -1,3 +1,4 @@
 {
-  "Add": "add.py"
+  "Add": "basic.py",
+  "Mult": "basic.py"
 }
