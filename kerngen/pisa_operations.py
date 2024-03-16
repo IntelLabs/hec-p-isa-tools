@@ -13,5 +13,5 @@ class Add:
     output: str
 
     def __str__(self) -> str:
-        """Return string representation of `self`"""
-        return "add at lower"
+        """Return the p-isa instructions of an addition"""
+        return "add TBD"

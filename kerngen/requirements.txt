@@ -1,5 +1,5 @@
 pydantic ~= 1.10
 
-black
-pylint
+black ~= 24.324.324.3
+pylint ~= 3.1
 pytest ~= 7.2
