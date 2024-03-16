@@ -45,4 +45,22 @@ class Add:
 
     def __str__(self) -> str:
         """Return the p-isa instructions of an addition"""
+
+        #        rin0 = [
+        #            self.preg("c_{}".format(o), self.nrns, Register.BANK0)
+        #            for o in range(self.order)
+        #        ]
+        #        rin1 = [
+        #            self.preg("d_{}".format(o), self.nrns, Register.BANK1)
+        #            for o in range(self.order)
+        #        ]
+        #        rout = [
+        #            self.preg("output_{}".format(o), self.nrns, Register.BANK2)
+        #            for o in range(self.order)
+        #        ]
+        #
+        #        for q in range(self.nrms):
+        #            for o in range(self.order):
+        #                self.add(rout[o][q], rin0[o][q], rin1[o][q], q)
+
         return "add TBD"
