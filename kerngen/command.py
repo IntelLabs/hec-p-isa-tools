@@ -5,6 +5,12 @@
 from typing import NamedTuple
 
 
+def parse_inputs(argv) -> list:
+    """parse the inputs given in return list of data and operations"""
+    # TODO to be created by parsed input
+    return [Command("Add", ["a", "b"], "c"), Command("Add", ["c", "d"], "e")]
+
+
 class Command(NamedTuple):
     """Class representing a command consisting of an operation with input(s) and
     output"""
