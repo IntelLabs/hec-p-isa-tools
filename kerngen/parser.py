@@ -24,3 +24,14 @@ class Command(NamedTuple):
         """Construct the command from a string of the form `opname output
         inputs`"""
         return cls(op=op, inputs=inputs, output=output)
+
+
+class Data(NamedTuple):
+    """Class representing a data type with related attributes"""
+
+    name: str
+
+    @classmethod
+    def from_string(cls, name: str):
+        """Construct data from a string"""
+        return cls(name=name)
