@@ -5,7 +5,7 @@
 """Module for generating p-isa kernels"""
 
 import sys
-from command import parse_inputs
+from high_parser import parse_inputs
 from generators import Generators
 
 
