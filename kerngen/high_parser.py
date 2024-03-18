@@ -7,7 +7,17 @@ from typing import NamedTuple
 
 def parse_inputs(lines: list[str]) -> list:
     """parse the inputs given in return list of data and operations"""
-    return list(map(Command.from_string, lines))
+
+    def delegate(command_str):
+        match command_str[0]:
+            case "context":
+                return Context.from_string(command_str)
+            case "data":
+                return Data.from_string(command_str)
+            case _:
+                return Command.from_string(command_str)
+
+    return list(map(delegate, lines))
 
 
 class Context(NamedTuple):

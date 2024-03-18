@@ -12,7 +12,8 @@ repos:
         - id: check-merge-conflict
         - id: mixed-line-ending
         - id: check-yaml
-          args: [--allow-multiple-documents]
+          args:
+          - --allow-multiple-documents
     - repo: https://github.com/Lucas-C/pre-commit-hooks
       rev: v1.5.1 # Updated 2023/07
       hooks:
