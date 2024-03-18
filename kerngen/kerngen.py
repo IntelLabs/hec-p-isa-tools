@@ -17,7 +17,7 @@ def main():
     generators = Generators.from_manifest(MANIFEST_PATH)
     #     print("Available p-isa ops\n", generators.available_pisa_ops(), sep="")
 
-    commands = parse_inputs(sys.argv)
+    commands = parse_inputs(sys.stdin.readlines())
     he_ops = (
         generators.get_pisa_op(op)(inputs, output) for op, inputs, output in commands
     )
