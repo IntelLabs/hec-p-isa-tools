@@ -15,7 +15,7 @@ MANIFEST_PATH = "./pisa_generators/manifest.json"
 def main():
     """Main entrypoint. Load available p-isa ops and parse isa instructions."""
     generators = Generators.from_manifest(MANIFEST_PATH)
-    print("Available p-isa ops\n", generators.available_pisa_ops(), sep="")
+    #     print("Available p-isa ops\n", generators.available_pisa_ops(), sep="")
 
     commands = parse_inputs(sys.argv)
     he_ops = (
@@ -25,7 +25,9 @@ def main():
     # string blocks of the p-isa instructions
     pisa_ops = ("\n".join(map(str, he_op.to_pisa())) for he_op in he_ops)
 
-    for pisa_op in pisa_ops:
+    stars = "*" * 3
+    for kernel_no, pisa_op in enumerate(pisa_ops):
+        print(stars, "Kernel:", kernel_no, stars)
         print(pisa_op)
 
 

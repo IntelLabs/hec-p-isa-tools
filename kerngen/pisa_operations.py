@@ -2,8 +2,9 @@
 
 """Module containing the low level p-isa operations"""
 
+import itertools as it
 from dataclasses import dataclass
-from typing import Generator
+from typing import Generator, Protocol
 
 
 # TODO Required for some of the pisa command expanding
@@ -30,14 +31,23 @@ class Polys:
 
     symbol: str
     number: int
+    units: int
 
-    def expand(self) -> str:
+    def expand(self, which: int, q: int, part: int) -> str:
         """Returns a string of the expanded symbol and ..."""
-        return ""
+        # TODO some sanity check code for bounds
+        return f"{self.symbol}_{q}_{which}_{part}"
+
+
+class PIsaOp(Protocol):
+    """Protocol for p-isa operation"""
+
+    def __str__(self) -> str:
+        """Return the p-isa instructions of the operation"""
 
 
 @dataclass
-class Add:
+class Add(PIsaOp):
     """Class representing the p-isa addition operation"""
 
     inputs: list[str]
@@ -46,21 +56,15 @@ class Add:
     def __str__(self) -> str:
         """Return the p-isa instructions of an addition"""
 
-        #        rin0 = [
-        #            self.preg("c_{}".format(o), self.nrns, Register.BANK0)
-        #            for o in range(self.order)
-        #        ]
-        #        rin1 = [
-        #            self.preg("d_{}".format(o), self.nrns, Register.BANK1)
-        #            for o in range(self.order)
-        #        ]
-        #        rout = [
-        #            self.preg("output_{}".format(o), self.nrns, Register.BANK2)
-        #            for o in range(self.order)
-        #        ]
-        #
-        #        for q in range(self.nrms):
-        #            for o in range(self.order):
-        #                self.add(rout[o][q], rin0[o][q], rin1[o][q], q)
+        units = 1
+        quantity = 2
+        rns = 4
+        rin0 = Polys("c", quantity, units)
+        rin1 = Polys("d", quantity, units)
+        rout = Polys("output", quantity, units)
 
-        return "add TBD"
+        lines = (
+            f"13, add, {rout.expand(q, o, part)}, {rin0.expand(q, o, part)}, {rin1.expand(q, o, part)}, {q}"
+            for q, o, part in it.product(range(rns), range(quantity), range(units))
+        )
+        return "\n".join(lines)
