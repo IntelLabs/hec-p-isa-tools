@@ -16,6 +16,10 @@ class Scheme(Enum):
 def parse_inputs(lines: list[str]) -> list:
     """parse the inputs given in return list of data and operations"""
 
+    # Check first command parsed is CONTEXT
+    if lines[0].split(" ", 1)[0].lower() != "context":
+        raise RuntimeError(f"First command must be `CONTEXT`, given `{lines[0]}`")
+
     def delegate(command_str):
         command, rest = command_str.split(" ", 1)
         match command.lower():
