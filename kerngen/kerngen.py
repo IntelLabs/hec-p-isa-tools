@@ -5,7 +5,7 @@
 """Module for generating p-isa kernels"""
 
 import sys
-from high_parser import parse_inputs
+from high_parser import parse_inputs, Command
 from generators import Generators
 
 
@@ -17,7 +17,8 @@ def main():
     generators = Generators.from_manifest(MANIFEST_PATH)
     #     print("Available p-isa ops\n", generators.available_pisa_ops(), sep="")
 
-    commands = parse_inputs(sys.stdin.readlines())
+    inputs = parse_inputs(sys.stdin.readlines())
+    commands = [command for command in inputs if isinstance(command, Command)]
     he_ops = [
         generators.get_pisa_op(op)(inputs, output) for op, inputs, output in commands
     ]

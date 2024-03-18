@@ -2,18 +2,27 @@
 
 """Module for parsing isa commands"""
 
+from enum import Enum
 from typing import NamedTuple
+
+
+class Scheme(Enum):
+    """Enum class representing valid FHE Schemes"""
+
+    BGV = "BGV"
+    CKKS = "CKKS"
 
 
 def parse_inputs(lines: list[str]) -> list:
     """parse the inputs given in return list of data and operations"""
 
     def delegate(command_str):
-        match command_str[0]:
+        command, rest = command_str.split(" ", 1)
+        match command.lower():
             case "context":
-                return Context.from_string(command_str)
+                return Context.from_string(rest)
             case "data":
-                return Data.from_string(command_str)
+                return Data.from_string(rest)
             case _:
                 return Command.from_string(command_str)
 
@@ -23,7 +32,7 @@ def parse_inputs(lines: list[str]) -> list:
 class Context(NamedTuple):
     """Class representing a given context of the scheme"""
 
-    scheme: str
+    scheme: Scheme
     poly_order: int  # the N
     max_rns: int
 
@@ -31,7 +40,9 @@ class Context(NamedTuple):
     def from_string(cls, line: str):
         """Construct context from a string"""
         inputs = line.split()
-        return cls(scheme=inputs[0], poly_order=int(inputs[1]), max_rns=int(inputs[2]))
+        return cls(
+            scheme=Scheme(inputs[0]), poly_order=int(inputs[1]), max_rns=int(inputs[2])
+        )
 
 
 class Command(NamedTuple):
