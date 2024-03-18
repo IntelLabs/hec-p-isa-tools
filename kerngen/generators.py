@@ -24,8 +24,8 @@ class Generators:
     def from_manifest(cls, filepath: str):
         """Creates a `Generators` object given a manifest JSON file. Parses the
         manifest file as a python dictionary and stores it in `self.map`"""
-        filepath = Path(filepath)
-        dirpath = str(filepath.parent)
+        filepath_p = Path(filepath)
+        dirpath = str(filepath_p.parent)
         with open(filepath, encoding="utf-8") as manifest_file:
             return cls(dirpath, json.load(manifest_file))
 

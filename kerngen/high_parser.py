@@ -21,7 +21,7 @@ class Context(NamedTuple):
     def from_string(cls, line: str):
         """Construct context from a string"""
         inputs = line.split()
-        return cls(scheme=inputs[0], poly_order=inputs[1], max_rns=inputs[2])
+        return cls(scheme=inputs[0], poly_order=int(inputs[1]), max_rns=int(inputs[2]))
 
 
 class Command(NamedTuple):
@@ -36,7 +36,10 @@ class Command(NamedTuple):
     def from_string(cls, line: str):
         """Construct the command from a string of the form `opname output
         inputs`"""
-        op, output, *inputs = line.split()
+        try:
+            op, output, *inputs = line.split()
+        except ValueError as e:
+            raise ValueError(f"Could not unpack command string `{line}`") from e
         return cls(op=op, output=output, inputs=inputs)
 
 

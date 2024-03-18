@@ -64,7 +64,8 @@ class Add(PIsaOp):
         rout = Polys("output", quantity, units)
 
         lines = (
-            f"13, add, {rout.expand(q, o, part)}, {rin0.expand(q, o, part)}, {rin1.expand(q, o, part)}, {q}"
+            f"13, add, {rout.expand(q, o, part)}, {rin0.expand(q, o, part)}, "
+            f"{rin1.expand(q, o, part)}, {q}"
             for q, o, part in it.product(range(rns), range(quantity), range(units))
         )
         return "\n".join(lines)
