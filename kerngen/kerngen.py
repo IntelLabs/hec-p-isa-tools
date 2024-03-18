@@ -18,16 +18,16 @@ def main():
     #     print("Available p-isa ops\n", generators.available_pisa_ops(), sep="")
 
     commands = parse_inputs(sys.stdin.readlines())
-    he_ops = (
+    he_ops = [
         generators.get_pisa_op(op)(inputs, output) for op, inputs, output in commands
-    )
+    ]
 
     # string blocks of the p-isa instructions
-    pisa_ops = ("\n".join(map(str, he_op.to_pisa())) for he_op in he_ops)
+    pisa_ops = ["\n".join(map(str, he_op.to_pisa())) for he_op in he_ops]
 
-    stars = "*" * 3
-    for kernel_no, pisa_op in enumerate(pisa_ops):
-        print(stars, "Kernel:", kernel_no, stars)
+    hashes = "#" * 3
+    for kernel_no, (pisa_op, he_op) in enumerate(zip(pisa_ops, he_ops)):
+        print(hashes, f"Kernel ({kernel_no}):", he_op, hashes)
         print(pisa_op)
 
 
