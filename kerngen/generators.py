@@ -14,10 +14,10 @@ class GeneratorError(Exception):
 class Generators:
     """Class responsible for obtaining pisa ops from the pisa generators"""
 
-    def __init__(self, dirpath: str, op_to_object_map: dict[str, str]):
+    def __init__(self, dirpath: str, class_map: dict[str, str]):
         """Initializer. Expects a path to a manifest JSON file and dictionary
         `{op : filename}`"""
-        self.map = op_to_object_map
+        self.map = class_map
         self.directory = dirpath
 
     @classmethod
@@ -36,12 +36,16 @@ class Generators:
     def get_pisa_op(self, opname: str):
         """Returns the pisa op object given a valid op name"""
         try:
-            filepath = self.directory + "/" + Path(self.map[opname]).stem
+            # Capitalize the opname because it is the name of the class!
+            class_name = opname.capitalize()
+            filepath = self.directory + "/" + Path(self.map[class_name]).stem
             module_path = filepath.replace("/", ".")
             module = import_module(module_path)
-            return getattr(module, opname)
+            return getattr(module, class_name)
         except KeyError as e:
-            raise GeneratorError(f"Op name not found: {opname}") from e
+            raise GeneratorError(
+                f"Class for op `{opname}` name not found: {class_name}"
+            ) from e
         except AttributeError as e:
             raise GeneratorError(f"Op not found in module: {opname}") from e
         except ImportError as e:

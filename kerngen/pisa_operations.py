@@ -5,6 +5,7 @@
 import itertools as it
 from dataclasses import dataclass
 from typing import Generator, Protocol
+from polys import Polys
 
 
 # TODO Required for some of the pisa command expanding
@@ -24,21 +25,6 @@ def batch(n: int, bsize: int = 0) -> Generator:
     return ((u * b, u * b + ib) for u, ib in zip(us, ibs))
 
 
-# TODO helper object for handling polynomial expansion
-@dataclass(frozen=True)
-class Polys:
-    """helper object for handling polynomial expansion"""
-
-    symbol: str
-    number: int
-    units: int
-
-    def expand(self, which: int, q: int, part: int) -> str:
-        """Returns a string of the expanded symbol and ..."""
-        # TODO some sanity check code for bounds
-        return f"{self.symbol}_{q}_{which}_{part}"
-
-
 class PIsaOp(Protocol):
     """Protocol for p-isa operation"""
 
@@ -50,22 +36,20 @@ class PIsaOp(Protocol):
 class Add(PIsaOp):
     """Class representing the p-isa addition operation"""
 
-    inputs: list[str]
-    output: str
+    output: Polys
+    inputs: list[Polys]
 
     def __str__(self) -> str:
         """Return the p-isa instructions of an addition"""
 
+        # TODO These need to be given by Context
         units = 1
         quantity = 2
         rns = 4
-        rin0 = Polys("c", quantity, units)
-        rin1 = Polys("d", quantity, units)
-        rout = Polys("output", quantity, units)
 
         lines = (
-            f"13, add, {rout.expand(q, o, part)}, {rin0.expand(q, o, part)}, "
-            f"{rin1.expand(q, o, part)}, {q}"
+            f"13, add, {self.output.expand(q, o, part)}, {self.inputs[0].expand(q, o, part)}, "
+            f"{self.inputs[1].expand(q, o, part)}, {q}"
             for q, o, part in it.product(range(rns), range(quantity), range(units))
         )
         return "\n".join(lines)

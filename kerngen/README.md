@@ -32,6 +32,13 @@ All other commands are assumed to be operations. These are defined in the
 [manifest.json](./pisa_generators/manifest.json) file.
 Documentation on each command can be found in [COMMANDS.md]().
 
+CONTEXT BGV 8192 2
+DATA a
+DATA b
+DATA c
+ADD c a b
+
+
 # Adding new kernel generator
 
 you can add new kernel generators that you have developed by creating a class
