@@ -5,15 +5,15 @@
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass
 class Polys:
     """helper object for handling polynomial expansion"""
 
     symbol: str
-    number: int
+    parts: int
     units: int
 
-    def expand(self, which: int, q: int, part: int) -> str:
+    def expand(self, part: int, q: int, unit: int) -> str:
         """Returns a string of the expanded symbol and ..."""
         # TODO some sanity check code for bounds
-        return f"{self.symbol}_{q}_{which}_{part}"
+        return f"{self.symbol}_{q}_{part}_{unit}"

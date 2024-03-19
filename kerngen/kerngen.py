@@ -6,13 +6,17 @@
 
 import sys
 
-from high_parser import parse_inputs, Context
+from polys import Polys
+from high_parser import parse_inputs, Context, Data
 
 
 def find_context(iterable) -> Context:
     """Return found context"""
     g = (context for context in iterable if isinstance(context, Context))
     return next(g)
+
+
+Symbol = str
 
 
 def main():
@@ -23,7 +27,18 @@ def main():
     # Find context should only be one at the top
     context = find_context(commands)
 
-    # string blocks of the p-isa instructions
+    # Units computation
+    # TODO
+    units = 1
+
+    # Populate the data symbols
+    polys_map: dict[Symbol, Polys] = {
+        data.name: Polys(symbol=data.name, parts=context.max_rns, units=units)
+        for data in commands
+        if isinstance(data, Data)
+    }
+
+    # String blocks of the p-isa instructions
     pisa_ops: list[str] = [
         "\n".join(map(str, command.to_pisa())) if hasattr(command, "to_pisa") else None
         for command in commands
