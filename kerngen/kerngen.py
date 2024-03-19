@@ -18,7 +18,7 @@ def main():
     #     print("Available p-isa ops\n", generators.available_pisa_ops(), sep="")
 
     inputs = parse_inputs(sys.stdin.readlines())
-    print(inputs)
+
     commands = [command for command in inputs if isinstance(command, Command)]
     he_ops = [
         generators.get_pisa_op(op)(inputs, output) for op, inputs, output in commands

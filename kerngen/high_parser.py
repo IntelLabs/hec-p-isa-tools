@@ -21,19 +21,33 @@ def parse_inputs(lines: list[str]) -> list:
         raise RuntimeError(f"First command must be `CONTEXT`, given `{lines[0]}`")
 
     def delegate(command_str):
-        # the split removes leading whitespace
-        command, rest = command_str.split(maxsplit=1)
+        try:
+            # the split removes leading whitespace
+            command, rest = command_str.split(maxsplit=1)
+        except ValueError:
+            return EmptyLine()
+
         match command.lower():
             case "context":
                 return Context.from_string(rest)
             case "data":
                 return Data.from_string(rest)
-            #            case "#":
-            #                return Comment.from_string(command_str)
+            case "#":
+                return Comment(comment=command_str)
             case _:
                 return Command.from_string(command_str)
 
     return list(map(delegate, lines))
+
+
+class Comment(NamedTuple):
+    """Holder of a comment line"""
+
+    comment: str
+
+
+class EmptyLine(NamedTuple):
+    """Holder of an empty line"""
 
 
 class Context(NamedTuple):
