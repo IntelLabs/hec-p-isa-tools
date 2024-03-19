@@ -43,9 +43,10 @@ ADD c a b
 
 you can add new kernel generators that you have developed by creating a class
 that inherets from the `HighOp` abstract class (interface) and implementing the
-`to_pisa` method; turning this instrcution into p-isa instruction class.
+`to_pisa` method; turning this instruction into p-isa instruction class.
 Examples can be seen in the simpler implementations given in
-[basic.py](./pisa_generators/basic.py).
+[basic.py](./pisa_generators/basic.py). Also, provide a class method
+`from_string` that will be passed the args for that command.
 
 For `kerngen` to know of your new class that represents a new command of the
 high language, simply add an entry into the JSON object in the
