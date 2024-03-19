@@ -80,8 +80,10 @@ class Data(NamedTuple):
     """Class representing a data type with related attributes"""
 
     name: str
+    parts: int
 
     @classmethod
     def from_string(cls, line: str):
         """Construct data from a string"""
-        return cls(name=line)
+        name, parts = line.split()
+        return cls(name=name, parts=int(parts))
