@@ -38,7 +38,8 @@ class Generators:
         try:
             # Capitalize the opname because it is the name of the class!
             class_name = opname.capitalize()
-            filepath = self.directory + "/" + Path(self.map[class_name]).stem
+            filepath = str(Path(self.directory).relative_to(Path(__file__).parent))
+            filepath = filepath + "/" + Path(self.map[class_name]).stem
             module_path = filepath.replace("/", ".")
             module = import_module(module_path)
             return getattr(module, class_name)

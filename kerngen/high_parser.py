@@ -3,9 +3,13 @@
 """Module for parsing isa commands"""
 
 from enum import Enum
+from pathlib import Path
 from typing import NamedTuple
 
 from generators import Generators
+
+
+MANIFEST_FILE = Path(__file__).parent / "pisa_generators/manifest.json"
 
 
 class Scheme(Enum):
@@ -15,9 +19,7 @@ class Scheme(Enum):
     CKKS = "CKKS"
 
 
-def parse_inputs(
-    lines: list[str], manifest_path="./pisa_generators/manifest.json"
-) -> list:
+def parse_inputs(lines: list[str], manifest_path=MANIFEST_FILE) -> list:
     """parse the inputs given in return list of data and operations"""
 
     generators = Generators.from_manifest(manifest_path)
