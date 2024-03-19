@@ -11,12 +11,14 @@ from high_parser import parse_inputs
 def main():
     """Main entrypoint. Load available p-isa ops and parse isa instructions."""
 
-    inputs = parse_inputs(sys.stdin.readlines())
-
-    commands = [command for command in inputs if hasattr(command, "to_pisa")]
+    commands = parse_inputs(sys.stdin.readlines())
 
     # string blocks of the p-isa instructions
-    pisa_ops = ["\n".join(map(str, command.to_pisa())) for command in commands]
+    pisa_ops = [
+        "\n".join(map(str, command.to_pisa()))
+        for command in commands
+        if hasattr(command, "to_pisa")
+    ]
 
     hashes = "#" * 3
     for kernel_no, (pisa_op, command) in enumerate(zip(pisa_ops, commands)):

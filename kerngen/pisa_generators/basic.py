@@ -4,8 +4,7 @@
 
 from dataclasses import dataclass
 
-from pisa_operations import Add as PisaAdd
-
+from pisa_operations import Add as PisaAdd, PIsaOp
 from polys import Polys
 from .highop import HighOp
 
@@ -17,8 +16,8 @@ class Add(HighOp):
     output: str
     inputs: list[str]
 
-    def to_pisa(self) -> list:
-        """Return the p-isa equivalent of Add"""
+    def to_pisa(self) -> list[PIsaOp]:
+        """Return the p-isa  equivalent of an Add"""
 
         # TODO These need to be given by Context
         units = 1

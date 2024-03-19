@@ -4,13 +4,15 @@
 
 from abc import ABC, abstractmethod
 
+from pisa_operations import PIsaOp
+
 
 # pylint: disable=too-few-public-methods
 class HighOp(ABC):
     """An abstract class to help define/enforce API"""
 
     @abstractmethod
-    def to_pisa(self) -> list:
+    def to_pisa(self) -> list[PIsaOp]:
         """Returns a list of the p-isa operations / instructions"""
 
     @classmethod
