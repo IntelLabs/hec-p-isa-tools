@@ -30,3 +30,12 @@ class Add(HighOp):
         rin1 = Polys(self.inputs[1], quantity, units)
 
         return [PisaAdd(rout, [rin0, rin1])]
+
+    @classmethod
+    def from_string(cls, args_line: str):
+        """Construct context from args string"""
+        try:
+            output, *inputs = args_line.split()
+            return cls(output=output, inputs=inputs)
+        except ValueError as e:
+            raise ValueError(f"Could not unpack command string `{args_line}`") from e

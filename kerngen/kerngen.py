@@ -5,31 +5,22 @@
 """Module for generating p-isa kernels"""
 
 import sys
-from high_parser import parse_inputs, Command
-from generators import Generators
-
-
-MANIFEST_PATH = "./pisa_generators/manifest.json"
+from high_parser import parse_inputs
 
 
 def main():
     """Main entrypoint. Load available p-isa ops and parse isa instructions."""
-    generators = Generators.from_manifest(MANIFEST_PATH)
-    #     print("Available p-isa ops\n", generators.available_pisa_ops(), sep="")
 
     inputs = parse_inputs(sys.stdin.readlines())
 
-    commands = [command for command in inputs if isinstance(command, Command)]
-    he_ops = [
-        generators.get_pisa_op(op)(inputs, output) for op, inputs, output in commands
-    ]
+    commands = [command for command in inputs if hasattr(command, "to_pisa")]
 
     # string blocks of the p-isa instructions
-    pisa_ops = ["\n".join(map(str, he_op.to_pisa())) for he_op in he_ops]
+    pisa_ops = ["\n".join(map(str, command.to_pisa())) for command in commands]
 
     hashes = "#" * 3
-    for kernel_no, (pisa_op, he_op) in enumerate(zip(pisa_ops, he_ops)):
-        print(hashes, f"Kernel ({kernel_no}):", he_op, hashes)
+    for kernel_no, (pisa_op, command) in enumerate(zip(pisa_ops, commands)):
+        print(hashes, f"Kernel ({kernel_no}):", command, hashes)
         print(pisa_op)
 
 

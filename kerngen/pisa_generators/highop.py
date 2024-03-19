@@ -12,3 +12,8 @@ class HighOp(ABC):
     @abstractmethod
     def to_pisa(self) -> list:
         """Returns a list of the p-isa operations / instructions"""
+
+    @classmethod
+    @abstractmethod
+    def from_string(cls, args_line: str):
+        """Construct HighOp from a string args"""

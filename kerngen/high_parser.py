@@ -5,6 +5,8 @@
 from enum import Enum
 from typing import NamedTuple
 
+from generators import Generators
+
 
 class Scheme(Enum):
     """Enum class representing valid FHE Schemes"""
@@ -13,8 +15,12 @@ class Scheme(Enum):
     CKKS = "CKKS"
 
 
-def parse_inputs(lines: list[str]) -> list:
+def parse_inputs(
+    lines: list[str], manifest_path="./pisa_generators/manifest.json"
+) -> list:
     """parse the inputs given in return list of data and operations"""
+
+    generators = Generators.from_manifest(manifest_path)
 
     # Check first command parsed is CONTEXT
     if not lines[0].lower().startswith("context"):
@@ -35,7 +41,9 @@ def parse_inputs(lines: list[str]) -> list:
             case "#":
                 return Comment(comment=command_str)
             case _:
-                return Command.from_string(command_str)
+                # Look up commands defined in manifest
+                cls = generators.get_pisa_op(command)
+                return cls.from_string(rest)
 
     return list(map(delegate, lines))
 
@@ -62,27 +70,10 @@ class Context(NamedTuple):
         """Construct context from a string"""
         scheme, poly_order, max_rns = line.split()
         return cls(
-            scheme=Scheme(scheme), poly_order=int(poly_order), max_rns=int(max_rns)
+            scheme=Scheme(scheme.upper()),
+            poly_order=int(poly_order),
+            max_rns=int(max_rns),
         )
-
-
-class Command(NamedTuple):
-    """Class representing a command consisting of an operation with input(s) and
-    output"""
-
-    op: str
-    output: str
-    inputs: list[str]
-
-    @classmethod
-    def from_string(cls, line: str):
-        """Construct the command from a string of the form `opname output
-        inputs`"""
-        try:
-            op, output, *inputs = line.split()
-            return cls(op=op, output=output, inputs=inputs)
-        except ValueError as e:
-            raise ValueError(f"Could not unpack command string `{line}`") from e
 
 
 class Data(NamedTuple):
