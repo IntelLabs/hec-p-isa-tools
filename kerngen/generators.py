@@ -44,10 +44,10 @@ class Generators:
             module = import_module(module_path)
             return getattr(module, class_name)
         except KeyError as e:
+            raise GeneratorError(f"Op not found in available pisa ops: {opname}") from e
+        except AttributeError as e:
             raise GeneratorError(
                 f"Class for op `{opname}` name not found: {class_name}"
             ) from e
-        except AttributeError as e:
-            raise GeneratorError(f"Op not found in module: {opname}") from e
         except ImportError as e:
             raise GeneratorError(f"Unable to import module: {module_path}") from e
