@@ -1,4 +1,4 @@
 {
-  "Add": "basic.py",
-  "Mult": "basic.py"
+  "ADD": ["Add", "basic.py"],
+  "MUL": ["Mult", "basic.py"]
 }

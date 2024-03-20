@@ -14,9 +14,9 @@ class GeneratorError(Exception):
 class Generators:
     """Class responsible for obtaining pisa ops from the pisa generators"""
 
-    def __init__(self, dirpath: str, class_map: dict[str, str]):
+    def __init__(self, dirpath: str, class_map: dict[str, list[str]]):
         """Initializer. Expects a path to a manifest JSON file and dictionary
-        `{op : filename}`"""
+        `{op : [classname, filename]}`"""
         self.map = class_map
         self.directory = dirpath
 
@@ -37,9 +37,9 @@ class Generators:
         """Returns the pisa op object given a valid op name"""
         try:
             # Capitalize the opname because it is the name of the class!
-            class_name = opname.capitalize()
+            class_name, module_name = self.map[opname.upper()]
             filepath = str(Path(self.directory).relative_to(Path(__file__).parent))
-            filepath = filepath + "/" + Path(self.map[class_name]).stem
+            filepath = filepath + "/" + Path(module_name).stem
             module_path = filepath.replace("/", ".")
             module = import_module(module_path)
             return getattr(module, class_name)
