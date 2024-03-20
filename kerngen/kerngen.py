@@ -8,6 +8,7 @@ import sys
 
 from polys import Polys
 from high_parser import parse_inputs, Context, Data
+from pisa_generators.highop import HighOp
 
 
 def find_context(iterable) -> Context:
@@ -40,7 +41,7 @@ def main():
 
     # String blocks of the p-isa instructions
     pisa_ops: list[str] = [
-        "\n".join(map(str, command.to_pisa())) if hasattr(command, "to_pisa") else None
+        "\n".join(map(str, command.to_pisa())) if isinstance(command, HighOp) else None
         for command in commands
     ]
 
