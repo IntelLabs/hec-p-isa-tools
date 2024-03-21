@@ -6,8 +6,7 @@
 
 import sys
 
-from polys import Polys
-from high_parser import parse_inputs, Context, Data
+from high_parser import parse_inputs, Context
 from pisa_generators.highop import HighOp
 
 
@@ -17,7 +16,9 @@ def find_context(iterable) -> Context:
     return next(g)
 
 
-Symbol = str
+def to_string_block(iterable) -> str:
+    """helper to string block"""
+    return "\n".join(map(str, iterable))
 
 
 def main():
@@ -28,25 +29,15 @@ def main():
     # Find context should only be one at the top
     context = find_context(commands)
 
-    # Units computation
-    # TODO
-    units = 1
-
-    # Populate the data symbols
-    polys_map: dict[Symbol, Polys] = {
-        data.name: Polys(symbol=data.name, parts=context.max_rns, units=units)
-        for data in commands
-        if isinstance(data, Data)
-    }
-
     # String blocks of the p-isa instructions
     pisa_ops: list[str] = [
-        "\n".join(map(str, command.to_pisa())) if isinstance(command, HighOp) else None
+        to_string_block(command.to_pisa()) if isinstance(command, HighOp) else None
         for command in commands
     ]
 
     filtered = (t for t in zip(pisa_ops, commands) if t[0] is not None)
     hashes = "#" * 3
+    print(hashes, "Context:", context, hashes)
     for kernel_no, (pisa_op, command) in enumerate(filtered):
         print(hashes, f"Kernel ({kernel_no}):", command, hashes)
         print(pisa_op)

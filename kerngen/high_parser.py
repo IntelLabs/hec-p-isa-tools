@@ -11,6 +11,8 @@ from generators import Generators
 
 MANIFEST_FILE = Path(__file__).parent / "pisa_generators/manifest.json"
 
+Symbol = str
+
 
 class Scheme(Enum):
     """Enum class representing valid FHE Schemes"""
@@ -23,6 +25,17 @@ def parse_inputs(lines: list[str], manifest_path=MANIFEST_FILE) -> list:
     """parse the inputs given in return list of data and operations"""
 
     generators = Generators.from_manifest(manifest_path)
+
+    #    # Units computation
+    #    # TODO
+    #    units = 1
+    #
+    #    # Populate the data symbols
+    #    polys_map: dict[Symbol, Polys] = {
+    #        data.name: Polys(symbol=data.name, parts=context.max_rns, units=units)
+    #        for data in commands
+    #        if isinstance(data, Data)
+    #    }
 
     # Check first command parsed is CONTEXT
     if not lines[0].lower().startswith("context"):
