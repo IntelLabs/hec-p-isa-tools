@@ -4,10 +4,20 @@
 
 """Module for generating p-isa kernels"""
 
+import argparse
 import sys
 
 from high_parser import parse_inputs, Context
 from pisa_generators.highop import HighOp
+
+
+def parse_args():
+    """Parse arguments from the commandline"""
+    parser = argparse.ArgumentParser(description="Kernel Generator")
+    parser.add_argument(
+        "-q", "--quiet", action="store_true", help="disable comments in output"
+    )
+    return parser.parse_args()
 
 
 def find_context(iterable) -> Context:
@@ -21,7 +31,7 @@ def to_string_block(iterable) -> str:
     return "\n".join(map(str, iterable))
 
 
-def main():
+def main(args):
     """Main entrypoint. Load available p-isa ops and parse isa instructions."""
 
     commands = parse_inputs(sys.stdin.readlines())
@@ -37,11 +47,14 @@ def main():
 
     filtered = (t for t in zip(pisa_ops, commands) if t[0] is not None)
     hashes = "#" * 3
-    print(hashes, "Context:", context, hashes)
+    if not args.quiet:
+        print(hashes, "Context:", context, hashes)
     for kernel_no, (pisa_op, command) in enumerate(filtered):
-        print(hashes, f"Kernel ({kernel_no}):", command, hashes)
+        if not args.quiet:
+            print(hashes, f"Kernel ({kernel_no}):", command, hashes)
         print(pisa_op)
 
 
 if __name__ == "__main__":
-    main()
+    cmdline_args = parse_args()
+    main(cmdline_args)
