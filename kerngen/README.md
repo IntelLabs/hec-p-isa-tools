@@ -24,19 +24,21 @@ The design is a simplified interpreter pattern. A domain specific language
 
 # Input high language
 
-Context defines the global properties of the input script.
+Context defines the global properties `(scheme, poly_order, max_rns)` of the
+input script.
 
 Data defines symbols to be used and their attributes.
 
 All other commands are assumed to be operations. These are defined in the
 [manifest.json](./pisa_generators/manifest.json) file.
 Documentation on each command can be found in [COMMANDS.md]().
-
+```
 CONTEXT BGV 8192 2
 DATA a
 DATA b
 DATA c
 ADD c a b
+```
 
 
 # Adding new kernel generators
@@ -54,7 +56,7 @@ language, simply add an entry into the JSON object in the
 name and the value is a list containing the class name as the first entry and
 the file it is located in as its second. e.g.
 ```
-"OPNAME": [ClassName, filename.py]
+"OPNAME": ["ClassName", "filename.py"]
 ```
 
 
