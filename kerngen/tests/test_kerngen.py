@@ -2,9 +2,17 @@
 
 """Test the expected behaviour of the kerngen script"""
 
+from enum import Enum
 from pathlib import Path
 from subprocess import run
 import pytest
+
+
+class Op(Enum):
+    """Enum class of valid high opnames and corresponding low ops"""
+
+    ADD = "add"
+    MUL = "mul"
 
 
 def execute_process(cmd: list[str], data_in=None):
@@ -20,15 +28,15 @@ def execute_process(cmd: list[str], data_in=None):
     )
 
 
-def test_add(kerngen_path):
-    """Test kerngen outputs correct data based on input"""
-    input_string = "CONTEXT BGV 8192 4\nData a 2\nData b 2\nData c 2\nADD a b c\n"
+@pytest.mark.parametrize("gen_op_data", ["ADD", "MUL"], indirect=True)
+def test_op(kerngen_path, gen_op_data):
+    """Test kerngen outputs correct data based on input for various operations"""
+    input_string, expected_out = gen_op_data
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
     )
-    # TODO: Check the expected string
-    assert result.stdout
+    assert expected_out in result.stdout
     assert not result.stderr
     assert result.returncode == 0
 
@@ -42,7 +50,7 @@ def test_missing_context(kerngen_path):
         data_in=input_string,
     )
     assert not result.stdout
-    assert "First command must be `CONTEXT`" in result.stderr
+    assert "RuntimeError: No `CONTEXT` provided before `ADD a b c`" in result.stderr
     assert result.returncode != 0
 
 
@@ -71,6 +79,21 @@ def test_invalid_scheme(kerngen_path):
     assert not result.stdout
     assert "ValueError: 'SCHEME' is not a valid Scheme" in result.stderr
     assert result.returncode != 0
+
+
+@pytest.fixture(name="gen_op_data")
+def fixture_gen_op_data(request):
+    """Given an op name, return both the input and expected output strings"""
+    in_lines = (
+        "CONTEXT BGV 8192 4",
+        f"{request.param} a b c",
+        "Data a 2",
+        "Data b 2",
+        "Data c 2",
+    )
+    # TODO: Build this string properly
+    out = f"13, {Op[request.param].value}, a_0_0_0, b_0_0_0, c_0_0_0, 0"
+    return "\n".join(in_lines), out
 
 
 @pytest.fixture(name="kerngen_path")
