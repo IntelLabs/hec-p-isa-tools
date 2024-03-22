@@ -3,6 +3,7 @@
 """Module containing conversions or operations from isa to p-isa."""
 
 from dataclasses import dataclass
+import itertools as it
 
 from pisa_operations import Add as PisaAdd, PIsaOp
 from polys import Polys
@@ -21,14 +22,22 @@ class Add(HighOp):
 
         # TODO These need to be given by Context
         units = 1
-        quantity = 2
+        parts = 2
         rns = 4
 
-        rout = Polys(self.output, quantity, units)
-        rin0 = Polys(self.inputs[0], quantity, units)
-        rin1 = Polys(self.inputs[1], quantity, units)
+        rout = Polys(self.output, parts, units)
+        rin0 = Polys(self.inputs[0], parts, units)
+        rin1 = Polys(self.inputs[1], parts, units)
 
-        return [PisaAdd(rout, [rin0, rin1])]
+        return [
+            PisaAdd(
+                rout.expand(part, q, unit),
+                rin0.expand(part, q, unit),
+                rin1.expand(part, q, unit),
+                q,
+            )
+            for q, part, unit in it.product(range(rns), range(parts), range(units))
+        ]
 
     @classmethod
     def from_string(cls, args_line: str):

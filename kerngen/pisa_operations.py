@@ -2,10 +2,8 @@
 
 """Module containing the low level p-isa operations"""
 
-import itertools as it
 from dataclasses import dataclass
 from typing import Generator, Protocol
-from polys import Polys
 
 
 # TODO Required for some of the pisa command expanding
@@ -36,20 +34,12 @@ class PIsaOp(Protocol):
 class Add(PIsaOp):
     """Class representing the p-isa addition operation"""
 
-    output: Polys
-    inputs: list[Polys]
+    output: str
+    input0: str
+    input1: str
+    q: str
 
     def __str__(self) -> str:
         """Return the p-isa instructions of an addition"""
 
-        # TODO These need to be given by Context
-        units = 1
-        quantity = 2
-        rns = 4
-
-        lines = (
-            f"13, add, {self.output.expand(q, o, part)}, {self.inputs[0].expand(q, o, part)}, "
-            f"{self.inputs[1].expand(q, o, part)}, {q}"
-            for q, o, part in it.product(range(rns), range(quantity), range(units))
-        )
-        return "\n".join(lines)
+        return f"13, add, {self.output}, {self.input0}, {self.input1}, {self.q}"

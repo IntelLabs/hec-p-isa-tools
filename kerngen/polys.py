@@ -14,6 +14,6 @@ class Polys:
     units: int
 
     def expand(self, part: int, q: int, unit: int) -> str:
-        """Returns a string of the expanded symbol and ..."""
+        """Returns a string of the expanded symbol w.r.t. rns, part, and unit"""
         # TODO some sanity check code for bounds
-        return f"{self.symbol}_{q}_{part}_{unit}"
+        return f"{self.symbol}_{part}_{q}_{unit}"
