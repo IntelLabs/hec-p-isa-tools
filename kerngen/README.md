@@ -59,6 +59,12 @@ the file it is located in as its second. e.g.
 "OPNAME": ["ClassName", "filename.py"]
 ```
 
+For kernel writers the reserved words that cannot be used as `OPNAME` are:
+```
+- CONTEXT
+- DATA
+```
+
 
 # Running the tests
 Tests are provided in the [tests](./tests) directory and use the

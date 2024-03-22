@@ -6,9 +6,9 @@
 
 import argparse
 import sys
+from typing import Iterable
 
-from high_parser import parse_inputs, Context
-from pisa_generators.highop import HighOp
+from high_parser import Parser
 
 
 def parse_args():
@@ -20,13 +20,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def find_context(iterable) -> Context:
-    """Return found context"""
-    g = (context for context in iterable if isinstance(context, Context))
-    return next(g)
-
-
-def to_string_block(iterable) -> str:
+def to_string_block(iterable: Iterable[str]) -> str:
     """helper to string block"""
     return "\n".join(map(str, iterable))
 
@@ -34,25 +28,27 @@ def to_string_block(iterable) -> str:
 def main(args):
     """Main entrypoint. Load available p-isa ops and parse isa instructions."""
 
-    commands = parse_inputs(sys.stdin.readlines())
+    parse_results = Parser().parse_inputs(sys.stdin.readlines())
 
-    # Find context should only be one at the top
-    context = find_context(commands)
+    # String blocks of the p-isa instructions (forward the Nones)
+    pisa_ops: list[str] = list(
+        to_string_block(op) if op is not None else None
+        for op in parse_results.get_pisa_ops()
+    )
 
-    # String blocks of the p-isa instructions
-    pisa_ops: list[str] = [
-        to_string_block(command.to_pisa()) if isinstance(command, HighOp) else None
-        for command in commands
-    ]
-
-    filtered = (t for t in zip(pisa_ops, commands) if t[0] is not None)
+    filtered = (t for t in zip(pisa_ops, parse_results.commands) if t[0] is not None)
     hashes = "#" * 3
     if not args.quiet:
+        context = parse_results.context
         print(hashes, "Context:", context, hashes)
-    for kernel_no, (pisa_op, command) in enumerate(filtered):
-        if not args.quiet:
+
+    if not args.quiet:
+        for kernel_no, (pisa_op, command) in enumerate(filtered):
             print(hashes, f"Kernel ({kernel_no}):", command, hashes)
-        print(pisa_op)
+            print(pisa_op)
+    else:
+        for pisa_op, _ in filtered:
+            print(pisa_op)
 
 
 if __name__ == "__main__":
