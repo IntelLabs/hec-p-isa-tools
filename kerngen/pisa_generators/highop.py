@@ -17,5 +17,5 @@ class HighOp(ABC):
 
     @classmethod
     @abstractmethod
-    def from_string(cls, args_line: str):
+    def from_string(cls, context, args_line: str):
         """Construct HighOp from a string args"""

@@ -50,6 +50,12 @@ class Context(NamedTuple):
             max_rns=int(max_rns),
         )
 
+    @property
+    def units(self):
+        """units based on 8192 ~ 8K sized polynomials"""
+        # TODO remove hardcoding
+        return 1
+
 
 class Data(NamedTuple):
     """Class representing a data type with related attributes"""
@@ -142,7 +148,7 @@ class Parser:
 
                 # Look up commands defined in manifest
                 cls = self.generators.get_pisa_op(command)
-                return cls.from_string(rest)
+                return cls.from_string(context.data, rest)
 
     def parse_inputs(self, lines: list[str]) -> ParseResults:
         """parse the inputs given in return list of data and operations"""
