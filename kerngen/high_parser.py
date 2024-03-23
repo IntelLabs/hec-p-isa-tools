@@ -8,7 +8,8 @@ from pathlib import Path
 from typing import Any, NamedTuple, Iterator
 
 from generators import Generators
-from pisa_generators.highop import HighOp
+from highop import HighOp
+from polys import Polys
 
 
 MANIFEST_FILE = Path(__file__).parent / "pisa_generators/manifest.json"
@@ -54,6 +55,10 @@ class Context(NamedTuple):
     def units(self):
         """units based on 8192 ~ 8K sized polynomials"""
         # TODO remove hardcoding
+        # UNIT_SIZE = 13
+        # NUNITS = 8
+        # N = 8192
+        # batch_size = 8 if N <= (UNIT_SIZE << 1) else max(1, 8 // NUNITS)
         return 1
 
 
@@ -76,8 +81,9 @@ ParserType = Context | Data | EmptyLine | Comment | HighOp
 class ParseResults:
     """Queryable class about parse results"""
 
-    def __init__(self, iterable):
+    def __init__(self, iterable, polys_map):
         self._commands = list(iterable)
+        self._polys_map = polys_map
 
     @property
     def context(self):
@@ -90,6 +96,11 @@ class ParseResults:
     def commands(self):
         """Return all parsed lines"""
         return self._commands
+
+    @property
+    def polys_map(self):
+        """Return the polys map built from data definitions"""
+        return self._polys_map
 
     def get_pisa_ops(self) -> Iterator[list[HighOp]]:
         """generator returns lists of p-isa instructions"""
@@ -120,7 +131,7 @@ class Parser:
             else Generators.from_manifest(MANIFEST_FILE)
         )
 
-    def _delegate(self, command_str: str, context: Setter):
+    def _delegate(self, command_str: str, context: Setter, polys_map):
         """This helper is delegated the task of which subparser objects to create.
         It is also responsible for setting context."""
         try:
@@ -138,7 +149,10 @@ class Parser:
             case "#":
                 return Comment(comment=command_str)
             case "data":
-                return Data.from_string(rest)
+                # Populate the polys map
+                data = Data.from_string(rest)
+                polys_map[data.name] = Polys(*data)
+                return data
             case _:
                 # If context has not been given yet - FAIL
                 if context.data is None:
@@ -148,22 +162,12 @@ class Parser:
 
                 # Look up commands defined in manifest
                 cls = self.generators.get_pisa_op(command)
-                return cls.from_string(context.data, rest)
+                return cls.from_string(context.data, polys_map, rest)
 
     def parse_inputs(self, lines: list[str]) -> ParseResults:
         """parse the inputs given in return list of data and operations"""
 
-        #    # Units computation
-        #    # TODO
-        #    units = 1
-
-        #    # Populate the data symbols
-        #    polys_map: dict[Symbol, Polys] = {
-        #        data.name: Polys(symbol=data.name, parts=context.max_rns, units=units)
-        #        for data in commands
-        #        if isinstance(data, Data)
-        #    }
-
+        polys_map: dict[Symbol, Data] = {}
         context = Setter(None)
-
-        return ParseResults(self._delegate(line, context) for line in lines)
+        commands = (self._delegate(line, context, polys_map) for line in lines)
+        return ParseResults(commands, polys_map)

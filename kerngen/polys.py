@@ -9,11 +9,10 @@ from dataclasses import dataclass
 class Polys:
     """helper object for handling polynomial expansion"""
 
-    symbol: str
+    name: str
     parts: int
-    units: int
 
     def expand(self, part: int, q: int, unit: int) -> str:
         """Returns a string of the expanded symbol w.r.t. rns, part, and unit"""
         # TODO some sanity check code for bounds
-        return f"{self.symbol}_{part}_{q}_{unit}"
+        return f"{self.name}_{part}_{q}_{unit}"
