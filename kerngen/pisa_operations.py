@@ -21,7 +21,7 @@ class UnaryOp:
     input0: str
     q: str
 
-    def op_str(self, op: str) -> str:
+    def _op_str(self, op: str) -> str:
         """Return the p-isa instructions of an addition"""
 
         return f"13, {op}, {self.output}, {self.input0}, {self.q}"
@@ -36,7 +36,7 @@ class BinaryOp:
     input1: str
     q: str
 
-    def op_str(self, op: str) -> str:
+    def _op_str(self, op: str) -> str:
         """Return the p-isa instructions of an addition"""
 
         return f"13, {op}, {self.output}, {self.input0}, {self.input1}, {self.q}"
@@ -47,7 +47,7 @@ class Mov(UnaryOp, PIsaOp):
 
     def __str__(self) -> str:
         """Return the p-isa instructions of an movement"""
-        return self.op_str("mov")
+        return self._op_str("mov")
 
 
 class Add(BinaryOp, PIsaOp):
@@ -55,7 +55,7 @@ class Add(BinaryOp, PIsaOp):
 
     def __str__(self) -> str:
         """Return the p-isa instructions of an addition"""
-        return self.op_str("add")
+        return self._op_str("add")
 
 
 class Sub(BinaryOp, PIsaOp):
@@ -63,7 +63,7 @@ class Sub(BinaryOp, PIsaOp):
 
     def __str__(self) -> str:
         """Return the p-isa instructions of an subtraction"""
-        return self.op_str("sub")
+        return self._op_str("sub")
 
 
 class Mul(BinaryOp, PIsaOp):
@@ -71,7 +71,7 @@ class Mul(BinaryOp, PIsaOp):
 
     def __str__(self) -> str:
         """Return the p-isa instructions of an multiplication"""
-        return self.op_str("mul")
+        return self._op_str("mul")
 
 
 # TODO
