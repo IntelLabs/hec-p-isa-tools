@@ -16,3 +16,6 @@ class Polys:
         """Returns a string of the expanded symbol w.r.t. rns, part, and unit"""
         # TODO some sanity check code for bounds
         return f"{self.name}_{part}_{q}_{unit}"
+
+    def __repr__(self) -> str:
+        return self.name

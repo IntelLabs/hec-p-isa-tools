@@ -36,3 +36,16 @@ class Add(HighOp):
 
         except ValueError as e:
             raise ValueError(f"Could not unpack command string `{args_line}`") from e
+
+
+@dataclass
+class Mul(HighOp):
+    """Class representing the high-level multiplication operation"""
+
+
+#    def to_pisa(self):
+#        for q in range(self.nrns):
+#            pisa_op.Mul(rout[1][q], rin0[0][q], rin1[1][q], q)
+#            pisa_op.Mul(rout[0][q], rin0[0][q], rin1[0][q], q)
+#            pisa_op.Mul(rout[2][q], rin0[1][q], rin1[1][q], q)
+#            pisa_op.Mac(rout[1][q], rin0[1][q], rin1[0][q], q)
