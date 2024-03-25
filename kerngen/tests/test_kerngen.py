@@ -54,6 +54,18 @@ def test_missing_context(kerngen_path):
     assert result.returncode != 0
 
 
+def test_multiple_contexts(kerngen_path):
+    """Test kerngen raises an exception when more than one context is given"""
+    input_string = "CONTEXT BGV 8192 4\nADD a b c\nCONTEXT BGV 8192 4\n"
+    result = execute_process(
+        [kerngen_path],
+        data_in=input_string,
+    )
+    assert not result.stdout
+    assert "RuntimeError: Second context given" in result.stderr
+    assert result.returncode != 0
+
+
 def test_unrecognised_opname(kerngen_path):
     """Test kerngen raises an exception when receiving an unrecognised
     opname"""

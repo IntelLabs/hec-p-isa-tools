@@ -2,10 +2,9 @@
 
 """Module for parsing isa commands"""
 
-from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, NamedTuple, Iterator
+from typing import NamedTuple, Iterator
 
 from generators import Generators
 from highop import HighOp
@@ -111,15 +110,6 @@ class ParseResults:
         )
 
 
-# NOTE Maybe a more elegant soln. than this way can be found that does not remove
-# the use of the simple mapping in `parse_inputs`
-@dataclass
-class Setter:
-    """A setter to allow for setting a variable that is passed into function"""
-
-    data: Any
-
-
 class Parser:
     """Parser for input high operations to p-isa operations"""
 
@@ -131,7 +121,7 @@ class Parser:
             else Generators.from_manifest(MANIFEST_FILE)
         )
 
-    def _delegate(self, command_str: str, context: Setter, polys_map):
+    def _delegate(self, command_str: str, context_seen: set[Context], polys_map):
         """This helper is delegated the task of which subparser objects to create.
         It is also responsible for setting context."""
         try:
@@ -142,10 +132,11 @@ class Parser:
 
         match command.lower():
             case "context":
-                if context.data is not None:
+                if len(context_seen) != 0:
                     raise RuntimeError("Second context given")
-                context.data = Context.from_string(rest)
-                return context.data
+                context = Context.from_string(rest)
+                context_seen.add(context)
+                return context
             case "#":
                 return Comment(comment=command_str)
             case "data":
@@ -155,19 +146,19 @@ class Parser:
                 return data
             case _:
                 # If context has not been given yet - FAIL
-                if context.data is None:
+                if len(context_seen) == 0:
                     raise RuntimeError(
                         f"No `CONTEXT` provided before `{command_str.rstrip()}`"
                     )
 
                 # Look up commands defined in manifest
                 cls = self.generators.get_pisa_op(command)
-                return cls.from_string(context.data, polys_map, rest)
+                return cls.from_string(next(iter(context_seen)), polys_map, rest)
 
     def parse_inputs(self, lines: list[str]) -> ParseResults:
         """parse the inputs given in return list of data and operations"""
 
         polys_map: dict[Symbol, Data] = {}
-        context = Setter(None)
-        commands = (self._delegate(line, context, polys_map) for line in lines)
+        context_seen: set[Context] = set()
+        commands = (self._delegate(line, context_seen, polys_map) for line in lines)
         return ParseResults(commands, polys_map)
