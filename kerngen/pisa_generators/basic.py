@@ -39,6 +39,17 @@ class Add(HighOp):
             raise ValueError(f"Could not unpack command string `{args_line}`") from e
 
 
+InIdxs = list[tuple[int, int]]
+
+
+def convolution_indices(len_a, len_b) -> list[InIdxs]:
+    """Helper gives convolution of parts indices"""
+    idxs: list[InIdxs] = [[] for _ in range(len_a + len_b - 1)]
+    for t in it.product(range(len_a), range(len_b)):
+        idxs[sum(t)].append(t)
+    return idxs
+
+
 @dataclass
 class Mul(HighOp):
     """Class representing the high-level multiplication operation"""
@@ -48,41 +59,33 @@ class Mul(HighOp):
     input0: Polys
     input1: Polys
 
+    def generate_unit(self, unit: int, q: int, out_idx: int, in_idxs: InIdxs):
+        """Helper for a given unit and q generate the p-isa ops for a multiplication"""
+        op = pisa_op.Mul
+        ls = []
+        for in0_idx, in1_idx in in_idxs:
+            ls.append(
+                op(
+                    self.output(out_idx, q, unit),
+                    self.input0(in0_idx, q, unit),
+                    self.input1(in1_idx, q, unit),
+                    q,
+                )
+            )
+            op = pisa_op.Mac
+        return ls
+
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa  equivalent of a Mul"""
+
+        all_idxs = convolution_indices(self.input0.parts, self.input1.parts)
 
         ls = []
         for unit, q in it.product(
             range(self.context.units), range(self.context.max_rns)
         ):
-            ls.extend(
-                [
-                    pisa_op.Mul(
-                        self.output(0, q, unit),
-                        self.input0(0, q, unit),
-                        self.input1(0, q, unit),
-                        q,
-                    ),
-                    pisa_op.Mul(
-                        self.output(1, q, unit),
-                        self.input0(0, q, unit),
-                        self.input1(1, q, unit),
-                        q,
-                    ),
-                    pisa_op.Mac(
-                        self.output(1, q, unit),
-                        self.input0(1, q, unit),
-                        self.input1(0, q, unit),
-                        q,
-                    ),
-                    pisa_op.Mul(
-                        self.output(2, q, unit),
-                        self.input0(1, q, unit),
-                        self.input1(1, q, unit),
-                        q,
-                    ),
-                ]
-            )
+            for out_idx, in_idxs in enumerate(all_idxs):
+                ls.extend(self.generate_unit(unit, q, out_idx, in_idxs))
 
         return ls
 
