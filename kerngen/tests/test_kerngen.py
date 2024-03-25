@@ -56,7 +56,7 @@ def test_missing_context(kerngen_path):
 
 def test_multiple_contexts(kerngen_path):
     """Test kerngen raises an exception when more than one context is given"""
-    input_string = "CONTEXT BGV 8192 4\nADD a b c\nCONTEXT BGV 8192 4\n"
+    input_string = "CONTEXT BGV 8192 4\nData a 2\nCONTEXT BGV 8192 4\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -98,10 +98,10 @@ def fixture_gen_op_data(request):
     """Given an op name, return both the input and expected output strings"""
     in_lines = (
         "CONTEXT BGV 8192 4",
-        f"{request.param} a b c",
         "Data a 2",
         "Data b 2",
         "Data c 2",
+        f"{request.param} a b c",
     )
     # TODO: Build this string properly
     out = f"13, {Op[request.param].value}, a_0_0_0, b_0_0_0, c_0_0_0, 0"
