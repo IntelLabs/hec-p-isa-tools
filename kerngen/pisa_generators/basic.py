@@ -44,6 +44,7 @@ InIdxs = list[tuple[int, int]]
 
 def convolution_indices(len_a, len_b) -> list[InIdxs]:
     """Helper gives convolution of parts indices"""
+    # len_* is the deg + 1 of a polynomial (the vector)
     idxs: list[InIdxs] = [[] for _ in range(len_a + len_b - 1)]
     for t in it.product(range(len_a), range(len_b)):
         idxs[sum(t)].append(t)
@@ -61,19 +62,20 @@ class Mul(HighOp):
 
     def generate_unit(self, unit: int, q: int, out_idx: int, in_idxs: InIdxs):
         """Helper for a given unit and q generate the p-isa ops for a multiplication"""
-        op = pisa_op.Mul
-        ls = []
-        for in0_idx, in1_idx in in_idxs:
-            ls.append(
-                op(
-                    self.output(out_idx, q, unit),
-                    self.input0(in0_idx, q, unit),
-                    self.input1(in1_idx, q, unit),
-                    q,
-                )
+
+        def get_pisa_op(num):
+            yield pisa_op.Mul
+            yield from (pisa_op.Mac for op in range(num - 1))
+
+        return [
+            op(
+                self.output(out_idx, q, unit),
+                self.input0(in0_idx, q, unit),
+                self.input1(in1_idx, q, unit),
+                q,
             )
-            op = pisa_op.Mac
-        return ls
+            for (in0_idx, in1_idx), op in zip(in_idxs, get_pisa_op(len(in_idxs)))
+        ]
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa  equivalent of a Mul"""
