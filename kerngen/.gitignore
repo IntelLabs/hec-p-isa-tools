@@ -1,6 +1,8 @@
-kerngen_ideas.txt
+# Input files
 **.high
 
+# Vim artefacts
 **.sw?
 
+# Python artefacts
 **/__pycache__/

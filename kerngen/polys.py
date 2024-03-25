@@ -17,5 +17,9 @@ class Polys:
         # TODO some sanity check code for bounds
         return f"{self.name}_{part}_{q}_{unit}"
 
+    def __call__(self, part: int, q: int, unit: int) -> str:
+        """Forward `expand` method"""
+        return self.expand(part, q, unit)
+
     def __repr__(self) -> str:
         return self.name

@@ -37,7 +37,7 @@ class BinaryOp:
     q: str
 
     def _op_str(self, op: str) -> str:
-        """Return the p-isa instructions of an addition"""
+        """Return the p-isa instructions of operation `op`"""
 
         return f"13, {op}, {self.output}, {self.input0}, {self.input1}, {self.q}"
 
@@ -72,6 +72,14 @@ class Mul(BinaryOp, PIsaOp):
     def __str__(self) -> str:
         """Return the p-isa instructions of an multiplication"""
         return self._op_str("mul")
+
+
+class Mac(BinaryOp, PIsaOp):
+    """Class representing the p-isa multiplication and accumulate operation"""
+
+    def __str__(self) -> str:
+        """Return the p-isa instructions of an multiplication and accumulate"""
+        return self._op_str("mac")
 
 
 # TODO
