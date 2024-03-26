@@ -137,3 +137,33 @@ class Mul(HighOp):
 
         except ValueError as e:
             raise ValueError(f"Could not unpack command string `{args_line}`") from e
+
+
+@dataclass
+class Copy(HighOp):
+    """Class representing the high-level copy operation"""
+
+    context: Context
+    output: Polys
+    input0: Polys
+
+    def to_pisa(self) -> list[PIsaOp]:
+        """Return the p-isa equivalent of a Copy"""
+        expanded_ios = (
+            (
+                (io.expand(part, q, unit) for io in (self.output, self.input0)),
+                q,
+            )
+            for q, part, unit in it.product(
+                range(self.input0.rns),
+                range(self.input0.parts),
+                range(self.context.units),
+            )
+        )
+
+        return [pisa_op.Copy(*expand_io) for expand_io, _ in expanded_ios]
+
+    @classmethod
+    def from_string(cls, context, polys_map, args_line: str):
+        """Construct copy operation from args string"""
+        raise NotImplementedError()

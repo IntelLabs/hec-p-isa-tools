@@ -1,4 +1,6 @@
 {
   "ADD": ["Add", "basic.py"],
-  "MUL": ["Mul", "basic.py"]
+  "MUL": ["Mul", "basic.py"],
+  "COPY": ["Copy", "basic.py"],
+  "SQU": ["Square", "square.py"]
 }
