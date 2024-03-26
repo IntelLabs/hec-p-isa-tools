@@ -53,12 +53,7 @@ class Context(NamedTuple):
     @property
     def units(self):
         """units based on 8192 ~ 8K sized polynomials"""
-        # TODO remove hardcoding
-        # UNIT_SIZE = 13
-        # NUNITS = 8
-        # N = 8192
-        # batch_size = 8 if N <= (UNIT_SIZE << 1) else max(1, 8 // NUNITS)
-        return 1
+        return max(1, self.poly_order // 8192)
 
 
 class Data(NamedTuple):
@@ -157,7 +152,7 @@ class Parser:
 
                 # Look up commands defined in manifest
                 cls = self.generators.get_pisa_op(command)
-                return cls.from_string(next(iter(context_seen)), polys_map, rest)
+                return cls.from_string(context_seen[0], polys_map, rest)
 
     def parse_inputs(self, lines: list[str]) -> ParseResults:
         """parse the inputs given in return list of data and operations"""
