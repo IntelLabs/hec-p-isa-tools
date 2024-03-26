@@ -5,7 +5,6 @@
 import itertools as it
 from dataclasses import dataclass
 
-from expander import Expander
 import pisa_operations as pisa_op
 from pisa_operations import PIsaOp
 from high_parser import Context
@@ -23,11 +22,24 @@ class Add(HighOp):
     input1: Polys
 
     def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa  equivalent of an Add"""
+        """Return the p-isa equivalent of an Add"""
         if self.input0.parts == self.input1.parts:
-            return Expander(self.context).cartesian(
-                pisa_op.Add, self.output, self.input0, self.input1
+            expanded_ios = (
+                (
+                    (
+                        io.expand(part, q, unit)
+                        for io in (self.output, self.input0, self.input1)
+                    ),
+                    q,
+                )
+                for q, part, unit in it.product(
+                    range(self.input0.rns),
+                    range(self.input0.parts),
+                    range(self.context.units),
+                )
             )
+
+            return [pisa_op.Add(*expand_io, rns) for expand_io, rns in expanded_ios]
 
         # Not the same number of parts
         first, second = (
@@ -37,7 +49,7 @@ class Add(HighOp):
         )
 
         ls: list[PIsaOp] = []
-        for q, unit in it.product(range(self.input0.rns), range(self.context.units)):
+        for unit, q in it.product(range(self.context.units), range(self.input0.rns)):
             ls.extend(
                 pisa_op.Add(
                     self.output(part, q, unit),
