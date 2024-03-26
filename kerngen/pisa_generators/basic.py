@@ -8,7 +8,7 @@ from dataclasses import dataclass
 import pisa_operations as pisa_op
 from pisa_operations import PIsaOp
 from high_parser import Context
-from highop import HighOp
+from highop import HighOp, expand_ios
 from polys import Polys
 
 
@@ -24,22 +24,12 @@ class Add(HighOp):
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa equivalent of an Add"""
         if self.input0.parts == self.input1.parts:
-            expanded_ios = (
-                (
-                    (
-                        io.expand(part, q, unit)
-                        for io in (self.output, self.input0, self.input1)
-                    ),
-                    q,
+            return [
+                pisa_op.Add(*expand_io, rns)
+                for expand_io, rns in expand_ios(
+                    self.context, self.output, self.input0, self.input1
                 )
-                for q, part, unit in it.product(
-                    range(self.input0.rns),
-                    range(self.input0.parts),
-                    range(self.context.units),
-                )
-            )
-
-            return [pisa_op.Add(*expand_io, rns) for expand_io, rns in expanded_ios]
+            ]
 
         # Not the same number of parts
         first, second = (
@@ -64,16 +54,6 @@ class Add(HighOp):
                 for part in range(first.parts, second.parts)
             )
         return ls
-
-    @classmethod
-    def from_string(cls, context, polys_map, args_line: str):
-        """Construct add operation from args string"""
-        try:
-            ios = (polys_map[io] for io in args_line.split())
-            return cls(context, *ios)
-
-        except ValueError as e:
-            raise ValueError(f"Could not unpack command string `{args_line}`") from e
 
 
 InIdxs = list[tuple[int, int]]
@@ -128,16 +108,6 @@ class Mul(HighOp):
 
         return ls
 
-    @classmethod
-    def from_string(cls, context, polys_map, args_line: str):
-        """Construct add operation from args string"""
-        try:
-            ios = (polys_map[io] for io in args_line.split())
-            return cls(context, *ios)
-
-        except ValueError as e:
-            raise ValueError(f"Could not unpack command string `{args_line}`") from e
-
 
 @dataclass
 class Copy(HighOp):
@@ -149,19 +119,10 @@ class Copy(HighOp):
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa equivalent of a Copy"""
-        expanded_ios = (
-            (
-                (io.expand(part, q, unit) for io in (self.output, self.input0)),
-                q,
-            )
-            for q, part, unit in it.product(
-                range(self.input0.rns),
-                range(self.input0.parts),
-                range(self.context.units),
-            )
-        )
-
-        return [pisa_op.Copy(*expand_io) for expand_io, _ in expanded_ios]
+        return [
+            pisa_op.Copy(*expand_io)
+            for expand_io, _ in expand_ios(self.context, self.output, self.input0)
+        ]
 
     @classmethod
     def from_string(cls, context, polys_map, args_line: str):
