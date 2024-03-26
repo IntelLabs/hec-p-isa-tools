@@ -37,7 +37,7 @@ class Add(HighOp):
         )
 
         ls: list[PIsaOp] = []
-        for q, unit in zip(range(self.input0.rns), range(self.context.units)):
+        for q, unit in it.product(range(self.input0.rns), range(self.context.units)):
             ls.extend(
                 pisa_op.Add(
                     self.output(part, q, unit),
