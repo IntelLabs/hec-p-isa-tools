@@ -5,16 +5,25 @@
 from dataclasses import dataclass
 
 
+class PolyOutOfBoundsError(Exception):
+    """Exception for Poly attributes being out of bounds"""
+
+
 @dataclass
 class Polys:
     """helper object for handling polynomial expansion"""
 
     name: str
     parts: int
+    rns: int
 
     def expand(self, part: int, q: int, unit: int) -> str:
         """Returns a string of the expanded symbol w.r.t. rns, part, and unit"""
-        # TODO some sanity check code for bounds
+        # Sanity bounds checks
+        if part > self.parts or q > self.rns:
+            raise PolyOutOfBoundsError(
+                f"part `{part}` or q `{q}` is more than the poly's `{self}`"
+            )
         return f"{self.name}_{part}_{q}_{unit}"
 
     def __call__(self, part: int, q: int, unit: int) -> str:

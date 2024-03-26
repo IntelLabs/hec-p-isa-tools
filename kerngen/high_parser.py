@@ -121,7 +121,7 @@ class Parser:
             else Generators.from_manifest(MANIFEST_FILE)
         )
 
-    def _delegate(self, command_str: str, context_seen: set[Context], polys_map):
+    def _delegate(self, command_str: str, context_seen: list[Context], polys_map):
         """This helper is delegated the task of which subparser objects to create.
         It is also responsible for setting context."""
         try:
@@ -135,14 +135,18 @@ class Parser:
                 if len(context_seen) != 0:
                     raise RuntimeError("Second context given")
                 context = Context.from_string(rest)
-                context_seen.add(context)
+                context_seen.append(context)
                 return context
             case "#":
                 return Comment(comment=command_str)
             case "data":
                 # Populate the polys map
                 data = Data.from_string(rest)
-                polys_map[data.name] = Polys(*data)
+                # Poly starts with max rns
+                context = context_seen[0]  # assume 1 element
+                polys_map[data.name] = Polys(
+                    name=data.name, parts=data.parts, rns=context.max_rns
+                )
                 return data
             case _:
                 # If context has not been given yet - FAIL
@@ -159,6 +163,6 @@ class Parser:
         """parse the inputs given in return list of data and operations"""
 
         polys_map: dict[Symbol, Data] = {}
-        context_seen: set[Context] = set()
+        context_seen: list[Context] = []
         commands = (self._delegate(line, context_seen, polys_map) for line in lines)
         return ParseResults(commands, polys_map)

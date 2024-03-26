@@ -42,12 +42,17 @@ class BinaryOp:
         return f"13, {op}, {self.output}, {self.input0}, {self.input1}, {self.q}"
 
 
-class Mov(UnaryOp, PIsaOp):
+@dataclass
+class Mov(PIsaOp):
     """Class representing the p-isa movement operation"""
+
+    output: str
+    input0: str
+    # No q required
 
     def __str__(self) -> str:
         """Return the p-isa instructions of an movement"""
-        return self._op_str("mov")
+        return f"13, move, {self.output}, {self.input0}"
 
 
 class Add(BinaryOp, PIsaOp):

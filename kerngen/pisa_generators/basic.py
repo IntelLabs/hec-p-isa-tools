@@ -24,9 +24,34 @@ class Add(HighOp):
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa  equivalent of an Add"""
-        return Expander(self.context).cartesian(
-            pisa_op.Add, self.output, self.input0, self.input1
+        if self.input0.parts == self.input1.parts:
+            return Expander(self.context).cartesian(
+                pisa_op.Add, self.output, self.input0, self.input1
+            )
+
+        # Not the same number of parts
+        first, second = (
+            (self.input0, self.input1)
+            if self.input0.parts < self.input1.parts
+            else (self.input1, self.input0)
         )
+
+        ls: list[PIsaOp] = []
+        for q, unit in zip(range(self.input0.rns), range(self.context.units)):
+            ls.extend(
+                pisa_op.Add(
+                    self.output(part, q, unit),
+                    first(part, q, unit),
+                    second(0, q, unit),
+                    q,
+                )
+                for part in range(first.parts)
+            )
+            ls.extend(
+                pisa_op.Mov(self.output(part, q, unit), second(part, q, unit))
+                for part in range(first.parts, second.parts)
+            )
+        return ls
 
     @classmethod
     def from_string(cls, context, polys_map, args_line: str):
