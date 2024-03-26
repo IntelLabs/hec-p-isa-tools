@@ -60,7 +60,7 @@ class Add(HighOp):
                 for part in range(first.parts)
             )
             ls.extend(
-                pisa_op.Mov(self.output(part, q, unit), second(part, q, unit))
+                pisa_op.Copy(self.output(part, q, unit), second(part, q, unit))
                 for part in range(first.parts, second.parts)
             )
         return ls

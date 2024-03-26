@@ -43,6 +43,19 @@ class BinaryOp:
 
 
 @dataclass
+class Copy(PIsaOp):
+    """Class representing the p-isa movement operation"""
+
+    output: str
+    input0: str
+    # No q required
+
+    def __str__(self) -> str:
+        """Return the p-isa instructions of an movement"""
+        return f"13, copy, {self.output}, {self.input0}"
+
+
+@dataclass
 class Mov(PIsaOp):
     """Class representing the p-isa movement operation"""
 
