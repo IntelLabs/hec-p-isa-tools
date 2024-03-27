@@ -2,7 +2,6 @@
 
 """Module for parsing isa commands"""
 
-from enum import Enum
 from pathlib import Path
 from typing import NamedTuple, Iterator
 
@@ -14,13 +13,6 @@ from polys import Polys
 MANIFEST_FILE = Path(__file__).parent / "pisa_generators/manifest.json"
 
 Symbol = str
-
-
-class Scheme(Enum):
-    """Enum class representing valid FHE Schemes"""
-
-    BGV = "BGV"
-    CKKS = "CKKS"
 
 
 class Comment(NamedTuple):
@@ -36,7 +28,7 @@ class EmptyLine(NamedTuple):
 class Context(NamedTuple):
     """Class representing a given context of the scheme"""
 
-    scheme: Scheme
+    scheme: str
     poly_order: int  # the N
     max_rns: int
 
@@ -45,7 +37,7 @@ class Context(NamedTuple):
         """Construct context from a string"""
         scheme, poly_order, max_rns = line.split()
         return cls(
-            scheme=Scheme(scheme.upper()),
+            scheme=scheme.upper(),
             poly_order=int(poly_order),
             max_rns=int(max_rns),
         )
@@ -123,13 +115,13 @@ class ParseResults:
 class Parser:
     """Parser for input high operations to p-isa operations"""
 
-    def __init__(self, generators: Generators = None) -> None:
+    def __init__(self) -> None:
         """holds kernel generators and is able to parser high operations script"""
-        self.generators = (
-            generators
-            if generators is not None
-            else Generators.from_manifest(MANIFEST_FILE)
-        )
+        self.generators: Generators | None = None
+
+    def set_generator(self, scheme: str) -> None:
+        """Set generator once context is known"""
+        self.generators = Generators.from_manifest(MANIFEST_FILE, scheme)
 
     def _delegate(self, command_str: str, context_seen: list[Context], symbols_map):
         """This helper is delegated the task of which subparser objects to create.
@@ -146,6 +138,7 @@ class Parser:
                     raise RuntimeError("Second context given")
                 context = Context.from_string(rest)
                 context_seen.append(context)
+                self.set_generator(context.scheme)
                 return context
             case "#":
                 return Comment(comment=command_str)
@@ -170,11 +163,11 @@ class Parser:
                     )
 
                 # Look up commands defined in manifest
+                if self.generators is None:
+                    raise ValueError("Generator not set")
 
-                context = context_seen[0]
-                cls = self.generators.get_pisa_op(context.scheme, command)
-                return cls.from_string(context, symbols_map, rest)
-
+                cls = self.generators.get_pisa_op(command)
+                return cls.from_string(context_seen[0], symbols_map, rest)
 
     def parse_inputs(self, lines: list[str]) -> ParseResults:
         """parse the inputs given in return list of data and operations"""

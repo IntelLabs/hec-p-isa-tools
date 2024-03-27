@@ -21,23 +21,25 @@ class Generators:
         self.directory = dirpath
 
     @classmethod
-    def from_manifest(cls, filepath: str):
-        """Creates a `Generators` object given a manifest JSON file. Parses the
-        manifest file as a python dictionary and stores it in `self.map`"""
+    def from_manifest(cls, filepath: str, scheme: str):
+        """Creates a `Generators` object given a manifest JSON file selected
+        from the `scheme`. Parses the manifest file as a python dictionary and
+        stores it in `self.map`"""
         filepath_p = Path(filepath)
         dirpath = str(filepath_p.parent)
         with open(filepath, encoding="utf-8") as manifest_file:
-            return cls(dirpath, json.load(manifest_file))
+            manifest = json.load(manifest_file)
+            return cls(dirpath, manifest[scheme.upper()])
 
     def available_pisa_ops(self) -> str:
         """Returns a list of available pisa ops."""
         return "\n".join(f"{op}" for op in self.map.keys())
 
-    def get_pisa_op(self, scheme, opname: str):
+    def get_pisa_op(self, opname: str):
         """Returns the pisa op object given a valid op name"""
         try:
             # Capitalize the opname because it is the name of the class!
-            class_name, module_name = self.map[scheme.value][opname.upper()]
+            class_name, module_name = self.map[opname.upper()]
             filepath = str(Path(self.directory).relative_to(Path(__file__).parent))
             filepath = filepath + "/" + Path(module_name).stem
             module_path = filepath.replace("/", ".")
