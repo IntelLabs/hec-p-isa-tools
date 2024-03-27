@@ -69,15 +69,29 @@ class Data(NamedTuple):
         return cls(name=name, parts=int(parts))
 
 
+class Immediate(NamedTuple):
+    """Class representing a Immediate type with related attributes"""
+
+    name: str
+
+    @classmethod
+    def from_string(cls, line: str):
+        """Construct data from a string"""
+        name, *rest = line.split()
+        if len(rest) > 0:
+            raise ValueError("Immediate only has a name; no other arguments")
+        return cls(name=name)
+
+
 ParserType = Context | Data | EmptyLine | Comment | HighOp
 
 
 class ParseResults:
     """Queryable class about parse results"""
 
-    def __init__(self, iterable, polys_map):
+    def __init__(self, iterable, symbols_map):
         self._commands = list(iterable)
-        self._polys_map = polys_map
+        self._symbols_map = symbols_map
 
     @property
     def context(self):
@@ -92,9 +106,9 @@ class ParseResults:
         return self._commands
 
     @property
-    def polys_map(self):
+    def symbols_map(self):
         """Return the polys map built from data definitions"""
-        return self._polys_map
+        return self._symbols_map
 
     def get_pisa_ops(self) -> Iterator[list[HighOp]]:
         """generator returns lists of p-isa instructions"""
@@ -117,7 +131,7 @@ class Parser:
             else Generators.from_manifest(MANIFEST_FILE)
         )
 
-    def _delegate(self, command_str: str, context_seen: list[Context], polys_map):
+    def _delegate(self, command_str: str, context_seen: list[Context], symbols_map):
         """This helper is delegated the task of which subparser objects to create.
         It is also responsible for setting context."""
         try:
@@ -135,12 +149,16 @@ class Parser:
                 return context
             case "#":
                 return Comment(comment=command_str)
+            case "imm":
+                immediate = Immediate.from_string(rest)
+                symbols_map[immediate.name] = immediate
+                return immediate
             case "data":
-                # Populate the polys map
-                data = Data.from_string(rest)
                 # Poly starts with max rns
                 context = context_seen[0]  # assume 1 element
-                polys_map[data.name] = Polys(
+                # Populate the polys map
+                data = Data.from_string(rest)
+                symbols_map[data.name] = Polys(
                     name=data.name, parts=data.parts, rns=context.max_rns
                 )
                 return data
@@ -152,13 +170,16 @@ class Parser:
                     )
 
                 # Look up commands defined in manifest
-                cls = self.generators.get_pisa_op(context_seen[0].scheme, command)
-                return cls.from_string(context_seen[0], polys_map, rest)
+
+                context = context_seen[0]
+                cls = self.generators.get_pisa_op(context.scheme, command)
+                return cls.from_string(context, symbols_map, rest)
+
 
     def parse_inputs(self, lines: list[str]) -> ParseResults:
         """parse the inputs given in return list of data and operations"""
 
-        polys_map: dict[Symbol, Data] = {}
+        symbols_map: dict[Symbol, Polys | Immediate] = {}
         context_seen: list[Context] = []
-        commands = (self._delegate(line, context_seen, polys_map) for line in lines)
-        return ParseResults(commands, polys_map)
+        commands = (self._delegate(line, context_seen, symbols_map) for line in lines)
+        return ParseResults(commands, symbols_map)
