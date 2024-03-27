@@ -105,6 +105,7 @@ class ParseResults:
         )
 
 
+# pylint: disable=too-few-public-methods
 class Parser:
     """Parser for input high operations to p-isa operations"""
 
@@ -151,7 +152,7 @@ class Parser:
                     )
 
                 # Look up commands defined in manifest
-                cls = self.generators.get_pisa_op(command)
+                cls = self.generators.get_pisa_op(context_seen[0].scheme, command)
                 return cls.from_string(context_seen[0], polys_map, rest)
 
     def parse_inputs(self, lines: list[str]) -> ParseResults:

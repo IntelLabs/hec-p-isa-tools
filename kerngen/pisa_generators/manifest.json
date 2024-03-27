@@ -1,7 +1,11 @@
 {
-  "ADD": ["Add", "basic.py"],
-  "MUL": ["Mul", "basic.py"],
-  "COPY": ["Copy", "basic.py"],
-  "SUB": ["Sub", "basic.py"],
-  "SQUARE": ["Square", "square.py"]
+  "BGV": {
+    "ADD": ["Add", "basic.py"],
+    "MUL": ["Mul", "basic.py"],
+    "COPY": ["Copy", "basic.py"],
+    "SUB": ["Sub", "basic.py"],
+    "SQUARE": ["Square", "square.py"]
+  },
+  "CKKS": {
+  }
 }
