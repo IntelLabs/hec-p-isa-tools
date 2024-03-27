@@ -4,6 +4,7 @@
 
 import itertools as it
 from dataclasses import dataclass
+from typing import ClassVar
 
 import pisa_operations as pisa_op
 from pisa_operations import PIsaOp
@@ -13,19 +14,22 @@ from polys import Polys
 
 
 @dataclass
-class Add(HighOp):
-    """Class representing the high-level addition operation"""
+class CartesianOp(HighOp):
+    """Class representing the high-level cartesian operation"""
 
     context: Context
     output: Polys
     input0: Polys
     input1: Polys
 
+    # class vars are not included in __init__
+    op: ClassVar[PIsaOp]
+
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa equivalent of an Add"""
         if self.input0.parts == self.input1.parts:
             return [
-                pisa_op.Add(*expand_io, rns)
+                self.op(*expand_io, rns)
                 for expand_io, rns in expand_ios(
                     self.context, self.output, self.input0, self.input1
                 )
@@ -41,7 +45,7 @@ class Add(HighOp):
         ls: list[PIsaOp] = []
         for unit, q in it.product(range(self.context.units), range(self.input0.rns)):
             ls.extend(
-                pisa_op.Add(
+                self.op(
                     self.output(part, q, unit),
                     first(part, q, unit),
                     second(0, q, unit),
@@ -54,6 +58,18 @@ class Add(HighOp):
                 for part in range(first.parts, second.parts)
             )
         return ls
+
+
+class Add(CartesianOp):
+    """Class representing the high-level addition operation"""
+
+    op = pisa_op.Add
+
+
+class Sub(CartesianOp):
+    """Class representing the high-level subtraction operation"""
+
+    op = pisa_op.Sub
 
 
 InIdxs = list[tuple[int, int]]

@@ -2,6 +2,6 @@
   "ADD": ["Add", "basic.py"],
   "MUL": ["Mul", "basic.py"],
   "COPY": ["Copy", "basic.py"],
-  "SQU": ["Square", "square.py"],
-  "SUB": ["Sub", "sub.py"]
+  "SUB": ["Sub", "basic.py"]
+  "SQUARE": ["Square", "square.py"],
 }
