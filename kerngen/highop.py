@@ -16,13 +16,12 @@ class HighOp(ABC):
     def to_pisa(self) -> list[PIsaOp]:
         """Returns a list of the p-isa operations / instructions"""
 
-    # FIXME mypy error
     @classmethod
     def from_string(cls, context, polys_map, args_line: str):
         """Construct HighOp from a string args"""
         try:
             ios = (polys_map[io] for io in args_line.split())
-            return cls(context, *ios)
+            return cls(context, *ios)  # type: ignore
 
         except ValueError as e:
             raise ValueError(f"Could not unpack command string `{args_line}`") from e
