@@ -2,10 +2,8 @@
 
 """Module containing conversions or operations from isa to p-isa."""
 
-import itertools as it
 from dataclasses import dataclass
 
-import pisa_operations as pisa_op
 from pisa_operations import PIsaOp
 from high_parser import Context
 from highop import HighOp

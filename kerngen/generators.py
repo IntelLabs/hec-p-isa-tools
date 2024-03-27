@@ -14,7 +14,7 @@ class GeneratorError(Exception):
 class Generators:
     """Class responsible for obtaining pisa ops from the pisa generators"""
 
-    def __init__(self, dirpath: str, class_map: dict[str, dict[str, list[str]]]):
+    def __init__(self, dirpath: str, class_map: dict[str, list[str]]):
         """Initializer. Expects a path to a manifest JSON file and dictionary
         `{op : [classname, filename]}`"""
         self.map = class_map
