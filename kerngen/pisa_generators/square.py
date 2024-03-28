@@ -28,13 +28,3 @@ class Square(HighOp):
         mul = Mul(self.context, self.output, intermediate, self.input0)
 
         return [*copy.to_pisa(), *mul.to_pisa()]
-
-    @classmethod
-    def from_string(cls, context, polys_map, args_line: str):
-        """Construct add operation from args string"""
-        try:
-            ios = (polys_map[io] for io in args_line.split())
-            return cls(context, *ios)
-
-        except ValueError as e:
-            raise ValueError(f"Could not unpack command string `{args_line}`") from e

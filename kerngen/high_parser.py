@@ -2,6 +2,7 @@
 
 """Module for parsing isa commands"""
 
+import math
 from pathlib import Path
 from typing import NamedTuple, Iterator
 
@@ -30,16 +31,20 @@ class Context(NamedTuple):
 
     scheme: str
     poly_order: int  # the N
+    ntt_stages: int  # log2 N
     max_rns: int
 
     @classmethod
     def from_string(cls, line: str):
         """Construct context from a string"""
         scheme, poly_order, max_rns = line.split()
+        int_poly_order = int(poly_order)
+        int_max_rns = int(max_rns)
         return cls(
             scheme=scheme.upper(),
-            poly_order=int(poly_order),
-            max_rns=int(max_rns),
+            poly_order=int_poly_order,
+            ntt_stages=int(math.log2(int_poly_order)),
+            max_rns=int_max_rns,
         )
 
     @property

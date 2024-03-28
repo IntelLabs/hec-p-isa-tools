@@ -139,8 +139,3 @@ class Copy(HighOp):
             pisa_op.Copy(*expand_io)
             for expand_io, _ in expand_ios(self.context, self.output, self.input0)
         ]
-
-    @classmethod
-    def from_string(cls, context, polys_map, args_line: str):
-        """Construct copy operation from args string"""
-        raise NotImplementedError()
