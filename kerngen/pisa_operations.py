@@ -92,6 +92,14 @@ class Mul(BinaryOp, PIsaOp):
         return self._op_str("mul")
 
 
+class Muli(BinaryOp, PIsaOp):
+    """Class representing the p-isa multiplication operation with immediates"""
+
+    def __str__(self) -> str:
+        """Return the p-isa instructions of an multiplication with immediates"""
+        return self._op_str("mac")
+
+
 class Mac(BinaryOp, PIsaOp):
     """Class representing the p-isa multiplication and accumulate operation"""
 
@@ -100,8 +108,42 @@ class Mac(BinaryOp, PIsaOp):
         return self._op_str("mac")
 
 
-# TODO
-# muli
-# maci
-# ntt
-# intt
+class Maci(BinaryOp, PIsaOp):
+    """Class representing the p-isa multiplication and accumulate operation with immediates"""
+
+    def __str__(self) -> str:
+        """Return the p-isa instructions of an multiply and accumulate with immediates"""
+        return self._op_str("mac")
+
+
+class Butterfly:
+    """Common arguments for butterfly operations"""
+
+    logN: int
+    output0: str
+    output1: str
+    input0: str
+    input1: str
+    metas: tuple[int, int, int]
+    q: int
+
+    def _op_str(self, op) -> str:
+        """Return the p-isa instructions of an multiplication and accumulate"""
+        ws = "_".join(map(str, self.metas))
+        return f"{self.logN}, {op}, {self.output0}, {self.output1}, {self.input0}, {self.input1}, w_{ws}, {self.q}"
+
+
+class NTT(Butterfly, PIsaOp):
+    """Class representing the p-isa NTT operation"""
+
+    def __str__(self) -> str:
+        """Return the p-isa instructions of an NTT"""
+        return self._op_str("ntt")
+
+
+class INTT(Butterfly, PIsaOp):
+    """Class representing the p-isa INTT operation"""
+
+    def __str__(self) -> str:
+        """Return the p-isa instructions of an inverse NTT"""
+        return self._op_str("intt")

@@ -31,7 +31,6 @@ class Context(NamedTuple):
 
     scheme: str
     poly_order: int  # the N
-    ntt_stages: int  # log2 N
     max_rns: int
 
     @classmethod
@@ -43,9 +42,13 @@ class Context(NamedTuple):
         return cls(
             scheme=scheme.upper(),
             poly_order=int_poly_order,
-            ntt_stages=int(math.log2(int_poly_order)),
             max_rns=int_max_rns,
         )
+
+    @property
+    def ntt_stages(self):
+        """Returns NTT stages (== log2(N))"""
+        return int(math.log2(self.poly_order))
 
     @property
     def units(self):
