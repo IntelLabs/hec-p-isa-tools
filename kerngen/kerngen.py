@@ -8,7 +8,7 @@ import argparse
 import sys
 from typing import Iterable
 
-from high_parser import Parser
+from high_parser.parser import Parser
 
 
 def parse_args():

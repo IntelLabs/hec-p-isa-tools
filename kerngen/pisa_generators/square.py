@@ -4,10 +4,10 @@
 
 from dataclasses import dataclass
 
-from pisa_operations import PIsaOp
-from high_parser import Context
-from highop import HighOp
-from polys import Polys
+from high_parser.pisa_operations import PIsaOp
+from high_parser.parser import Context
+from high_parser.highop import HighOp
+from high_parser.polys import Polys
 
 from .basic import Copy, Mul
 

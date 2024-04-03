@@ -6,12 +6,14 @@ import math
 from pathlib import Path
 from typing import NamedTuple, Iterator
 
-from generators import Generators
-from highop import HighOp
-from polys import Polys
+from .generators import Generators
+from .highop import HighOp
+from .polys import Polys
+from .pisa_operations import PIsaOp
 
-
-MANIFEST_FILE = Path(__file__).parent / "pisa_generators/manifest.json"
+MANIFEST_FILE = str(
+    Path(__file__).parent.parent.absolute() / "pisa_generators/manifest.json"
+)
 
 Symbol = str
 
@@ -110,7 +112,7 @@ class ParseResults:
         """Return the polys map built from data definitions"""
         return self._symbols_map
 
-    def get_pisa_ops(self) -> Iterator[list[HighOp]]:
+    def get_pisa_ops(self) -> Iterator[list[PIsaOp] | None]:
         """generator returns lists of p-isa instructions"""
         commands = self._commands
         return (

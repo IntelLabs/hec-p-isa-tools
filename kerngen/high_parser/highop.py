@@ -5,7 +5,7 @@
 from abc import ABC, abstractmethod
 import itertools as it
 
-from pisa_operations import PIsaOp
+from .pisa_operations import PIsaOp
 
 
 # pylint: disable=too-few-public-methods

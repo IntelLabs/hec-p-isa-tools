@@ -1,5 +1,6 @@
 # Input files
 **.high
+data/
 
 # Vim artefacts
 **.sw?
