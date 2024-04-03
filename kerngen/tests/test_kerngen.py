@@ -89,7 +89,7 @@ def test_invalid_scheme(kerngen_path):
         data_in=input_string,
     )
     assert not result.stdout
-    assert "ValueError: 'SCHEME' is not a valid Scheme" in result.stderr
+    assert "GeneratorError: Scheme `SCHEME` not found in manifest file" in result.stderr
     assert result.returncode != 0
 
 

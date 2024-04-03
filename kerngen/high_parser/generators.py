@@ -29,7 +29,12 @@ class Generators:
         dirpath = str(filepath_p.parent)
         with open(filepath, encoding="utf-8") as manifest_file:
             manifest = json.load(manifest_file)
-            return cls(dirpath, manifest[scheme.upper()])
+            try:
+                return cls(dirpath, manifest[scheme.upper()])
+            except KeyError as e:
+                raise GeneratorError(
+                    f"Scheme `{scheme.upper()}` not found in manifest file"
+                ) from e
 
     def available_pisa_ops(self) -> str:
         """Returns a list of available pisa ops."""
