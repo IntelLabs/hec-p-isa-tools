@@ -83,11 +83,11 @@ operations of which it is associated with.  Each operation (inner JSON object)
 consists of the an operation name `OPNAME` as its key and a list containing the
 class name as the first entry and the file it is located in as its second. e.g.
 ```
-\{
-  "SCHEME": \{
+{
+  "SCHEME": {
     "OPNAME": ["ClassName", "filename.py"]
-  \}
-\}
+  }
+}
 ```
 
 For kernel writers the reserved words that cannot be used as `OPNAME` are:
