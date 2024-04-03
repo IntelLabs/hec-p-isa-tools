@@ -1,6 +1,7 @@
 # Introduction
 
-This is the kernel generator.
+This is the kernel generator responsible for producing HERACLES ISA kernels for
+various polynomial operations that occur in FHE.
 
 
 # Dependencies
@@ -19,7 +20,11 @@ pip -r requirements.txt
 # Implementation
 
 The design is a simplified interpreter pattern. A domain specific language
-(DSL) is defined as `high language` ...
+(DSL) defined as `high language` is recieved as input to the kernel generator.
+This `high language` describes FHE scheme and context parameters, as well as
+the operation with relative operands. This language is interpreted as a `high
+level instruction` which is then mapped to its corresponding `low level p-ISA
+instruction`. The resulting ISA kernel is sent to `stdout`.
 
 
 # Input high language
@@ -27,17 +32,37 @@ The design is a simplified interpreter pattern. A domain specific language
 Context defines the global properties `(scheme, poly_order, max_rns)` of the
 input script.
 
-Data defines symbols to be used and their attributes.
+Data defines symbols to be used and their attribute(s) (`num_parts`) where
+`num_parts` is the number of polynomials that comprise the data variable.
 
 All other commands are assumed to be operations. These are defined in the
 [manifest.json](./pisa_generators/manifest.json) file.
 Documentation on each command can be found in [COMMANDS.md]().
 ```
-CONTEXT BGV 8192 2
-DATA a
-DATA b
-DATA c
+CONTEXT BGV 8192 4
+DATA a 2
+DATA b 2
+DATA c 2
 ADD c a b
+```
+
+
+# Generating kernels
+
+The main entrypoint to the kernel generator is [kerngen.py](kerngen.py). This
+script expects input from `stdin` in the form of the input high language
+described above. It can be called with
+```bash
+./kerngen.py < addition.data
+```
+where `addition.data` is a text file containing the high language for an `ADD`
+operation.
+
+The kernel generator prints two comments, a context and kernel descriptor
+respectively, followed by the p-ISA kernel. If desired, the comments can be
+disabled by passing the `-q` or `--quiet` flag to the kernel generator, i.e.,
+```bash
+./kerngen.py -q < addition.data
 ```
 
 
@@ -52,11 +77,17 @@ Examples can be seen in the simpler implementations given in
 
 For `kerngen` to know of your class that represents a new command of the high
 language, simply add an entry into the JSON object in the
-[manifest.json](./pisa_generators/manifest.json) file. The key is the command
-name and the value is a list containing the class name as the first entry and
-the file it is located in as its second. e.g.
+[manifest.json](./pisa_generators/manifest.json) file. The key of the outermost
+JSON object is the FHE scheme `{BGV, CKKS, ...}` which corresponds to a set of
+operations of which it is associated with.  Each operation (inner JSON object)
+consists of the an operation name `OPNAME` as its key and a list containing the
+class name as the first entry and the file it is located in as its second. e.g.
 ```
-"OPNAME": ["ClassName", "filename.py"]
+\{
+  "SCHEME": \{
+    "OPNAME": ["ClassName", "filename.py"]
+  \}
+\}
 ```
 
 For kernel writers the reserved words that cannot be used as `OPNAME` are:
