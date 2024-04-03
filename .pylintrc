@@ -1,0 +1,7 @@
+# Copyright (C) 2024 Intel Corporation
+
+# Pylint config containing overrides
+
+[CLASSES]
+# Minimum number of public methods for a class (see R0903).
+min-public-methods = 0

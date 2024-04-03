@@ -130,7 +130,10 @@ class Butterfly:
     def _op_str(self, op) -> str:
         """Return the p-isa instructions of an multiplication and accumulate"""
         ws = "_".join(map(str, self.metas))
-        return f"{self.logN}, {op}, {self.output0}, {self.output1}, {self.input0}, {self.input1}, w_{ws}, {self.q}"
+        return (
+            f"{self.logN}, {op}, {self.output0}, {self.output1}, "
+            f"{self.input0}, {self.input1}, w_{ws}, {self.q}"
+        )
 
 
 class NTT(Butterfly, PIsaOp):
