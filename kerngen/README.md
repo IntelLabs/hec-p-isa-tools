@@ -94,6 +94,7 @@ For kernel writers the reserved words that cannot be used as `OPNAME` are:
 ```
 - CONTEXT
 - DATA
+- IMM
 ```
 
 

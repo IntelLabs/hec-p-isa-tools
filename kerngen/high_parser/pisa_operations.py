@@ -127,7 +127,7 @@ class Butterfly:
     metas: tuple[int, int, int]
     q: int
 
-    def _op_str(self, op) -> str:
+    def _op_str(self, op: str) -> str:
         """Return the p-isa instructions of an multiplication and accumulate"""
         ws = "_".join(map(str, self.metas))
         return (
