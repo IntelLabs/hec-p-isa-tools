@@ -3,7 +3,9 @@
 """Module containing conversions or operations from isa to p-isa."""
 
 from dataclasses import dataclass
+from itertools import pairwise
 
+import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
 from high_parser.parser import Context
 from high_parser.highop import HighOp
@@ -31,16 +33,28 @@ class NTT(HighOp):
         outtmp = Polys("outtmp", self.output.parts, self.output.rns)
 
         ntt_stages = self.context.ntt_stages
+        ntt_stages_div_by_two = ntt_stages % 2
         ls = []
         for stage in range(ntt_stages):
             dst, src = (
                 (outtmp, self.output)
-                if ntt_stages % 2 == stage % 2
+                if ntt_stages_div_by_two == stage % 2
                 else (self.output, outtmp)
             )
             for q in range(self.input0.rns):
-                ls.append("Filler")
-        #                PIsaOp.NTT(ntt_stages, dst(j), src., stage, q)
+                # units for omegas (aka w) taken from 16K onwards
+                for unit, next_unit in pairwise(range(self.context.units)):
+                    ls.append(
+                        pisa_op.NTT(
+                            ntt_stages,
+                            dst(0, q, unit),
+                            dst(0, q, next_unit),
+                            src(0, q, unit),
+                            src(0, q, next_unit),
+                            (q, stage, unit),
+                            q,
+                        )
+                    )
 
         return [*mul.to_pisa(), *ls]
 
