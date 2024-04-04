@@ -4,7 +4,8 @@
     "MUL": ["Mul", "basic.py"],
     "COPY": ["Copy", "basic.py"],
     "SUB": ["Sub", "basic.py"],
-    "SQUARE": ["Square", "square.py"]
+    "SQUARE": ["Square", "square.py"],
+    "NTT": ["NTT", "ntt.py"]
   },
   "CKKS": {
   }
