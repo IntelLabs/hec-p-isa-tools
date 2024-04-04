@@ -1,0 +1,9 @@
+# Input files
+**.high
+data/
+
+# Vim artefacts
+**.sw?
+
+# Python artefacts
+**/__pycache__/
