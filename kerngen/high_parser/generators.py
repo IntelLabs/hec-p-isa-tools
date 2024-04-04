@@ -45,13 +45,11 @@ class Generators:
         try:
             # Capitalize the opname because it is the name of the class!
             class_name, module_file = self.map[opname.upper()]
-
             filepath = Path(self.directory).stem + "/" + Path(module_file).stem
             module_path = filepath.replace("/", ".")
-            print(module_path)
 
+            # Actual import happens here
             module = import_module(module_path)
-            # module = import_module("pisa_generators.square")
             return getattr(module, class_name)
         except KeyError as e:
             raise GeneratorError(f"Op not found in available pisa ops: {opname}") from e
