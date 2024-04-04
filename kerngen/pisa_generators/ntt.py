@@ -3,7 +3,7 @@
 """Module containing conversions or operations from isa to p-isa."""
 
 from dataclasses import dataclass
-from itertools import pairwise
+import itertools as it
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
@@ -34,29 +34,36 @@ class NTT(HighOp):
 
         ntt_stages = self.context.ntt_stages
         ntt_stages_div_by_two = ntt_stages % 2
-        ls = []
-        for stage in range(ntt_stages):
-            dst, src = (
-                (outtmp, self.output)
-                if ntt_stages_div_by_two == stage % 2
-                else (self.output, outtmp)
-            )
-            for q in range(self.input0.rns):
-                # units for omegas (aka w) taken from 16K onwards
-                for unit, next_unit in pairwise(range(self.context.units)):
-                    ls.append(
-                        pisa_op.NTT(
-                            ntt_stages,
-                            dst(0, q, unit),
-                            dst(0, q, next_unit),
-                            src(0, q, unit),
-                            src(0, q, next_unit),
-                            (q, stage, unit),
-                            q,
-                        )
-                    )
 
-        return [*mul.to_pisa(), *ls]
+        stage_dst_srcs = (
+            (
+                (stage, outtmp, self.output)
+                if ntt_stages_div_by_two == stage % 2
+                else (stage, self.output, outtmp)
+            )
+            for stage in range(ntt_stages)
+        )
+
+        ntts = [
+            pisa_op.NTT(
+                ntt_stages,
+                dst(part, q, unit),
+                dst(part, q, next_unit),
+                src(part, q, unit),
+                src(part, q, next_unit),
+                (q, stage, unit),
+                q,
+            )
+            # units for omegas (aka w) taken from 16K onwards
+            for part, (stage, dst, src), q, (unit, next_unit) in it.product(
+                range(self.input0.parts),
+                stage_dst_srcs,
+                range(self.input0.rns),
+                it.pairwise(range(self.context.units)),
+            )
+        ]
+
+        return [*mul.to_pisa(), *ntts]
 
 
 @dataclass
