@@ -8,7 +8,7 @@ from typing import ClassVar
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
-from high_parser.parser import Context
+from high_parser.parser import Context, Immediate
 from high_parser.highop import HighOp, expand_ios
 from high_parser.polys import Polys
 
@@ -114,6 +114,47 @@ class Mul(HighOp):
         """Return the p-isa  equivalent of a Mul"""
 
         all_idxs = convolution_indices(self.input0.parts, self.input1.parts)
+
+        ls = []
+        for unit, q in it.product(
+            range(self.context.units), range(self.context.max_rns)
+        ):
+            for out_idx, in_idxs in enumerate(all_idxs):
+                ls.extend(self.generate_unit(unit, q, out_idx, in_idxs))
+
+        return ls
+
+
+@dataclass
+class Muli(HighOp):
+    """Class representing the high-level multiplication operation"""
+
+    context: Context
+    output: Polys
+    input0: Polys
+    input1: Immediate
+
+    def generate_unit(self, unit: int, q: int, out_idx: int, in_idxs: InIdxs):
+        """Helper for a given unit and q generate the p-isa ops for a multiplication"""
+
+        def get_pisa_op(num):
+            yield pisa_op.Mul
+            yield from (pisa_op.Mac for op in range(num - 1))
+
+        return [
+            op(
+                self.output(out_idx, q, unit),
+                self.input0(in0_idx, q, unit),
+                self.input1(in1_idx, q, unit),
+                q,
+            )
+            for (in0_idx, in1_idx), op in zip(in_idxs, get_pisa_op(len(in_idxs)))
+        ]
+
+    def to_pisa(self) -> list[PIsaOp]:
+        """Return the p-isa  equivalent of a Mul"""
+
+        all_idxs = convolution_indices(self.input0.parts, 1)
 
         ls = []
         for unit, q in it.product(

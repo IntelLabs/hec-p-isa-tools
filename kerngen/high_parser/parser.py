@@ -84,6 +84,9 @@ class Immediate(NamedTuple):
             raise ValueError("Immediate only has a name; no other arguments")
         return cls(name=name)
 
+    def __call__(self, *args, **kwargs) -> str:
+        return self.name
+
 
 ParserType = Context | Data | EmptyLine | Comment | HighOp
 
