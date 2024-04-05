@@ -97,7 +97,7 @@ class Muli(BinaryOp, PIsaOp):
 
     def __str__(self) -> str:
         """Return the p-isa instructions of an multiplication with immediates"""
-        return self._op_str("mac")
+        return self._op_str("muli")
 
 
 class Mac(BinaryOp, PIsaOp):
@@ -113,7 +113,7 @@ class Maci(BinaryOp, PIsaOp):
 
     def __str__(self) -> str:
         """Return the p-isa instructions of an multiply and accumulate with immediates"""
-        return self._op_str("mac")
+        return self._op_str("maci")
 
 
 @dataclass
