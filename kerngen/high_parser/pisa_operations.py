@@ -116,6 +116,7 @@ class Maci(BinaryOp, PIsaOp):
         return self._op_str("maci")
 
 
+@dataclass
 class Butterfly:
     """Common arguments for butterfly operations"""
 
