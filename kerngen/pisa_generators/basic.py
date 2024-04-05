@@ -145,7 +145,7 @@ class Muli(HighOp):
             op(
                 self.output(out_idx, q, unit),
                 self.input0(in0_idx, q, unit),
-                self.input1.name,
+                self.input1(in1_idx, q, unit),
                 q,
             )
             for (in0_idx, in1_idx), op in zip(in_idxs, get_pisa_op(len(in_idxs)))

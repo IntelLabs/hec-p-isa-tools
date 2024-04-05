@@ -11,7 +11,7 @@ from high_parser.parser import Context, Immediate
 from high_parser.highop import HighOp
 from high_parser.polys import Polys
 
-from .basic import Mul, Muli
+from .basic import Mul, Muli, Copy
 
 
 @dataclass
@@ -81,6 +81,9 @@ class INTT(HighOp):
 
         iN = Immediate("iN")
 
+        # Seems like it is needed
+        copy = Copy(self.context, self.output, self.input0)
+
         stage_dst_srcs = (
             (
                 (stage, outtmp, self.output)
@@ -109,8 +112,8 @@ class INTT(HighOp):
             )
         ]
 
-        # Essentially a scalar mul since psi 1 part
-        mul = Mul(self.context, self.output, self.input0, ipsi)
-        muli = Muli(self.context, self.output, self.input0, iN)
+        # Essentially a scalar mul since ipsi 1 part
+        mul = Mul(self.context, self.output, self.output, ipsi)
+        muli = Muli(self.context, self.output, self.output, iN)
 
-        return [*intts, *mul.to_pisa(), *muli.to_pisa()]
+        return [*copy.to_pisa(), *intts, *mul.to_pisa(), *muli.to_pisa()]

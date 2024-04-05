@@ -1,6 +1,8 @@
 # Copyright (C) 2024 Intel Corporation
 
 # Pylint config containing overrides
+[BASIC]
+good-names = iN, logN
 
 [CLASSES]
 # Minimum number of public methods for a class (see R0903).
