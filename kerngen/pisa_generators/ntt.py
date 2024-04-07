@@ -7,9 +7,7 @@ import itertools as it
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
-from high_parser.parser import Context, Immediate
-from high_parser.highop import HighOp
-from high_parser.polys import Polys
+from high_parser import Context, Immediate, HighOp, Polys
 
 from .basic import Mul, Muli, Copy
 

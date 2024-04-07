@@ -2,93 +2,18 @@
 
 """Module for parsing isa commands"""
 
-import math
 from pathlib import Path
-from typing import NamedTuple, Iterator
+from typing import Iterator
 
 from .generators import Generators
-from .highop import HighOp
-from .polys import Polys
 from .pisa_operations import PIsaOp
+from .types import Context, Comment, EmptyLine, Data, Immediate, Polys, HighOp
 
 MANIFEST_FILE = str(
     Path(__file__).parent.parent.absolute() / "pisa_generators/manifest.json"
 )
 
 Symbol = str
-
-
-class Comment(NamedTuple):
-    """Holder of a comment line"""
-
-    comment: str
-
-
-class EmptyLine(NamedTuple):
-    """Holder of an empty line"""
-
-
-class Context(NamedTuple):
-    """Class representing a given context of the scheme"""
-
-    scheme: str
-    poly_order: int  # the N
-    max_rns: int
-
-    @classmethod
-    def from_string(cls, line: str):
-        """Construct context from a string"""
-        scheme, poly_order, max_rns = line.split()
-        int_poly_order = int(poly_order)
-        int_max_rns = int(max_rns)
-        return cls(
-            scheme=scheme.upper(),
-            poly_order=int_poly_order,
-            max_rns=int_max_rns,
-        )
-
-    @property
-    def ntt_stages(self):
-        """Returns NTT stages (== log2(N))"""
-        return int(math.log2(self.poly_order))
-
-    @property
-    def units(self):
-        """units based on 8192 ~ 8K sized polynomials"""
-        return max(1, self.poly_order // 8192)
-
-
-class Data(NamedTuple):
-    """Class representing a data type with related attributes"""
-
-    name: str
-    parts: int
-
-    @classmethod
-    def from_string(cls, line: str):
-        """Construct data from a string"""
-        name, parts = line.split()
-        return cls(name=name, parts=int(parts))
-
-
-class Immediate(NamedTuple):
-    """Class representing a Immediate type with related attributes"""
-
-    name: str
-
-    @classmethod
-    def from_string(cls, line: str):
-        """Construct data from a string"""
-        name, *rest = line.split()
-        if len(rest) > 0:
-            raise ValueError("Immediate only has a name; no other arguments")
-        return cls(name=name)
-
-    def __call__(self, *args, **kwargs) -> str:
-        return self.name
-
-
-ParserType = Context | Data | EmptyLine | Comment | HighOp
 
 
 class ParseResults:
@@ -124,7 +49,6 @@ class ParseResults:
         )
 
 
-# pylint: disable=too-few-public-methods
 class Parser:
     """Parser for input high operations to p-isa operations"""
 
