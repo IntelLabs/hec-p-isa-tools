@@ -93,7 +93,7 @@ class INTT(HighOp):
         # TODO Is this passed in?
         ipsi = Polys("ipsi", parts=1, rns=self.input0.rns)
         outtmp = Polys("outtmp", self.output.parts, self.output.rns)
-        iN = Immediate("iN")
+        iN = Immediate(name="iN")
 
         # Seems like it is needed
         copy = Copy(self.context, self.output, self.input0)

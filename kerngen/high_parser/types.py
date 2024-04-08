@@ -6,7 +6,9 @@ import math
 import itertools as it
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import NamedTuple
+
+
+from pydantic import BaseModel
 
 from .pisa_operations import PIsaOp
 
@@ -74,17 +76,17 @@ def expand_ios(context, output, *inputs):
     )
 
 
-class Comment(NamedTuple):
+class Comment(BaseModel):
     """Holder of a comment line"""
 
     comment: str
 
 
-class EmptyLine(NamedTuple):
+class EmptyLine(BaseModel):
     """Holder of an empty line"""
 
 
-class Context(NamedTuple):
+class Context(BaseModel):
     """Class representing a given context of the scheme"""
 
     scheme: str
@@ -114,7 +116,7 @@ class Context(NamedTuple):
         return max(1, self.poly_order // 8192)
 
 
-class Data(NamedTuple):
+class Data(BaseModel):
     """Class representing a data type with related attributes"""
 
     name: str
@@ -127,7 +129,7 @@ class Data(NamedTuple):
         return cls(name=name, parts=int(parts))
 
 
-class Immediate(NamedTuple):
+class Immediate(BaseModel):
     """Class representing a Immediate type with related attributes"""
 
     name: str

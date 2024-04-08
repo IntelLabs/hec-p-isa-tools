@@ -78,10 +78,10 @@ Examples can be seen in the simpler implementations given in
 For `kerngen` to know of your class that represents a new command of the high
 language, simply add an entry into the JSON object in the
 [manifest.json](./pisa_generators/manifest.json) file. The key of the outermost
-JSON object is the FHE scheme `{BGV, CKKS, ...}` which corresponds to a set of
-operations of which it is associated with.  Each operation (inner JSON object)
-consists of the an operation name `OPNAME` as its key and a list containing the
-class name as the first entry and the file it is located in as its second. e.g.
+JSON object is the FHE scheme `{BGV, CKKS, ...}`; this key corresponds to a set
+of associated operations. Each operation (inner JSON object) consists of the an
+operation name `OPNAME` as its key and a list containing the class name as the
+first entry and the file it is located in as its second. e.g.
 ```
 {
   "SCHEME": {
