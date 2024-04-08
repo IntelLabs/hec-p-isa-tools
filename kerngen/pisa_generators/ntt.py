@@ -34,7 +34,7 @@ def butterflies_ops(
         for stage in range(ntt_stages)
     ]
 
-    if init_input is not None:
+    if init_input is True:
         stage_dst_srcs[0] = (
             (0, outtmp, input0) if ntt_stages_div_by_two == 0 else (0, input0, outtmp)
         )
