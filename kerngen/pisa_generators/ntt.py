@@ -9,7 +9,7 @@ import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
 from high_parser import Context, Immediate, HighOp, Polys
 
-from .basic import Mul, Muli, Copy
+from .basic import Mul, Muli
 
 
 def butterflies_ops(
@@ -18,19 +18,26 @@ def butterflies_ops(
     output: Polys,
     outtmp: Polys,
     input0: Polys,
+    *,  # kwargs after
+    init_input: bool = False,
 ) -> list[PIsaOp]:
     """Helper to return butterflies pisa operations for NTT/INTT"""
     ntt_stages = context.ntt_stages
     ntt_stages_div_by_two = ntt_stages % 2
 
-    stage_dst_srcs = (
+    stage_dst_srcs = [
         (
             (stage, outtmp, output)
             if ntt_stages_div_by_two == stage % 2
             else (stage, output, outtmp)
         )
         for stage in range(ntt_stages)
-    )
+    ]
+
+    if init_input is True:
+        stage_dst_srcs[0] = (
+            (0, outtmp, input0) if ntt_stages_div_by_two == 0 else (0, input0, outtmp)
+        )
 
     return [
         op(
@@ -64,6 +71,7 @@ class NTT(HighOp):
         """Return the p-isa code to perform an NTT"""
         # TODO Is this passed in?
         psi = Polys("psi", parts=1, rns=self.input0.rns)
+        # TODO We need to decide whether output symbols need to be defined
         outtmp = Polys("outtmp", self.output.parts, self.output.rns)
 
         # Essentially a scalar mul since psi 1 part
@@ -92,11 +100,9 @@ class INTT(HighOp):
         """Return the p-isa code to perform an INTT"""
         # TODO Is this passed in?
         ipsi = Polys("ipsi", parts=1, rns=self.input0.rns)
+        # TODO We need to decide whether output symbols need to be defined
         outtmp = Polys("outtmp", self.output.parts, self.output.rns)
         iN = Immediate(name="iN")
-
-        # Seems like it is needed
-        copy = Copy(self.context, self.output, self.input0)
 
         butterflies = butterflies_ops(
             pisa_op.INTT,
@@ -104,10 +110,11 @@ class INTT(HighOp):
             output=self.output,
             outtmp=outtmp,
             input0=self.input0,
+            init_input=True,
         )
 
         # Essentially a scalar mul since ipsi 1 part
         mul = Mul(self.context, self.output, self.output, ipsi)
         muli = Muli(self.context, self.output, self.output, iN)
 
-        return [*copy.to_pisa(), *butterflies, *mul.to_pisa(), *muli.to_pisa()]
+        return [*butterflies, *mul.to_pisa(), *muli.to_pisa()]
