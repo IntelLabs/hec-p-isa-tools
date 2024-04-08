@@ -7,9 +7,7 @@ import itertools as it
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
-from high_parser.parser import Context, Immediate
-from high_parser.highop import HighOp
-from high_parser.polys import Polys
+from high_parser import Context, Immediate, HighOp, Polys
 
 from .basic import Mul, Muli, Copy
 
@@ -95,7 +93,7 @@ class INTT(HighOp):
         # TODO Is this passed in?
         ipsi = Polys("ipsi", parts=1, rns=self.input0.rns)
         outtmp = Polys("outtmp", self.output.parts, self.output.rns)
-        iN = Immediate("iN")
+        iN = Immediate(name="iN")
 
         # Seems like it is needed
         copy = Copy(self.context, self.output, self.input0)

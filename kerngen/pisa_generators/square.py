@@ -5,9 +5,7 @@
 from dataclasses import dataclass
 
 from high_parser.pisa_operations import PIsaOp
-from high_parser.parser import Context
-from high_parser.highop import HighOp
-from high_parser.polys import Polys
+from high_parser import Context, HighOp, Polys
 
 from .basic import Copy, Mul
 

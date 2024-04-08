@@ -4,6 +4,11 @@
 [BASIC]
 good-names = iN, logN
 
+# pydantic and pylint don't always play nice
+# apparently due to libraries with compiled code
+[MASTER]
+extension-pkg-allow-list=pydantic
+
 [CLASSES]
 # Minimum number of public methods for a class (see R0903).
 min-public-methods = 0
