@@ -151,3 +151,13 @@ class INTT(Butterfly, PIsaOp):
     def __str__(self) -> str:
         """Return the p-isa instructions of an inverse NTT"""
         return self._op_str("intt")
+
+
+@dataclass
+class Comment(PIsaOp):
+    """Comment. These may help with kernel writting. Break up composite kernels."""
+
+    line: str
+
+    def __str__(self):
+        return "# " + self.line

@@ -30,7 +30,7 @@ class Polys:
         # Sanity bounds checks
         if part > self.parts or q > self.rns:
             raise PolyOutOfBoundsError(
-                f"part `{part}` or q `{q}` is more than the poly's `{self}`"
+                f"part `{part}` or q `{q}` is more than the poly's `{self!r}`"
             )
         return f"{self.name}_{part}_{q}_{unit}"
 
@@ -113,7 +113,9 @@ class Context(BaseModel):
     @property
     def units(self):
         """units based on 8192 ~ 8K sized polynomials"""
-        return max(1, self.poly_order // 8192)
+        # TODO hardcoding will be removed soon
+        native_poly_size = 8192
+        return max(1, self.poly_order // native_poly_size)
 
 
 class Data(BaseModel):
@@ -144,6 +146,17 @@ class Immediate(BaseModel):
 
     def __call__(self, *args, **kwargs) -> str:
         return self.name
+
+
+class ImmediateWithQ(BaseModel):
+    """Class representing a Immediate type with related attributes.
+    This differs from Immediate in that it holds upto RNS"""
+
+    name: str
+    rns: int
+
+    def __call__(self, q: int, *args, **kwargs):
+        return f"{self.name}_{q}"
 
 
 ParserType = Context | Data | EmptyLine | Comment | HighOp

@@ -18,7 +18,7 @@ def butterflies_ops(
     output: Polys,
     outtmp: Polys,
     input0: Polys,
-    *,  # kwargs after
+    *,  # only kwargs after
     init_input: bool = False,
 ) -> list[PIsaOp]:
     """Helper to return butterflies pisa operations for NTT/INTT"""
