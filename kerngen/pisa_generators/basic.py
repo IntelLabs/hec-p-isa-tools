@@ -136,8 +136,8 @@ class Muli(HighOp):
         """Helper for a given unit and q generate the p-isa ops for a multiplication"""
 
         def get_pisa_op(num):
-            yield pisa_op.Mul
-            yield from (pisa_op.Mac for op in range(num - 1))
+            yield pisa_op.Muli
+            yield from (pisa_op.Maci for op in range(num - 1))
 
         return [
             op(
