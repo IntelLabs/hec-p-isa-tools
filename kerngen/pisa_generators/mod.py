@@ -10,19 +10,8 @@ import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
 from high_parser import Context, Immediate, ImmediateWithQ, HighOp, Polys
 
-from .basic import Add, Mul, Muli
-from .ntt import NTT, INTT
-
-
-def batch(batch_size, n):
-    """Batch. Return tuple."""
-    nq, nr = divmod(n, batch_size)
-    yield from (
-        (u, v) for u, v in it.pairwise(range(0, nq * batch_size + 1, batch_size))
-    )
-    if nr != 0:
-        u = nq * batch_size
-        yield (u, u + nr)
+from .basic import Add, Muli
+from .ntt import NTT
 
 
 # TODO need to rethink this
@@ -54,8 +43,6 @@ def butterflies_ops_single_q(
             (0, outtmp, input0) if ntt_stages_div_by_two == 0 else (0, input0, outtmp)
         )
 
-    print("q:", q)
-
     return [
         op(
             ntt_stages,
@@ -86,9 +73,7 @@ class Mod(HighOp):
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform an mod switch down"""
         context = self.context
-
         last_q = self.input0.rns - 1
-        print(last_q)
 
         # Defining immediates
         iN = Immediate(name="iN")
@@ -107,9 +92,7 @@ class Mod(HighOp):
         # add to input, scale by inverse of q
 
         # Inverse NTT and multiply by inverse of t (plaintext modulus)
-        ls = [pisa_op.Comment("This is a comment")]
-        ntt_stages = context.ntt_stages
-        units = context.units
+        ls = [pisa_op.Comment("Start of mod kernel")]
         ls.extend(
             butterflies_ops_single_q(
                 pisa_op.INTT,
@@ -122,6 +105,7 @@ class Mod(HighOp):
             )
         )
 
+        units = context.units
         for part in range(self.input0.parts):
             ls.extend(
                 pisa_op.Muli(
@@ -135,12 +119,11 @@ class Mod(HighOp):
         input0.rns -= 1
 
         # TODO was batching required?
-        for q in range(last_q):
-            ls.append(pisa_op.Comment("The NTT bit"))
-            ls.extend(Muli(context, x, y, r2).to_pisa())
-            ls.extend(NTT(context, x, x).to_pisa())
-            ls.extend(Muli(context, x, x, t).to_pisa())
-            ls.extend(Add(context, x, x, input0).to_pisa())
-            ls.extend(Muli(context, self.output, x, iq).to_pisa())
+        ls.append(pisa_op.Comment("The NTT bit"))
+        ls.extend(Muli(context, x, y, r2).to_pisa())
+        ls.extend(NTT(context, x, x).to_pisa())
+        ls.extend(Muli(context, x, x, t).to_pisa())
+        ls.extend(Add(context, x, x, input0).to_pisa())
+        ls.extend(Muli(context, self.output, x, iq).to_pisa())
 
         return ls

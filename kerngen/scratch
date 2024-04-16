@@ -1,0 +1,11 @@
+
+
+def batch(batch_size, n):
+    """Batch. Return tuple."""
+    nq, nr = divmod(n, batch_size)
+    yield from (
+        (u, v) for u, v in it.pairwise(range(0, nq * batch_size + 1, batch_size))
+    )
+    if nr != 0:
+        u = nq * batch_size
+        yield (u, u + nr)
