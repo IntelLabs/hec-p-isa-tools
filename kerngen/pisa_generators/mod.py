@@ -118,7 +118,7 @@ class Mod(HighOp):
         input0 = copy(self.input0)
         input0.rns -= 1
 
-        # TODO was batching required?
+        # TODO was ever batching required?
         ls.append(pisa_op.Comment("The NTT bit"))
         ls.extend(Muli(context, x, y, r2).to_pisa())
         ls.extend(NTT(context, x, x).to_pisa())

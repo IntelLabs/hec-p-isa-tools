@@ -114,9 +114,7 @@ class Mul(HighOp):
         all_idxs = convolution_indices(self.input0.parts, self.input1.parts)
 
         ls = []
-        for unit, q in it.product(
-            range(self.context.units), range(self.context.max_rns)
-        ):
+        for unit, q in it.product(range(self.context.units), range(self.input0.rns)):
             for out_idx, in_idxs in enumerate(all_idxs):
                 ls.extend(self.generate_unit(unit, q, out_idx, in_idxs))
 
@@ -153,11 +151,8 @@ class Muli(HighOp):
         """Return the p-isa  equivalent of a Mul"""
 
         all_idxs = convolution_indices(self.input0.parts, 1)
-
         ls = []
-        for unit, q in it.product(
-            range(self.context.units), range(self.context.max_rns)
-        ):
+        for unit, q in it.product(range(self.context.units), range(self.input0.rns)):
             for out_idx, in_idxs in enumerate(all_idxs):
                 ls.extend(self.generate_unit(unit, q, out_idx, in_idxs))
 
