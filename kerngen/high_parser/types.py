@@ -43,6 +43,59 @@ class Polys:
 
 
 @dataclass
+class SubPolys:
+    """Class to abstract a selection of a Polys in the 2 dimensions namely part and rns"""
+
+    end_polys: Polys
+    start_polys: Polys = Polys("", 0, 0)
+
+    def expand(self, part: int, q: int, unit: int) -> str:
+        """Returns a string of the expanded symbol w.r.t. rns, part, and unit"""
+        # Sanity bounds checks
+        if (
+            self.start_polys.parts > part >= self.end_polys.parts
+            or self.start_polys.rns > q >= self.end_polys.rns
+        ):
+            raise PolyOutOfBoundsError(
+                f"part `{part}` or q `{q}` are not within the subpoly's range `{self!r}`"
+            )
+        return f"{self.name}_{part}_{q}_{unit}"
+
+    def __call__(self, part: int, q: int, unit: int) -> str:
+        """Forward `expand` method"""
+        return self.expand(part, q, unit)
+
+    def __repr__(self) -> str:
+        return self.name
+
+    @property
+    def name(self) -> str:
+        return self.end_polys.name
+
+    @property
+    def parts(self) -> int:
+        return self.end_polys.parts
+
+    @property
+    def rns(self) -> int:
+        return self.end_polys.rns
+
+    @classmethod
+    def from_polys(cls, polys: Polys, *, mode: str | None = None) -> "SubPolys":
+        copy = Polys(**vars(polys))
+        match mode:
+            case "drop_last_rns":
+                copy.rns -= 1
+                return cls(copy)
+            case "last_rns":
+                return cls(copy, Polys("", 0, copy.rns))
+            case None:
+                return cls(copy)
+            case _:
+                raise ValueError("Unknown mode for SubPolys")
+
+
+@dataclass
 class ImmediateWithQ:
     """Class representing a Immediate type with related attributes.
     This differs from Immediate in that it holds upto RNS"""

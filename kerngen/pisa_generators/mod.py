@@ -2,13 +2,12 @@
 
 """Module containing conversions or operations from isa to p-isa."""
 
-from copy import copy
 from dataclasses import dataclass
 from itertools import pairwise, product
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
-from high_parser import Context, Immediate, ImmediateWithQ, HighOp, Polys
+from high_parser import Context, Immediate, ImmediateWithQ, HighOp, Polys, SubPolys
 
 from .basic import Add, Muli
 from .ntt import NTT
@@ -115,8 +114,7 @@ class Mod(HighOp):
             )
 
         # Drop down input rns
-        input0 = copy(self.input0)
-        input0.rns -= 1
+        input0 = SubPolys.from_polys(self.input0, mode="drop_last_rns")
 
         # TODO was ever batching required?
         ls.append(pisa_op.Comment("The NTT bit"))
