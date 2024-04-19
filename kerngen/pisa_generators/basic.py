@@ -41,7 +41,9 @@ class CartesianOp(HighOp):
         )
 
         ls: list[PIsaOp] = []
-        for unit, q in it.product(range(self.context.units), range(self.input0.rns)):
+        for unit, q in it.product(
+            range(self.context.units), range(self.input0.start_rns, self.input0.rns)
+        ):
             ls.extend(
                 self.op(
                     self.output(part, q, unit),

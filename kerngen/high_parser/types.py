@@ -105,8 +105,8 @@ def expand_ios(context, output, *inputs):
             q,
         )
         for q, part, unit in it.product(
-            range(inputs[0].rns),
-            range(inputs[0].parts),
+            range(inputs[0].start_rns, inputs[0].rns),
+            range(inputs[0].start_parts, inputs[0].parts),
             range(context.units),
         )
     )
