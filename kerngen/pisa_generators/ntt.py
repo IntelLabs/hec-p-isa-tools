@@ -70,7 +70,9 @@ class NTT(HighOp):
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform an NTT"""
         # TODO Is this passed in?
-        psi = Polys("psi", parts=1, rns=self.input0.rns)
+        psi = Polys(
+            "psi", parts=1, rns=self.input0.rns, start_rns=self.input0.start_rns
+        )
         # TODO We need to decide whether output symbols need to be defined
         outtmp = Polys("outtmp", self.output.parts, self.output.rns)
 
@@ -99,7 +101,9 @@ class INTT(HighOp):
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform an INTT"""
         # TODO Is this passed in?
-        ipsi = Polys("ipsi", parts=1, rns=self.input0.rns)
+        ipsi = Polys(
+            "ipsi", parts=1, rns=self.input0.rns, start_rns=self.input0.start_rns
+        )
         # TODO We need to decide whether output symbols need to be defined
         outtmp = Polys("outtmp", self.output.parts, self.output.rns)
         iN = Immediate(name="iN")

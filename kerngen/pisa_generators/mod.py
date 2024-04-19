@@ -10,7 +10,7 @@ from high_parser.pisa_operations import PIsaOp
 from high_parser import Context, Immediate, ImmediateWithQ, HighOp, Polys
 
 from .basic import Add, Muli
-from .ntt import NTT, butterflies_ops
+from .ntt import INTT, NTT
 
 
 @dataclass
@@ -44,17 +44,9 @@ class Mod(HighOp):
 
         # Inverse NTT and multiply by inverse of t (plaintext modulus)
         input0 = Polys.from_polys(self.input0, mode="last_rns")
+        output = Polys.from_polys(self.output, mode="last_rns")
         ls = [pisa_op.Comment("Start of mod kernel")]
-        ls.extend(
-            butterflies_ops(
-                pisa_op.INTT,
-                context=context,
-                output=self.output,
-                outtmp=y,
-                input0=input0,
-                init_input=True,
-            )
-        )
+        ls.extend(INTT(context, output, input0).to_pisa())
 
         units = context.units
         for part in range(self.input0.parts):
