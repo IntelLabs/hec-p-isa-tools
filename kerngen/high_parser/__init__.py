@@ -9,5 +9,4 @@ from high_parser.types import (
     HighOp,
     expand_ios,
     Polys,
-    SubPolys,
 )
