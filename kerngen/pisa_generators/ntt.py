@@ -53,7 +53,7 @@ def butterflies_ops(
         for part, (stage, dst, src), q, (unit, next_unit) in it.product(
             range(input0.parts),
             stage_dst_srcs,
-            range(input0.rns),
+            range(input0.start_rns, input0.rns),
             it.pairwise(range(context.units)),
         )
     ]

@@ -3,62 +3,14 @@
 """Module containing conversions or operations from isa to p-isa."""
 
 from dataclasses import dataclass
-from itertools import pairwise, product
+from itertools import product
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
-from high_parser import Context, Immediate, ImmediateWithQ, HighOp, Polys, SubPolys
+from high_parser import Context, Immediate, ImmediateWithQ, HighOp, Polys
 
 from .basic import Add, Muli
-from .ntt import NTT
-
-
-# TODO need to rethink this
-def butterflies_ops_single_q(
-    op: pisa_op.NTT | pisa_op.INTT,
-    context: Context,
-    output: Polys,
-    outtmp: Polys,
-    input0: Polys,
-    *,  # only kwargs after
-    q: int,
-    init_input: bool = False,
-) -> list[PIsaOp]:
-    """Helper to return butterflies pisa operations for NTT/INTT"""
-    ntt_stages = context.ntt_stages
-    ntt_stages_div_by_two = ntt_stages % 2
-
-    stage_dst_srcs = [
-        (
-            (stage, outtmp, output)
-            if ntt_stages_div_by_two == stage % 2
-            else (stage, output, outtmp)
-        )
-        for stage in range(ntt_stages)
-    ]
-
-    if init_input is True:
-        stage_dst_srcs[0] = (
-            (0, outtmp, input0) if ntt_stages_div_by_two == 0 else (0, input0, outtmp)
-        )
-
-    return [
-        op(
-            ntt_stages,
-            dst(part, q, unit),
-            dst(part, q, next_unit),
-            src(part, q, unit),
-            src(part, q, next_unit),
-            (q, stage, unit),
-            q,
-        )
-        # units for omegas (aka w) taken from 16K onwards
-        for part, (stage, dst, src), (unit, next_unit) in product(
-            range(input0.parts),
-            stage_dst_srcs,
-            pairwise(range(context.units)),
-        )
-    ]
+from .ntt import NTT, butterflies_ops
 
 
 @dataclass
@@ -91,15 +43,15 @@ class Mod(HighOp):
         # add to input, scale by inverse of q
 
         # Inverse NTT and multiply by inverse of t (plaintext modulus)
+        input0 = Polys.from_polys(self.input0, mode="last_rns")
         ls = [pisa_op.Comment("Start of mod kernel")]
         ls.extend(
-            butterflies_ops_single_q(
+            butterflies_ops(
                 pisa_op.INTT,
                 context=context,
                 output=self.output,
                 outtmp=y,
-                input0=self.input0,
-                q=last_q,
+                input0=input0,
                 init_input=True,
             )
         )
@@ -114,14 +66,14 @@ class Mod(HighOp):
             )
 
         # Drop down input rns
-        input0 = SubPolys.from_polys(self.input0, mode="drop_last_rns")
+        input1 = Polys.from_polys(self.input0, mode="drop_last_rns")
 
         # TODO was ever batching required?
         ls.append(pisa_op.Comment("The NTT bit"))
         ls.extend(Muli(context, x, y, r2).to_pisa())
         ls.extend(NTT(context, x, x).to_pisa())
         ls.extend(Muli(context, x, x, t).to_pisa())
-        ls.extend(Add(context, x, x, input0).to_pisa())
+        ls.extend(Add(context, x, x, input1).to_pisa())
         ls.extend(Muli(context, self.output, x, iq).to_pisa())
 
         return ls

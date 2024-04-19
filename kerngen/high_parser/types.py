@@ -45,9 +45,9 @@ class Polys:
         return self.name
 
     @classmethod
-    def from_polys(cls, self, *, mode: str | None = None) -> "Polys":
+    def from_polys(cls, poly: "Polys", *, mode: str | None = None) -> "Polys":
         """Class method for creating a specific range of polys based on desired mode"""
-        copy = Polys(**vars(self))
+        copy = Polys(**vars(poly))
         match mode:
             case "drop_last_rns":
                 copy.rns -= 1
