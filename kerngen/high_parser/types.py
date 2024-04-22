@@ -22,7 +22,6 @@ class Polys:
     """helper object for handling polynomial expansion"""
 
     name: str
-    # TODO: Change names to end_{parts,rns}
     parts: int
     rns: int
     start_parts: int = 0
@@ -70,6 +69,7 @@ class ImmediateWithQ:
     rns: int
 
     def __call__(self, q: int, *args, **kwargs):
+        """Return the string of immediate with rns"""
         # Sanity bounds checks
         if q > self.rns:
             raise PolyOutOfBoundsError(

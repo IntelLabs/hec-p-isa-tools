@@ -4,11 +4,25 @@
 
 import itertools as it
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, Iterable
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
 from high_parser import Context, Immediate, HighOp, expand_ios, Polys
+
+
+# TODO move this to kernel utils
+def mixed_to_pisa_ops(ops: list[PIsaOp | HighOp]) -> list[PIsaOp]:
+    """Transform mixed list of op types to PIsaOp only"""
+
+    def helper(op):
+        if isinstance(op, PIsaOp):
+            return [op]
+        return op.to_pisa()
+
+    ops_pisa_clusters: Iterable[list[PIsaOp | HighOp]] = map(helper, ops)
+    # Flattens the list returned
+    return [pisa_op for pisa_ops in ops_pisa_clusters for pisa_op in pisa_ops]
 
 
 @dataclass
