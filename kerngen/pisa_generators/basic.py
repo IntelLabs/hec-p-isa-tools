@@ -12,12 +12,16 @@ from high_parser import Context, Immediate, HighOp, expand_ios, Polys
 
 
 # TODO move this to kernel utils
-def mixed_to_pisa_ops(ops: list[PIsaOp | HighOp]) -> list[PIsaOp]:
+def mixed_to_pisa_ops(ops: list[PIsaOp | list[PIsaOp] | HighOp]) -> list[PIsaOp]:
     """Transform mixed list of op types to PIsaOp only"""
 
-    def helper(op):
+    def helper(op) -> list[PIsaOp]:
         if isinstance(op, PIsaOp):
             return [op]
+        if isinstance(op, list):
+            if not all(isinstance(elem, PIsaOp) for elem in op):
+                raise ValueError("Not all elements in list are pisa ops")
+            return op
         return op.to_pisa()
 
     ops_pisa_clusters: Iterable[list[PIsaOp | HighOp]] = map(helper, ops)

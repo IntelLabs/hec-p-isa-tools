@@ -3,8 +3,9 @@
 """Module containing conversions or operations from isa to p-isa."""
 
 from dataclasses import dataclass
+from itertools import product
 
-from high_parser.pisa_operations import PIsaOp, Comment
+from high_parser.pisa_operations import PIsaOp, Comment, Muli as pisa_op_muli
 from high_parser import Context, Immediate, ImmediateWithQ, HighOp, Polys
 
 from .basic import Add, Muli, mixed_to_pisa_ops
@@ -21,41 +22,52 @@ class Mod(HighOp):
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform an mod switch down"""
+        # Convenience and Immediates
         context = self.context
         last_q = self.input0.rns - 1
-
-        # Defining immediates
         it = Immediate(name="it")
         one = Immediate(name="one")
         r2 = ImmediateWithQ(name="R2", rns=last_q)
         iq = ImmediateWithQ(name="iq", rns=last_q)
         t = ImmediateWithQ(name="t", rns=last_q)
 
+        # Drop down input rns
+        input_last_rns = Polys.from_polys(self.input0, mode="last_rns")
+        input_remaining_rns = Polys.from_polys(self.input0, mode="drop_last_rns")
+
         # Temp.
-        y = Polys.from_polys(self.input0, mode="last_rns")
-        y.name = "y"
-        x = Polys("x", self.input0.parts, last_q)
+        y = Polys(
+            "y",
+            input_last_rns.parts,
+            input_last_rns.rns,
+            start_rns=input_last_rns.start_rns,
+        )
+        x = Polys("x", input_remaining_rns.parts, input_remaining_rns.rns)
 
         # Compute the `delta_i = t * [-t^-1 * c_i] mod ql` where `i` are the parts
-        # The `one` acts as a select flag as whether or not R2 the Montgomery factor should be applied
-
-        input0 = Polys.from_polys(self.input0, mode="last_rns")
-        # Drop down input rns
-        input1 = Polys.from_polys(self.input0, mode="drop_last_rns")
-
+        # The `one` acts as a select flag as whether or not R2 the Montgomery
+        # factor should be applied
         return mixed_to_pisa_ops(
             [
                 Comment("Start of mod kernel"),
                 Comment("Compute the delta from last rns"),
-                INTT(context, y, input0),
+                INTT(context, y, input_last_rns),
                 Muli(context, y, y, it),
                 Muli(context, y, y, one),
                 Comment("Compute the remaining rns"),
-                Muli(context, x, y, r2),
+                # drop down to pisa ops to use correct rns q
+                [
+                    pisa_op_muli(x(part, q, unit), y(part, last_q, unit), r2(q), q)
+                    for part, q, unit in product(
+                        range(input_remaining_rns.parts),
+                        range(input_remaining_rns.rns),
+                        range(context.units),
+                    )
+                ],
                 NTT(context, x, x),
                 Muli(context, x, x, t),
                 Comment("Add the delta correction to mod down polys"),
-                Add(context, x, x, input1),
+                Add(context, x, x, input_remaining_rns),
                 Muli(context, self.output, x, iq),
             ]
         )
