@@ -3,12 +3,13 @@
 """Module containing the low level p-isa operations"""
 
 from dataclasses import dataclass
-from typing import Protocol
+from abc import ABC, abstractmethod
 
 
-class PIsaOp(Protocol):
-    """Protocol for p-isa operation"""
+class PIsaOp(ABC):
+    """Abstract class for p-isa operation"""
 
+    @abstractmethod
     def __str__(self) -> str:
         """Return the p-isa instructions of the operation"""
 
