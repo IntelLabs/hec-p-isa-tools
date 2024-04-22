@@ -103,8 +103,14 @@ class Parser:
                 if self.generators is None:
                     raise ValueError("Generator not set")
 
+                # Check for label (should proceed a `:`)
+                label = "0"  # Default label
+                if ":" in command_str:
+                    label, op_str = command_str.split(":")
+                    command, rest = op_str.split(maxsplit=1)
+
                 cls = self.generators.get_pisa_op(command)
-                return cls.from_string(context_seen[0], symbols_map, rest)
+                return cls.from_string(label, context_seen[0], symbols_map, rest)
 
     def parse_inputs(self, lines: list[str]) -> ParseResults:
         """parse the inputs given in return list of data and operations"""

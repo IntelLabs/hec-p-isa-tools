@@ -50,10 +50,11 @@ class HighOp(ABC):
         """Returns a list of the p-isa operations / instructions"""
 
     @classmethod
-    def from_string(cls, context, polys_map, args_line: str):
+    def from_string(cls, label, context, polys_map, args_line: str):
         """Construct HighOp from a string args"""
         try:
             ios = (polys_map[io] for io in args_line.split())
+            print(f"LABEL: {label}")
             return cls(context, *ios)  # type: ignore
 
         except ValueError as e:
