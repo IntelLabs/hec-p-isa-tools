@@ -12,3 +12,7 @@ extension-pkg-allow-list=pydantic
 [CLASSES]
 # Minimum number of public methods for a class (see R0903).
 min-public-methods = 0
+
+[FORMAT]
+# `black` takes care of our line lengths, but just in case it gets ridiculous
+max-line-length=230

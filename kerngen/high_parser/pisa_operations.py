@@ -156,7 +156,7 @@ class INTT(Butterfly, PIsaOp):
 
 @dataclass
 class Comment(PIsaOp):
-    """Comment. These may help with kernel writting. Break up composite kernels."""
+    """Comment. These may help with kernel writing. Break up composite kernels."""
 
     line: str
 

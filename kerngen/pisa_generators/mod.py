@@ -37,7 +37,7 @@ class Mod(HighOp):
         x = Polys("x", self.input0.parts, last_q)
 
         # Compute the `delta_i = t * [-t^-1 * c_i] mod ql` where `i` are the parts
-        # The `one` acts as a slect flag as whther or not R2 the Montgomery factor should be applied
+        # The `one` acts as a select flag as whether or not R2 the Montgomery factor should be applied
 
         input0 = Polys.from_polys(self.input0, mode="last_rns")
         # Drop down input rns
