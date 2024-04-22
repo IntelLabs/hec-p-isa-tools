@@ -3,7 +3,6 @@
 """Module containing conversions or operations from isa to p-isa."""
 
 from dataclasses import dataclass
-from itertools import product
 from typing import Iterable
 
 import high_parser.pisa_operations as pisa_op
@@ -56,31 +55,24 @@ class Mod(HighOp):
         # Multiply by 2n-th roots, perform NTT, multiply by t,
         # add to input, scale by inverse of q
 
+        # TODO was ever batching required?
         # Inverse NTT and multiply by inverse of t (plaintext modulus)
         input0 = Polys.from_polys(self.input0, mode="last_rns")
-        output = Polys.from_polys(self.output, mode="last_rns")
-        ls = [
-            pisa_op.Comment("Start of mod kernel"),
-            INTT(context, output, input0),
-        ]
-
-        for part in range(self.input0.parts):
-            ls.extend(
-                pisa_op.Muli(
-                    y(part, last_q, unit), y(part, last_q, unit), immediate.name, last_q
-                )
-                for immediate, unit in product((it, one), range(context.units))
-            )
-
         # Drop down input rns
         input1 = Polys.from_polys(self.input0, mode="drop_last_rns")
+        output = Polys.from_polys(self.output, mode="last_rns")
 
-        # TODO was ever batching required?
-        ls.append(pisa_op.Comment("The NTT bit"))
-        ls.extend(Muli(context, x, y, r2).to_pisa())
-        ls.extend(NTT(context, x, x).to_pisa())
-        ls.extend(Muli(context, x, x, t).to_pisa())
-        ls.extend(Add(context, x, x, input1).to_pisa())
-        ls.extend(Muli(context, self.output, x, iq).to_pisa())
-
-        return mixed_to_pisa_ops(ls)
+        return mixed_to_pisa_ops(
+            [
+                pisa_op.Comment("Start of mod kernel"),
+                INTT(context, output, input0),
+                Muli(context, y, y, it),
+                Muli(context, y, y, one),
+                pisa_op.Comment("The NTT bit"),
+                Muli(context, x, y, r2),
+                NTT(context, x, x),
+                Muli(context, x, x, t),
+                Add(context, x, x, input1),
+                Muli(context, self.output, x, iq),
+            ]
+        )
