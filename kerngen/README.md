@@ -1,8 +1,12 @@
 # Introduction
 
-This is the kernel generator responsible for producing HERACLES ISA kernels for
-various polynomial operations that occur in FHE.
+This is the kernel generator (kerngen) responsible for producing HERACLES ISA
+kernels for various polynomial operations that occur in FHE. A kernel are code
+snippets of p-ISA instructions with the purpose of implementing some high level
+polynomial gate.
 
+Kerngen essentially takes an higher level language as input and outputs the
+kernels requested.
 
 # Dependencies
 
@@ -10,7 +14,7 @@ python >= 3.10
 pip
 
 and what is listed in the [requirements](./requirements.txt) file. To install
-the python dependencies and development tools.
+the python dependencies and development tools simply run,
 
 ```bash
 pip -r requirements.txt
@@ -20,8 +24,8 @@ pip -r requirements.txt
 # Implementation
 
 The design is a simplified interpreter pattern. A domain specific language
-(DSL) defined as `high language` is received as input to the kernel generator.
-This `high language` describes FHE scheme and context parameters, as well as
+(DSL) defined as 'high language' is received as input to the kernel generator.
+This 'high language' describes FHE scheme and context parameters, as well as
 the operation with relative operands. This language is interpreted as a `high
 level instruction` which is then mapped to its corresponding `low level p-ISA
 instruction`. The resulting ISA kernel is sent to `stdout`.
@@ -29,15 +33,11 @@ instruction`. The resulting ISA kernel is sent to `stdout`.
 
 # Input high language
 
-Context defines the global properties `(scheme, poly_order, max_rns)` of the
-input script.
-
-Data defines symbols to be used and their attribute(s) (`num_parts`) where
-`num_parts` is the number of polynomials that comprise the data variable.
-
-All other commands are assumed to be operations. These are defined in the
+There are several kinds of commands. Keywords that cannot be used for kernel
+names `CONTEXT`, `DATA`, `IMMEDIATE`.  All other commands are assumed to be
+operations. All ops are case insensitive, but the convention we use the
+operations capitalized. These are defined in the
 [manifest.json](./pisa_generators/manifest.json) file.
-Documentation on each command can be found in [COMMANDS.md]().
 ```
 CONTEXT BGV 8192 4
 DATA a 2
@@ -46,6 +46,25 @@ DATA c 2
 ADD c a b
 ```
 
+## CONTEXT
+Context defines the global properties `(scheme, poly_order, max_rns)` of the
+input script.
+`CONTEXT` sets a global context for properties required by the kernels.
+- first field defines what we call scheme. In reality, it specifies the set of
+kernel instructions given in the manifest file, see []().
+- second field defines the polynomial size. This is required to when generating
+kernels how many units (multiples of the native polynomial size) are required
+and handled.
+- third field defines the max RNS, the global max number of how many moduli that
+the kernels can have or need to handle.
+
+## DATA
+`DATA` defines symbols to be used and their attribute(s) (`num_parts`) where
+`num_parts` is the number of polynomials that comprise the data variable.
+
+## IMMEDIATE
+`IMMEDIATE` declares a fixed symbol name that can be used for operations that
+expect and immediate value(s).
 
 # Generating kernels
 
