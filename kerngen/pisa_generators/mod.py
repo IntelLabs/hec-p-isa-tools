@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from itertools import product
 
 from high_parser.pisa_operations import PIsaOp, Comment, Muli as pisa_op_muli
-from high_parser import Context, Immediate, ImmediateWithQ, HighOp, Polys
+from high_parser import Context, Immediate, HighOp, Polys
 
 from .basic import Add, Muli, mixed_to_pisa_ops
 from .ntt import INTT, NTT
@@ -27,9 +27,9 @@ class Mod(HighOp):
         last_q = self.input0.rns - 1
         it = Immediate(name="it")
         one = Immediate(name="one")
-        r2 = ImmediateWithQ(name="R2", rns=last_q)
-        iq = ImmediateWithQ(name="iq", rns=last_q)
-        t = ImmediateWithQ(name="t", rns=last_q)
+        r2 = Immediate(name="R2", rns=last_q)
+        iq = Immediate(name="iq", rns=last_q)
+        t = Immediate(name="t", rns=last_q)
 
         # Drop down input rns
         input_last_rns = Polys.from_polys(self.input0, mode="last_rns")

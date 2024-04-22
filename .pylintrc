@@ -4,6 +4,9 @@
 [BASIC]
 good-names = iN, logN
 
+[MESSAGES CONTROL]
+disable=W0511
+
 # pydantic and pylint don't always play nice
 # apparently due to libraries with compiled code
 [MASTER]

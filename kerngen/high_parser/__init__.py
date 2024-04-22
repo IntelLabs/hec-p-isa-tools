@@ -5,7 +5,6 @@
 from high_parser.types import (
     Context,
     Immediate,
-    ImmediateWithQ,
     HighOp,
     expand_ios,
     Polys,

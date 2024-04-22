@@ -60,24 +60,6 @@ class Polys:
                 raise ValueError("Unknown mode for Polys")
 
 
-@dataclass
-class ImmediateWithQ:
-    """Class representing a Immediate type with related attributes.
-    This differs from Immediate in that it holds upto RNS"""
-
-    name: str
-    rns: int
-
-    def __call__(self, q: int, *args, **kwargs):
-        """Return the string of immediate with rns"""
-        # Sanity bounds checks
-        if q > self.rns:
-            raise PolyOutOfBoundsError(
-                f"q `{q}` is more than the immediate with RNS `{self!r}`"
-            )
-        return f"{self.name}_{q}"
-
-
 class HighOp(ABC):
     """An abstract class to help define/enforce API"""
 
@@ -168,9 +150,24 @@ class Data(BaseModel):
 
 
 class Immediate(BaseModel):
-    """Class representing a Immediate type with related attributes"""
+    """Class representing a Immediate type with related attributes.
+    Immediate in that it holds optional RNS"""
 
     name: str
+    rns: int | None = None
+
+    def __call__(self, *args, **kwargs):
+        """Return the string of immediate with rns"""
+        if self.rns is None:
+            return self.name
+
+        # Sanity bounds checks
+        q, *_ = args
+        if q > self.rns:
+            raise PolyOutOfBoundsError(
+                f"q `{q}` is more than the immediate with RNS `{self!r}`"
+            )
+        return f"{self.name}_{q}"
 
     @classmethod
     def from_string(cls, line: str):
@@ -179,9 +176,6 @@ class Immediate(BaseModel):
         if len(rest) > 0:
             raise ValueError("Immediate only has a name; no other arguments")
         return cls(name=name)
-
-    def __call__(self, *args, **kwargs) -> str:
-        return self.name
 
 
 ParserType = Context | Data | EmptyLine | Comment | HighOp
