@@ -123,6 +123,7 @@ At a high level kernels convert high-level operations into low-level p-isa
 operations, thus all kernels will need to inherit from `HighOp` and define the
 conversion function `to_pisa` as follows
 ```python
+@dataclass
 class NewKernel(HighOp):
     """Class representing the high-level NewKernel operation"""
 
