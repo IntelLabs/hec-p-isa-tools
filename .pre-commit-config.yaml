@@ -38,7 +38,7 @@ repos:
           - --comment-style
           - //                   # defaults to: #
     - repo: https://github.com/psf/black-pre-commit-mirror
-      rev: 24.4.0 #Updated 2024/04
+      rev: 24.4.0 # Updated 2024/04
       hooks:
         - id: black
           language_version: python3.10
