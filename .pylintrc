@@ -5,6 +5,7 @@
 good-names = iN, logN
 
 [MESSAGES CONTROL]
+# W0511 are TODO
 disable=W0511
 
 # pydantic and pylint don't always play nice
