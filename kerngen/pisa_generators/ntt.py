@@ -46,7 +46,8 @@ def butterflies_ops(
             dst(part, q, next_unit),
             src(part, q, unit),
             src(part, q, next_unit),
-            (q, stage, unit),
+            stage,
+            unit,
             q,
         )
         # units for omegas (aka w) taken from 16K onwards
