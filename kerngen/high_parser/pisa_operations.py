@@ -125,15 +125,15 @@ class Butterfly:
     output1: str
     input0: str
     input1: str
-    metas: tuple[int, int, int]
+    stage: int
+    unit: int
     q: int
 
     def _op_str(self, op: str) -> str:
         """Return the p-isa instructions of an multiplication and accumulate"""
-        ws = "_".join(map(str, self.metas))
         return (
             f"{self.logN}, {op}, {self.output0}, {self.output1}, "
-            f"{self.input0}, {self.input1}, w_{ws}, {self.q}"
+            f"{self.input0}, {self.input1}, {self.stage}, {self.unit}, {self.q}"
         )
 
 
