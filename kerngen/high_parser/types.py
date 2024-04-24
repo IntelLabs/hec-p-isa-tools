@@ -54,7 +54,7 @@ class HighOp(ABC):
         """Construct HighOp from a string args"""
         try:
             ios = (polys_map[io] for io in args_line.split())
-            return cls(context, *ios)  # type: ignore
+            return cls(label, context, *ios)  # type: ignore
 
         except ValueError as e:
             raise ValueError(f"Could not unpack command string `{args_line}`") from e
