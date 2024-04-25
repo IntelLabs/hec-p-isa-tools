@@ -16,6 +16,7 @@ from .ntt import INTT, NTT
 class Mod(HighOp):
     """Class representing mod down operation"""
 
+    label: str
     context: Context
     output: Polys
     input0: Polys
@@ -51,23 +52,25 @@ class Mod(HighOp):
             [
                 Comment("Start of mod kernel"),
                 Comment("Compute the delta from last rns"),
-                INTT(context, y, input_last_rns),
-                Muli(context, y, y, it),
-                Muli(context, y, y, one),
+                INTT(self.label, context, y, input_last_rns),
+                Muli(self.label, context, y, y, it),
+                Muli(self.label, context, y, y, one),
                 Comment("Compute the remaining rns"),
                 # drop down to pisa ops to use correct rns q
                 [
-                    pisa_op_muli(x(part, q, unit), y(part, last_q, unit), r2(q), q)
+                    pisa_op_muli(
+                        self.label, x(part, q, unit), y(part, last_q, unit), r2(q), q
+                    )
                     for part, q, unit in product(
                         range(input_remaining_rns.parts),
                         range(input_remaining_rns.rns),
                         range(context.units),
                     )
                 ],
-                NTT(context, x, x),
-                Muli(context, x, x, t),
+                NTT(self.label, context, x, x),
+                Muli(self.label, context, x, x, t),
                 Comment("Add the delta correction to mod down polys"),
-                Add(context, x, x, input_remaining_rns),
-                Muli(context, self.output, x, iq),
+                Add(self.label, context, x, x, input_remaining_rns),
+                Muli(self.label, context, self.output, x, iq),
             ]
         )
