@@ -15,6 +15,7 @@ from high_parser import Context, Immediate, HighOp, expand_ios, Polys
 class CartesianOp(HighOp):
     """Class representing the high-level cartesian operation"""
 
+    label: str
     context: Context
     output: Polys
     input0: Polys
@@ -27,7 +28,7 @@ class CartesianOp(HighOp):
         """Return the p-isa equivalent of an Add"""
         if self.input0.parts == self.input1.parts:
             return [
-                self.op(*expand_io, rns)
+                self.op(self.label, *expand_io, rns)
                 for expand_io, rns in expand_ios(
                     self.context, self.output, self.input0, self.input1
                 )
@@ -44,6 +45,7 @@ class CartesianOp(HighOp):
         for unit, q in it.product(range(self.context.units), range(self.input0.rns)):
             ls.extend(
                 self.op(
+                    self.label,
                     self.output(part, q, unit),
                     first(part, q, unit),
                     second(0, q, unit),
@@ -52,7 +54,9 @@ class CartesianOp(HighOp):
                 for part in range(first.parts)
             )
             ls.extend(
-                pisa_op.Copy(self.output(part, q, unit), second(part, q, unit))
+                pisa_op.Copy(
+                    self.label, self.output(part, q, unit), second(part, q, unit)
+                )
                 for part in range(first.parts, second.parts)
             )
         return ls
@@ -86,6 +90,7 @@ def convolution_indices(len_a, len_b) -> list[InIdxs]:
 class Mul(HighOp):
     """Class representing the high-level multiplication operation"""
 
+    label: str
     context: Context
     output: Polys
     input0: Polys
@@ -100,6 +105,7 @@ class Mul(HighOp):
 
         return [
             op(
+                self.label,
                 self.output(out_idx, q, unit),
                 self.input0(in0_idx, q, unit),
                 self.input1(in1_idx, q, unit),
@@ -127,6 +133,7 @@ class Mul(HighOp):
 class Muli(HighOp):
     """Class representing the high-level multiplication operation"""
 
+    label: str
     context: Context
     output: Polys
     input0: Polys
@@ -141,6 +148,7 @@ class Muli(HighOp):
 
         return [
             op(
+                self.label,
                 self.output(out_idx, q, unit),
                 self.input0(in0_idx, q, unit),
                 self.input1(in1_idx, q, unit),
@@ -168,6 +176,7 @@ class Muli(HighOp):
 class Copy(HighOp):
     """Class representing the high-level copy operation"""
 
+    label: str
     context: Context
     output: Polys
     input0: Polys
@@ -175,6 +184,6 @@ class Copy(HighOp):
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa equivalent of a Copy"""
         return [
-            pisa_op.Copy(*expand_io)
+            pisa_op.Copy(self.label, *expand_io)
             for expand_io, _ in expand_ios(self.context, self.output, self.input0)
         ]

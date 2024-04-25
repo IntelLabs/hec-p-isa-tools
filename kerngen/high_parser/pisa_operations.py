@@ -17,6 +17,7 @@ class PIsaOp(Protocol):
 class UnaryOp:
     """Class representing the p-isa common unary operation"""
 
+    label: str
     output: str
     input0: str
     q: str
@@ -24,13 +25,14 @@ class UnaryOp:
     def _op_str(self, op: str) -> str:
         """Return the p-isa instructions of an addition"""
 
-        return f"13, {op}, {self.output}, {self.input0}, {self.q}"
+        return f"{self.label}, {op}, {self.output}, {self.input0}, {self.q}"
 
 
 @dataclass
 class BinaryOp:
     """Class representing the p-isa common binary operation"""
 
+    label: str
     output: str
     input0: str
     input1: str
@@ -39,33 +41,37 @@ class BinaryOp:
     def _op_str(self, op: str) -> str:
         """Return the p-isa instructions of operation `op`"""
 
-        return f"13, {op}, {self.output}, {self.input0}, {self.input1}, {self.q}"
+        return (
+            f"{self.label}, {op}, {self.output}, {self.input0}, {self.input1}, {self.q}"
+        )
 
 
 @dataclass
 class Copy(PIsaOp):
     """Class representing the p-isa movement operation"""
 
+    label: str
     output: str
     input0: str
     # No q required
 
     def __str__(self) -> str:
         """Return the p-isa instructions of an movement"""
-        return f"13, copy, {self.output}, {self.input0}"
+        return f"{self.label}, copy, {self.output}, {self.input0}"
 
 
 @dataclass
 class Mov(PIsaOp):
     """Class representing the p-isa movement operation"""
 
+    label: str
     output: str
     input0: str
     # No q required
 
     def __str__(self) -> str:
         """Return the p-isa instructions of an movement"""
-        return f"13, move, {self.output}, {self.input0}"
+        return f"{self.label}, move, {self.output}, {self.input0}"
 
 
 class Add(BinaryOp, PIsaOp):
@@ -120,7 +126,7 @@ class Maci(BinaryOp, PIsaOp):
 class Butterfly:
     """Common arguments for butterfly operations"""
 
-    logN: int
+    label: str
     output0: str
     output1: str
     input0: str
@@ -132,7 +138,7 @@ class Butterfly:
     def _op_str(self, op: str) -> str:
         """Return the p-isa instructions of an multiplication and accumulate"""
         return (
-            f"{self.logN}, {op}, {self.output0}, {self.output1}, "
+            f"{self.label}, {op}, {self.output0}, {self.output1}, "
             f"{self.input0}, {self.input1}, {self.stage}, {self.unit}, {self.q}"
         )
 

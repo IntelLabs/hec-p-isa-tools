@@ -50,11 +50,11 @@ class HighOp(ABC):
         """Returns a list of the p-isa operations / instructions"""
 
     @classmethod
-    def from_string(cls, context, polys_map, args_line: str):
+    def from_string(cls, context, polys_map, args_line: str, label: str = "0"):
         """Construct HighOp from a string args"""
         try:
             ios = (polys_map[io] for io in args_line.split())
-            return cls(context, *ios)  # type: ignore
+            return cls(label, context, *ios)  # type: ignore
 
         except ValueError as e:
             raise ValueError(f"Could not unpack command string `{args_line}`") from e

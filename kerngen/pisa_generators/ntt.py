@@ -14,6 +14,7 @@ from .basic import Mul, Muli
 
 def butterflies_ops(
     op: pisa_op.NTT | pisa_op.INTT,
+    label: str,
     context: Context,
     output: Polys,
     outtmp: Polys,
@@ -41,7 +42,7 @@ def butterflies_ops(
 
     return [
         op(
-            ntt_stages,
+            label,
             dst(part, q, unit),
             dst(part, q, next_unit),
             src(part, q, unit),
@@ -64,6 +65,7 @@ def butterflies_ops(
 class NTT(HighOp):
     """Class representing the NTT"""
 
+    label: str
     context: Context
     output: Polys
     input0: Polys
@@ -76,10 +78,11 @@ class NTT(HighOp):
         outtmp = Polys("outtmp", self.output.parts, self.output.rns)
 
         # Essentially a scalar mul since psi 1 part
-        mul = Mul(self.context, self.output, self.input0, psi)
+        mul = Mul(self.label, self.context, self.output, self.input0, psi)
 
         butterflies = butterflies_ops(
             pisa_op.NTT,
+            self.label,
             context=self.context,
             output=self.output,
             outtmp=outtmp,
@@ -93,6 +96,7 @@ class NTT(HighOp):
 class INTT(HighOp):
     """Class representing the INTT"""
 
+    label: str
     context: Context
     output: Polys
     input0: Polys
@@ -107,6 +111,7 @@ class INTT(HighOp):
 
         butterflies = butterflies_ops(
             pisa_op.INTT,
+            self.label,
             context=self.context,
             output=self.output,
             outtmp=outtmp,
@@ -115,7 +120,7 @@ class INTT(HighOp):
         )
 
         # Essentially a scalar mul since ipsi 1 part
-        mul = Mul(self.context, self.output, self.output, ipsi)
-        muli = Muli(self.context, self.output, self.output, iN)
+        mul = Mul(self.label, self.context, self.output, self.output, ipsi)
+        muli = Muli(self.label, self.context, self.output, self.output, iN)
 
         return [*butterflies, *mul.to_pisa(), *muli.to_pisa()]

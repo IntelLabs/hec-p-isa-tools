@@ -60,9 +60,17 @@ class Parser:
         """Set generator once context is known"""
         self.generators = Generators.from_manifest(MANIFEST_FILE, scheme)
 
+    def _get_label(self, command_str: str):
+        """Helper function for grabbing the label if one exists else return a default value."""
+        label = "0"
+        if ":" in command_str:
+            label, command_str = command_str.split(":")
+        return label, command_str
+
     def _delegate(self, command_str: str, context_seen: list[Context], symbols_map):
         """This helper is delegated the task of which subparser objects to create.
         It is also responsible for setting context."""
+        label, command_str = self._get_label(command_str)
         try:
             # the split removes leading whitespace
             command, rest = command_str.split(maxsplit=1)
@@ -104,7 +112,7 @@ class Parser:
                     raise ValueError("Generator not set")
 
                 cls = self.generators.get_pisa_op(command)
-                return cls.from_string(context_seen[0], symbols_map, rest)
+                return cls.from_string(context_seen[0], symbols_map, rest, label=label)
 
     def parse_inputs(self, lines: list[str]) -> ParseResults:
         """parse the inputs given in return list of data and operations"""
