@@ -5,4 +5,4 @@ black ~= 24.3
 pylint ~= 3.1
 
 # for testing
-pytest ~= 7.2
+pytest ~= 8.1
