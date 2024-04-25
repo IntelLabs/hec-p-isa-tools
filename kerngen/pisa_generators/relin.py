@@ -3,7 +3,6 @@
 """Module containing conversions or operations from isa to p-isa."""
 
 from dataclasses import dataclass
-from itertools import product
 
 from high_parser.pisa_operations import PIsaOp, Comment, Muli as pisa_op_muli
 from high_parser import Context, Immediate, HighOp, Polys
@@ -23,5 +22,26 @@ class Relin(HighOp):
     input0: Polys
 
     def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa code to perform an relinearization (relin)"""
-        return []
+        """Return the p-isa code to perform a relinearization (relin)"""
+        one = Immediate(name="one")
+        coeffs = Polys("coeff", parts=2, rns=self.input0.rns)
+        relin_key = Polys("rlk", parts=2, rns=self.input0.rns)
+        # Step 1: Decompose ctxt and extend basis with special primes
+        #   iNTT
+        #   ModSwitchUp
+        # Step 2: Calculate something
+        # Step 3: Compute delta (rounding error correction)
+        # Step 4: Compute new ctxt mod Q
+        # Step 5: Add to original ctxt
+
+        # This is probably a modswitch
+        # intt
+        intt = INTT(self.label, self.context, self.output, self.input0)
+        # muli
+        muli = Muli(self.label, self.context, self.output, self.output, one)
+
+        # ntt
+        ntt = NTT(self.label, self.context, coeffs, coeffs)
+        # add
+
+        return [*intt.to_pisa(), *muli.to_pisa(), *ntt.to_pisa()]
