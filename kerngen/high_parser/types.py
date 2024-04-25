@@ -24,13 +24,15 @@ class Polys:
     name: str
     parts: int
     rns: int
+    start_parts: int = 0
+    start_rns: int = 0
 
     def expand(self, part: int, q: int, unit: int) -> str:
         """Returns a string of the expanded symbol w.r.t. rns, part, and unit"""
         # Sanity bounds checks
-        if part > self.parts or q > self.rns:
+        if self.start_parts > part >= self.parts or self.start_rns > q >= self.rns:
             raise PolyOutOfBoundsError(
-                f"part `{part}` or q `{q}` is more than the poly's `{self}`"
+                f"part `{part}` or q `{q}` are not within the poly's range `{self!r}`"
             )
         return f"{self.name}_{part}_{q}_{unit}"
 
@@ -40,6 +42,22 @@ class Polys:
 
     def __repr__(self) -> str:
         return self.name
+
+    @classmethod
+    def from_polys(cls, poly: "Polys", *, mode: str | None = None) -> "Polys":
+        """Class method for creating a specific range of polys based on desired mode"""
+        copy = Polys(**vars(poly))
+        match mode:
+            case "drop_last_rns":
+                copy.rns -= 1
+                return cls(**vars(copy))
+            case "last_rns":
+                copy.start_rns = copy.rns - 1
+                return cls(**vars(copy))
+            case None:
+                return cls(**vars(copy))
+            case _:
+                raise ValueError("Unknown mode for Polys")
 
 
 class HighOp(ABC):
@@ -69,8 +87,8 @@ def expand_ios(context, output, *inputs):
             q,
         )
         for q, part, unit in it.product(
-            range(inputs[0].rns),
-            range(inputs[0].parts),
+            range(inputs[0].start_rns, inputs[0].rns),
+            range(inputs[0].start_parts, inputs[0].parts),
             range(context.units),
         )
     )
@@ -113,7 +131,9 @@ class Context(BaseModel):
     @property
     def units(self):
         """units based on 8192 ~ 8K sized polynomials"""
-        return max(1, self.poly_order // 8192)
+        # TODO hardcoding will be removed soon
+        native_poly_size = 8192
+        return max(1, self.poly_order // native_poly_size)
 
 
 class Data(BaseModel):
@@ -130,9 +150,24 @@ class Data(BaseModel):
 
 
 class Immediate(BaseModel):
-    """Class representing a Immediate type with related attributes"""
+    """Class representing a Immediate type with related attributes.
+    Immediate in that it holds optional RNS"""
 
     name: str
+    rns: int | None = None
+
+    def __call__(self, *args, **kwargs):
+        """Return the string of immediate with rns"""
+        if self.rns is None:
+            return self.name
+
+        # Sanity bounds checks
+        q, *_ = args
+        if q > self.rns:
+            raise PolyOutOfBoundsError(
+                f"q `{q}` is more than the immediate with RNS `{self!r}`"
+            )
+        return f"{self.name}_{q}"
 
     @classmethod
     def from_string(cls, line: str):
@@ -141,9 +176,6 @@ class Immediate(BaseModel):
         if len(rest) > 0:
             raise ValueError("Immediate only has a name; no other arguments")
         return cls(name=name)
-
-    def __call__(self, *args, **kwargs) -> str:
-        return self.name
 
 
 ParserType = Context | Data | EmptyLine | Comment | HighOp

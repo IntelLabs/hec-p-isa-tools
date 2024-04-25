@@ -4,11 +4,29 @@
 
 import itertools as it
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, Iterable
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
 from high_parser import Context, Immediate, HighOp, expand_ios, Polys
+
+
+# TODO move this to kernel utils
+def mixed_to_pisa_ops(ops: list[PIsaOp | list[PIsaOp] | HighOp]) -> list[PIsaOp]:
+    """Transform mixed list of op types to PIsaOp only"""
+
+    def helper(op) -> list[PIsaOp]:
+        if isinstance(op, PIsaOp):
+            return [op]
+        if isinstance(op, list):
+            if not all(isinstance(elem, PIsaOp) for elem in op):
+                raise ValueError("Not all elements in list are pisa ops")
+            return op
+        return op.to_pisa()
+
+    ops_pisa_clusters: Iterable[list[PIsaOp | HighOp]] = map(helper, ops)
+    # Flattens the list returned
+    return [pisa_op for pisa_ops in ops_pisa_clusters for pisa_op in pisa_ops]
 
 
 @dataclass
@@ -42,7 +60,9 @@ class CartesianOp(HighOp):
         )
 
         ls: list[PIsaOp] = []
-        for unit, q in it.product(range(self.context.units), range(self.input0.rns)):
+        for unit, q in it.product(
+            range(self.context.units), range(self.input0.start_rns, self.input0.rns)
+        ):
             ls.extend(
                 self.op(
                     self.label,
@@ -121,7 +141,7 @@ class Mul(HighOp):
 
         ls = []
         for unit, q in it.product(
-            range(self.context.units), range(self.context.max_rns)
+            range(self.context.units), range(self.input0.start_rns, self.input0.rns)
         ):
             for out_idx, in_idxs in enumerate(all_idxs):
                 ls.extend(self.generate_unit(unit, q, out_idx, in_idxs))
@@ -143,8 +163,8 @@ class Muli(HighOp):
         """Helper for a given unit and q generate the p-isa ops for a multiplication"""
 
         def get_pisa_op(num):
-            yield pisa_op.Mul
-            yield from (pisa_op.Mac for op in range(num - 1))
+            yield pisa_op.Muli
+            yield from (pisa_op.Maci for op in range(num - 1))
 
         return [
             op(
@@ -161,10 +181,9 @@ class Muli(HighOp):
         """Return the p-isa  equivalent of a Mul"""
 
         all_idxs = convolution_indices(self.input0.parts, 1)
-
         ls = []
         for unit, q in it.product(
-            range(self.context.units), range(self.context.max_rns)
+            range(self.context.units), range(self.input0.start_rns, self.input0.rns)
         ):
             for out_idx, in_idxs in enumerate(all_idxs):
                 ls.extend(self.generate_unit(unit, q, out_idx, in_idxs))

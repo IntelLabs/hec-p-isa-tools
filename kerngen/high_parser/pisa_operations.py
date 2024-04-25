@@ -3,12 +3,13 @@
 """Module containing the low level p-isa operations"""
 
 from dataclasses import dataclass
-from typing import Protocol
+from abc import ABC, abstractmethod
 
 
-class PIsaOp(Protocol):
-    """Protocol for p-isa operation"""
+class PIsaOp(ABC):
+    """Abstract class for p-isa operation"""
 
+    @abstractmethod
     def __str__(self) -> str:
         """Return the p-isa instructions of the operation"""
 
@@ -157,3 +158,13 @@ class INTT(Butterfly, PIsaOp):
     def __str__(self) -> str:
         """Return the p-isa instructions of an inverse NTT"""
         return self._op_str("intt")
+
+
+@dataclass
+class Comment(PIsaOp):
+    """Comment. These may help with kernel writing. Break up composite kernels."""
+
+    line: str
+
+    def __str__(self):
+        return "# " + self.line

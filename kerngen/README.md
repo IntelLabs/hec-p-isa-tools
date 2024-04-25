@@ -1,16 +1,20 @@
 # Introduction
 
-This is the kernel generator responsible for producing HERACLES ISA kernels for
-various polynomial operations that occur in FHE.
+This is the kernel generator (kerngen) responsible for producing HERACLES ISA
+kernels for various polynomial operations that occur in FHE. A kernel are code
+snippets of p-ISA instructions with the purpose of implementing some high level
+polynomial gate.
 
+Kerngen essentially takes an higher level language as input and outputs the
+kernels requested.
 
 # Dependencies
 
-python >= 3.10
-pip
+- python >= 3.10
+- pip
 
 and what is listed in the [requirements](./requirements.txt) file. To install
-the python dependencies and development tools.
+the python dependencies and development tools simply run,
 
 ```bash
 pip -r requirements.txt
@@ -20,8 +24,8 @@ pip -r requirements.txt
 # Implementation
 
 The design is a simplified interpreter pattern. A domain specific language
-(DSL) defined as `high language` is recieved as input to the kernel generator.
-This `high language` describes FHE scheme and context parameters, as well as
+(DSL) defined as 'high language' is received as input to the kernel generator.
+This 'high language' describes FHE scheme and context parameters, as well as
 the operation with relative operands. This language is interpreted as a `high
 level instruction` which is then mapped to its corresponding `low level p-ISA
 instruction`. The resulting ISA kernel is sent to `stdout`.
@@ -29,15 +33,11 @@ instruction`. The resulting ISA kernel is sent to `stdout`.
 
 # Input high language
 
-Context defines the global properties `(scheme, poly_order, max_rns)` of the
-input script.
-
-Data defines symbols to be used and their attribute(s) (`num_parts`) where
-`num_parts` is the number of polynomials that comprise the data variable.
-
-All other commands are assumed to be operations. These are defined in the
+There are several kinds of commands. Keywords that cannot be used for kernel
+names `CONTEXT`, `DATA`, `IMMEDIATE`.  All other commands are assumed to be
+operations. All ops are case insensitive, but the convention we use the
+operations capitalized. These are defined in the
 [manifest.json](./pisa_generators/manifest.json) file.
-Documentation on each command can be found in [COMMANDS.md]().
 ```
 CONTEXT BGV 8192 4
 DATA a 2
@@ -46,10 +46,29 @@ DATA c 2
 ADD c a b
 ```
 
+## CONTEXT
+Context defines the global properties `(scheme, poly_order, max_rns)` of the
+input script.
+`CONTEXT` sets a global context for properties required by the kernels.
+- first field defines what we call scheme. In reality, it specifies the set of
+kernel instructions given in the manifest file, see []().
+- second field defines the polynomial size. This is required to when generating
+kernels how many units (multiples of the native polynomial size) are required
+and handled.
+- third field defines the max RNS, the global max number of how many moduli that
+the kernels can have or need to handle.
+
+## DATA
+`DATA` defines symbols to be used and their attribute(s) (`num_parts`) where
+`num_parts` is the number of polynomials that comprise the data variable.
+
+## IMMEDIATE
+`IMMEDIATE` declares a fixed symbol name that can be used for operations that
+expect and immediate value(s).
 
 # Generating kernels
 
-The main entrypoint to the kernel generator is [kerngen.py](kerngen.py). This
+The main entry point to the kernel generator is [kerngen.py](kerngen.py). This
 script expects input from `stdin` in the form of the input high language
 described above. It can be called with
 ```bash
@@ -79,7 +98,7 @@ For `kerngen` to know of your class that represents a new command of the high
 language, simply add an entry into the JSON object in the
 [manifest.json](./pisa_generators/manifest.json) file. The key of the outermost
 JSON object is the FHE scheme `{BGV, CKKS, ...}`; this key corresponds to a set
-of associated operations. Each operation (inner JSON object) consists of the an
+of associated operations. Each operation (inner JSON object) consists of the
 operation name `OPNAME` as its key and a list containing the class name as the
 first entry and the file it is located in as its second. e.g.
 ```
@@ -96,6 +115,57 @@ For kernel writers the reserved words that cannot be used as `OPNAME` are:
 - DATA
 - IMM
 ```
+
+
+# Writing kernels
+
+The kernel generator has been designed to make it easy to add new kernels.
+Kernel files are typically placed in the [pisa_generators](./pisa_generators)
+directory to simplify the manifest file as the paths are relative to this
+directory.
+
+Before writing the kernel you will require to import the `pisa_operations`
+module and any relevant types from the `high_parser` such as the `HighOp` and
+`Context`
+```python
+import high_parser.pisa_operations as pisa_op
+from high_parser.pisa_operations import PIsaOp
+from high_parser import Context, HighOp, Polys
+```
+
+The `Polys` class will be the most commonly used type in most kernels to
+represent the inputs and outputs of the operation. This type represents the
+polynomials and holds information such as the `name` of symbol that represents
+the polynomial, the number of `parts`, and the `rns`.
+
+At a high level kernels convert high-level operations into low-level p-isa
+operations, thus all kernels will need to inherit from `HighOp` and define the
+conversion function `to_pisa` as follows
+```python
+@dataclass
+class NewKernel(HighOp):
+    """Class representing the high-level NewKernel operation"""
+
+    context: Context
+    output: Polys
+    input0: Polys
+
+    def to_pisa(self) -> list[PIsaOp]:
+        """Return the p-isa equivalent of the NewKernel operation"""
+```
+
+If the kernel consists of an algorithm already represented by an existing
+kernel it is possible to import the necessary kernel and compose the new kernel
+using existing kernels. For example the `Square` kernel requires a `Mul`
+operation
+```python
+from .basic import Mul
+
+class Square(HighOp):
+...
+mul = Mul(...)
+```
+see [square.py](./pisa_generators/square.py) for a complete example of this.
 
 
 # Running the tests

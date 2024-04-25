@@ -20,35 +20,38 @@ def parse_args():
     return parser.parse_args()
 
 
-def to_string_block(iterable: Iterable[str]) -> str:
+def to_string_block(iterable: Iterable[str], *, ignore_comments: bool) -> str:
     """helper to string block"""
-    return "\n".join(map(str, iterable))
+    strs = map(str, iterable)
+    if ignore_comments is True:
+        return "\n".join(i for i in strs if not i.rstrip().startswith("#"))
+    return "\n".join(strs)
 
 
-def main(args):
+def main(args) -> None:
     """Main entrypoint. Load available p-isa ops and parse isa instructions."""
 
     parse_results = Parser().parse_inputs(sys.stdin.readlines())
 
     # String blocks of the p-isa instructions (forward the Nones)
-    pisa_ops: list[str] = list(
-        to_string_block(op) if op is not None else None
+    pisa_ops: list[str | None] = list(
+        to_string_block(op, ignore_comments=args.quiet) if op is not None else None
         for op in parse_results.get_pisa_ops()
     )
 
     filtered = (t for t in zip(pisa_ops, parse_results.commands) if t[0] is not None)
-    hashes = "#" * 3
-    if not args.quiet:
-        context = parse_results.context
-        print(hashes, "Context:", context, hashes)
 
-    if not args.quiet:
-        for kernel_no, (pisa_op, command) in enumerate(filtered):
-            print(hashes, f"Kernel ({kernel_no}):", command, hashes)
-            print(pisa_op)
-    else:
+    if args.quiet is True:
         for pisa_op, _ in filtered:
             print(pisa_op)
+        return
+
+    hashes = "#" * 3
+    context = parse_results.context
+    print(hashes, "Context:", context, hashes)
+    for kernel_no, (pisa_op, command) in enumerate(filtered):
+        print(hashes, f"Kernel ({kernel_no}):", command, hashes)
+        print(pisa_op)
 
 
 if __name__ == "__main__":

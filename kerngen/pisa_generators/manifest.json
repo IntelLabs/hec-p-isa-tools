@@ -7,7 +7,8 @@
     "SUB": ["Sub", "basic.py"],
     "SQUARE": ["Square", "square.py"],
     "NTT": ["NTT", "ntt.py"],
-    "INTT": ["INTT", "ntt.py"]
+    "INTT": ["INTT", "ntt.py"],
+    "MOD": ["Mod", "mod.py"]
   },
   "CKKS": {
   }
