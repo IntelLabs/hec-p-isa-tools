@@ -10,8 +10,8 @@ kernels requested.
 
 # Dependencies
 
-python >= 3.10
-pip
+- python >= 3.10
+- pip
 
 and what is listed in the [requirements](./requirements.txt) file. To install
 the python dependencies and development tools simply run,
