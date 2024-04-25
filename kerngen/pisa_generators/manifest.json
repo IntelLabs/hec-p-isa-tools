@@ -8,7 +8,8 @@
     "SQUARE": ["Square", "square.py"],
     "NTT": ["NTT", "ntt.py"],
     "INTT": ["INTT", "ntt.py"],
-    "MOD": ["Mod", "mod.py"]
+    "MOD": ["Mod", "mod.py"],
+    "RELIN": ["Relin", "relin.py"],
   },
   "CKKS": {
   }
