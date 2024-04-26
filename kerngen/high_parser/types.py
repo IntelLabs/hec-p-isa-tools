@@ -118,7 +118,7 @@ class Context(BaseModel):
         scheme, poly_order, max_rns, *krns = line.split()
         int_poly_order = int(poly_order)
         int_max_rns = int(max_rns)
-        int_key_rns = int(krns[0]) if krns else None
+        int_key_rns = int_max_rns + int(krns[0]) if krns else None
         return cls(
             scheme=scheme.upper(),
             poly_order=int_poly_order,
