@@ -121,7 +121,7 @@ class Context(BaseModel):
             raise ValueError(f"too many parameters for context given: {line}")
         int_poly_order = int(poly_order)
         int_max_rns = int(max_rns)
-        int_key_rns = int_max_rns + int(krns[0]) if krns else None
+        int_key_rns = int_max_rns + int(krns) if krns else None
         return cls(
             scheme=scheme.upper(),
             poly_order=int_poly_order,
