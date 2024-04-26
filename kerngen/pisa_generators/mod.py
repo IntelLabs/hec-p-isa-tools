@@ -74,3 +74,17 @@ class Mod(HighOp):
                 Muli(self.label, context, self.output, x, iq),
             ]
         )
+
+
+@dataclass
+class ModUp(HighOp):
+    """Class representing mod switch up operation"""
+
+    label: str
+    context: Context
+    output: Polys
+    input0: Polys
+
+    def to_pisa(self) -> list[PIsaOp]:
+        """Return the p-isa code to perform a modulus switch up (modup)"""
+        return []

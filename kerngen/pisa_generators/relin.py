@@ -9,7 +9,7 @@ from high_parser import Context, Immediate, HighOp, Polys
 
 from .basic import Add, Muli, mixed_to_pisa_ops
 from .ntt import INTT, NTT
-from .mod import Mod
+from .mod import Mod, ModUp
 
 
 @dataclass
@@ -26,17 +26,13 @@ class Relin(HighOp):
         one = Immediate(name="one")
         coeffs = Polys("coeff", parts=2, rns=self.input0.rns)
         relin_key = Polys("rlk", parts=2, rns=self.input0.rns)
-        # Step 1: Decompose ctxt and extend basis with special primes
-        #   iNTT
-        #   ModSwitchUp
+        # Step 1: Extend basis with special primes (ModSwitchUp)
         # Step 2: Calculate something
         # Step 3: Compute delta (rounding error correction)
         # Step 4: Compute new ctxt mod Q
         # Step 5: Add to original ctxt
 
-        # This is probably a modswitch
-        # intt
-        intt = INTT(self.label, self.context, self.output, self.input0)
+        extend_base = ModUp(self.label, self.context, self.output, self.input0)
         # muli
         muli = Muli(self.label, self.context, self.output, self.output, one)
 
@@ -44,4 +40,4 @@ class Relin(HighOp):
         ntt = NTT(self.label, self.context, coeffs, coeffs)
         # add
 
-        return [*intt.to_pisa(), *muli.to_pisa(), *ntt.to_pisa()]
+        return [*extend_base.to_pisa(), *muli.to_pisa(), *ntt.to_pisa()]
