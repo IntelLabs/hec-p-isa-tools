@@ -33,21 +33,14 @@ class Relin(HighOp):
         coeffs = Polys("coeff", parts=2, rns=self.input0.rns)
         relin_key = Polys("rlk", parts=2, rns=self.input0.rns)
 
-        extend_base = ModUp(self.label, self.context, self.output, self.input0)
-        # muli
-        muli = Muli(self.label, self.context, self.output, self.output, one)
-        # ntt
-        ntt = NTT(self.label, self.context, coeffs, coeffs)
-        # add
-
         return mixed_to_pisa_ops(
             [
                 Comment("Extend base from Q to PQ"),
-                extend_base,
+                ModUp(self.label, self.context, self.output, self.input0),
                 Comment("Compute something"),
-                muli,
+                Muli(self.label, self.context, self.output, self.output, one),
                 Comment("Compute delta"),
-                ntt,
+                NTT(self.label, self.context, coeffs, coeffs),
                 Comment("Compute new ctxt mod Q"),
                 Comment("Add to original ctxt"),
             ]
