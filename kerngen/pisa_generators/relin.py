@@ -31,7 +31,7 @@ class Relin(HighOp):
 
         one = Immediate(name="one")
         coeffs = Polys("coeff", parts=2, rns=self.input0.rns)
-        relin_key = Polys("rlk", parts=2, rns=self.input0.rns)
+        relin_key = Polys("rlk", parts=2, rns=self.context.key_rns)
 
         return mixed_to_pisa_ops(
             [
