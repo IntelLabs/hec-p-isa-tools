@@ -4,10 +4,10 @@
 
 from dataclasses import dataclass
 
-from high_parser.pisa_operations import PIsaOp, Comment, Muli as pisa_op_muli
+from high_parser.pisa_operations import PIsaOp, Comment
 from high_parser import Context, Immediate, HighOp, Polys
 
-from .basic import Add, Muli, mixed_to_pisa_ops
+from .basic import Add, Mul, Muli, mixed_to_pisa_ops
 from .ntt import INTT, NTT
 from .mod import Mod, ModUp
 
@@ -30,8 +30,14 @@ class Relin(HighOp):
         # Step 5: Add to original ctxt
 
         one = Immediate(name="one")
+        r_squared = Immediate(name="R2")
+        t = Immediate(name="t_0")
+        inverse_t = Immediate(name="t_inverse_mod_p_0")
+        inverse_p = Immediate(name="pinv_q_0")
+        delta = Polys("delta", parts=2, rns=1)
         coeffs = Polys("coeff", parts=2, rns=self.input0.rns)
         relin_key = Polys("rlk", parts=2, rns=self.context.key_rns)
+        new_ctxt = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
 
         return mixed_to_pisa_ops(
             [
@@ -39,9 +45,19 @@ class Relin(HighOp):
                 ModUp(self.label, self.context, self.output, self.input0),
                 Comment("Compute something"),
                 Muli(self.label, self.context, self.output, self.output, one),
+                Muli(self.label, self.context, coeffs, self.output, r_squared),
                 Comment("Compute delta"),
-                NTT(self.label, self.context, coeffs, coeffs),
+                INTT(self.label, self.context, delta, delta),
+                Muli(self.label, self.context, delta, delta, inverse_t),
+                Muli(self.label, self.context, delta, delta, one),
+                Muli(self.label, self.context, coeffs, delta, r_squared),
                 Comment("Compute new ctxt mod Q"),
+                Mod(self.label, self.context, coeffs, coeffs),
+                Muli(self.label, self.context, coeffs, coeffs, t),
+                Muli(self.label, self.context, coeffs, coeffs, inverse_p),
+                Mul(self.label, self.context, new_ctxt, coeffs, relin_key),
                 Comment("Add to original ctxt"),
+                Add(self.label, self.context, coeffs, coeffs, new_ctxt),
+                Add(self.label, self.context, self.output, coeffs, self.input0),
             ]
         )
