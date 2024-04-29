@@ -116,12 +116,16 @@ class Context(BaseModel):
     def from_string(cls, line: str):
         """Construct context from a string"""
         scheme, poly_order, max_rns, *optional = line.split()
-        krns, *rest = optional
-        if rest != []:
+        try:
+            krns, *rest = optional
+        except ValueError:
+            krns = None
+        if optional != [] and rest != []:
             raise ValueError(f"too many parameters for context given: {line}")
         int_poly_order = int(poly_order)
         int_max_rns = int(max_rns)
         int_key_rns = int_max_rns + int(krns) if krns else None
+        print(int_key_rns)
         return cls(
             scheme=scheme.upper(),
             poly_order=int_poly_order,
