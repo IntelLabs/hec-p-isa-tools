@@ -87,18 +87,12 @@ class ModUp(HighOp):
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform a modulus switch up (modup)"""
-        input_last_part = Polys(
-            "input",
-            parts=self.input0.parts,
-            rns=self.output.rns,
-            start_parts=self.input0.parts - 1,
-        )
         coeffs = Polys("coeff", parts=2, rns=self.input0.rns)
 
         return mixed_to_pisa_ops(
             [
                 Comment("Start of modup kernel"),
-                INTT(self.label, self.context, self.input0, input_last_part),
-                NTT(self.label, self.context, coeffs, coeffs),
+                INTT(self.label, self.context, coeffs, self.input0),
+                NTT(self.label, self.context, self.output, coeffs),
             ]
         )
