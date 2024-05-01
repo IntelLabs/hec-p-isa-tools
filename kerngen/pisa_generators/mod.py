@@ -72,6 +72,7 @@ class Mod(HighOp):
                 Comment("Add the delta correction to mod down polys"),
                 Add(self.label, context, x, x, input_remaining_rns),
                 Muli(self.label, context, self.output, x, iq),
+                Comment("End of mod kernel"),
             ]
         )
 
@@ -88,10 +89,22 @@ class ModUp(HighOp):
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform a modulus switch up (modup)"""
 
+        one = Immediate(name="one")
+        r_squared = Immediate(name="R2", rns=2)
+
+        # extended_poly like input_last_part will have only the last `part`
+        extended_poly = Polys.from_polys(self.input0)
+        extended_poly.name = "ct"
+
         return mixed_to_pisa_ops(
             [
                 Comment("Start of modup kernel"),
-                INTT(self.label, self.context, self.output, self.input0),
-                #                NTT(self.label, self.context, self.output, coeffs),
+                INTT(self.label, self.context, extended_poly, self.input0),
+                Comment("Multiply Montgomery"),
+                Muli(self.label, self.context, extended_poly, extended_poly, one),
+                Muli(self.label, self.context, self.output, extended_poly, r_squared),
+                Comment("Transform back to residue domain"),
+                NTT(self.label, self.context, self.output, self.output),
+                Comment("End of modup kernel"),
             ]
         )
