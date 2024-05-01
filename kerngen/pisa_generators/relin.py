@@ -44,7 +44,9 @@ class Relin(HighOp):
             rns=self.output.rns,
             start_parts=self.input0.parts - 1,
         )
-        extended_poly = Polys("ct", parts=2, rns=self.context.key_rns)
+        # extended_poly like input_last_part will have only the last `part`
+        extended_poly = Polys.from_polys(input_last_part)
+        extended_poly.name = "ct"
 
         return mixed_to_pisa_ops(
             [

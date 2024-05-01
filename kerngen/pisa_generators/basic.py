@@ -97,11 +97,13 @@ class Sub(CartesianOp):
 InIdxs = list[tuple[int, int]]
 
 
-def convolution_indices(len_a, len_b) -> list[InIdxs]:
+def convolution_indices(input0: Polys, input1: Polys) -> list[InIdxs]:
     """Helper gives convolution of parts indices"""
-    # len_* is the deg + 1 of a polynomial (the vector)
-    idxs: list[InIdxs] = [[] for _ in range(len_a + len_b - 1)]
-    for t in it.product(range(len_a), range(len_b)):
+    # start_* is the deg + 1 of a polynomial (the vector)
+    idxs: list[InIdxs] = [[] for _ in range(input0.parts + input1.parts - 1)]
+    for t in it.product(
+        range(input0.start_parts, input0.parts), range(input1.start_parts, input1.parts)
+    ):
         idxs[sum(t)].append(t)
     return idxs
 
@@ -137,7 +139,7 @@ class Mul(HighOp):
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa  equivalent of a Mul"""
 
-        all_idxs = convolution_indices(self.input0.parts, self.input1.parts)
+        all_idxs = convolution_indices(self.input0, self.input1)
 
         ls = []
         for unit, q in it.product(
@@ -178,9 +180,13 @@ class Muli(HighOp):
         ]
 
     def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa  equivalent of a Mul"""
+        """Return the p-isa equivalent of a multiply by an immediate"""
 
-        all_idxs = convolution_indices(self.input0.parts, 1)
+        # TODO Muli needs to be rethought. Immediates have equiv single part.
+        all_idxs = [
+            [(i, i)] if i >= self.input0.start_parts else []
+            for i in range(self.input0.parts)
+        ]
         ls = []
         for unit, q in it.product(
             range(self.context.units), range(self.input0.start_rns, self.input0.rns)

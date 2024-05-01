@@ -9,7 +9,7 @@ import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
 from high_parser import Context, Immediate, HighOp, Polys
 
-from .basic import Mul, Muli
+from .basic import Mul, Muli, mixed_to_pisa_ops
 
 
 def butterflies_ops(
@@ -91,7 +91,7 @@ class NTT(HighOp):
             input0=self.input0,
         )
 
-        return [*mul.to_pisa(), *butterflies]
+        return mixed_to_pisa_ops([mul, butterflies])
 
 
 @dataclass
@@ -127,4 +127,4 @@ class INTT(HighOp):
         mul = Mul(self.label, self.context, self.output, self.output, ipsi)
         muli = Muli(self.label, self.context, self.output, self.output, iN)
 
-        return [*butterflies, *mul.to_pisa(), *muli.to_pisa()]
+        return mixed_to_pisa_ops([butterflies, mul, muli])
