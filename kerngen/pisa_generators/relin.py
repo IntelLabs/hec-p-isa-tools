@@ -44,15 +44,15 @@ class Relin(HighOp):
             rns=self.output.rns,
             start_parts=self.input0.parts - 1,
         )
-        ctxt_extended = Polys("ct", parts=2, rns=self.context.key_rns)
+        extended_poly = Polys("ct", parts=2, rns=self.context.key_rns)
 
         return mixed_to_pisa_ops(
             [
                 Comment("Extend base from Q to PQ"),
-                ModUp(self.label, self.context, ctxt_extended, input_last_part),
+                ModUp(self.label, self.context, extended_poly, input_last_part),
                 Comment("Compute something"),
-                Muli(self.label, self.context, ctxt_extended, ctxt_extended, one),
-                Muli(self.label, self.context, coeffs, ctxt_extended, r_squared),
+                Muli(self.label, self.context, extended_poly, extended_poly, one),
+                Muli(self.label, self.context, coeffs, extended_poly, r_squared),
                 Comment("Compute delta"),
                 INTT(self.label, self.context, delta, delta),
                 Muli(self.label, self.context, delta, delta, inverse_t),
