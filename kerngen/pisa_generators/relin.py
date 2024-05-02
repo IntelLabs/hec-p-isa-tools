@@ -5,7 +5,7 @@
 from dataclasses import dataclass
 
 from high_parser.pisa_operations import PIsaOp, Comment
-from high_parser import Context, HighOp, Polys
+from high_parser import Context, HighOp, KeyPolys, Polys
 
 from .basic import Add, Mul, mixed_to_pisa_ops
 from .mod import Mod, ModUp
@@ -28,7 +28,7 @@ class Relin(HighOp):
         # Step 4: Compute new ctxt mod Q
         # Step 5: Add to original ctxt
 
-        relin_key = Polys("rlk", parts=2, rns=self.context.key_rns)
+        relin_key = KeyPolys("rlk", parts=2, rns=self.context.key_rns)
         mul_by_rlk = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
         input_last_part = Polys(
             "input",
