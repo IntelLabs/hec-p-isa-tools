@@ -33,7 +33,7 @@ class Relin(HighOp):
         inverse_p = Immediate(name="pinv_q_0")
         delta = Polys("delta", parts=2, rns=1)
         relin_key = Polys("rlk", parts=2, rns=self.context.key_rns)
-        new_ctxt = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
+        mul_by_rlk = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
         input_last_part = Polys(
             "input",
             parts=self.input0.parts,
@@ -46,10 +46,13 @@ class Relin(HighOp):
 
         return mixed_to_pisa_ops(
             [
+                Comment("Start of relin kernel"),
                 Comment("Extend base from Q to PQ"),
                 ModUp(self.label, self.context, coeffs, input_last_part),
-                #                Comment("Compute delta"),
-                #                INTT(self.label, self.context, delta, delta),
+                Comment("Multiply by relin key"),
+                Mul(self.label, self.context, mul_by_rlk, coeffs, relin_key),
+                Comment("Compute delta"),
+                INTT(self.label, self.context, delta, delta),
                 #                Muli(self.label, self.context, delta, delta, inverse_t),
                 #                Muli(self.label, self.context, delta, delta, one),
                 #                Muli(self.label, self.context, coeffs, delta, r_squared),
@@ -61,5 +64,6 @@ class Relin(HighOp):
                 #                Comment("Add to original ctxt"),
                 #                Add(self.label, self.context, coeffs, coeffs, new_ctxt),
                 #                Add(self.label, self.context, self.output, coeffs, self.input0),
+                Comment("End of relin kernel"),
             ]
         )
