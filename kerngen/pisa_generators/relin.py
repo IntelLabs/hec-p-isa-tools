@@ -41,16 +41,19 @@ class Relin(HighOp):
             start_parts=self.input0.parts - 1,
         )
 
-        coeffs = Polys.from_polys(input_last_part)
-        coeffs.name = "coeffs"
+        last_coeff = Polys.from_polys(input_last_part)
+        last_coeff.name = "coeffs"
+        upto_last_coeffs = Polys.from_polys(last_coeff)
+        upto_last_coeffs.parts -= 1
+        upto_last_coeffs.start_parts = 0
 
         return mixed_to_pisa_ops(
             [
                 Comment("Start of relin kernel"),
                 Comment("Extend base from Q to PQ"),
-                ModUp(self.label, self.context, coeffs, input_last_part),
+                ModUp(self.label, self.context, last_coeff, input_last_part),
                 Comment("Multiply by relin key"),
-                Mul(self.label, self.context, mul_by_rlk, coeffs, relin_key),
+                Mul(self.label, self.context, mul_by_rlk, upto_last_coeffs, relin_key),
                 Comment("Compute delta"),
                 INTT(self.label, self.context, delta, delta),
                 #                Muli(self.label, self.context, delta, delta, inverse_t),
