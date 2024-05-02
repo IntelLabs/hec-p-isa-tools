@@ -53,8 +53,7 @@ class Relin(HighOp):
                 Comment("Compute delta"),
                 Mod(self.label, self.context, mul_by_rlk, mul_by_rlk),
                 Comment("Add to original poly"),
-                #                Add(self.label, self.context, coeffs, coeffs, mul_by_rlk),
-                #                Add(self.label, self.context, self.output, coeffs, self.input0),
+                Add(self.label, self.context, self.output, mul_by_rlk, self.input0),
                 Comment("End of relin kernel"),
             ]
         )
