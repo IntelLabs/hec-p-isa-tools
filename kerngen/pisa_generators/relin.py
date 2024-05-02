@@ -5,10 +5,9 @@
 from dataclasses import dataclass
 
 from high_parser.pisa_operations import PIsaOp, Comment
-from high_parser import Context, Immediate, HighOp, Polys
+from high_parser import Context, HighOp, Polys
 
-from .basic import Add, Mul, Muli, mixed_to_pisa_ops
-from .ntt import INTT, NTT
+from .basic import Add, Mul, mixed_to_pisa_ops
 from .mod import Mod, ModUp
 
 
@@ -29,9 +28,6 @@ class Relin(HighOp):
         # Step 4: Compute new ctxt mod Q
         # Step 5: Add to original ctxt
 
-        inverse_t = Immediate(name="t_inverse_mod_p_0")
-        inverse_p = Immediate(name="pinv_q_0")
-        delta = Polys("delta", parts=2, rns=1)
         relin_key = Polys("rlk", parts=2, rns=self.context.key_rns)
         mul_by_rlk = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
         input_last_part = Polys(
@@ -55,17 +51,9 @@ class Relin(HighOp):
                 Comment("Multiply by relin key"),
                 Mul(self.label, self.context, mul_by_rlk, upto_last_coeffs, relin_key),
                 Comment("Compute delta"),
-                INTT(self.label, self.context, delta, delta),
-                #                Muli(self.label, self.context, delta, delta, inverse_t),
-                #                Muli(self.label, self.context, delta, delta, one),
-                #                Muli(self.label, self.context, coeffs, delta, r_squared),
-                #               Comment("Compute new ctxt mod Q"),
-                #                Mod(self.label, self.context, coeffs, coeffs),
-                #                Muli(self.label, self.context, coeffs, coeffs, t),
-                #                Muli(self.label, self.context, coeffs, coeffs, inverse_p),
-                #                Mul(self.label, self.context, new_ctxt, coeffs, relin_key),
-                #                Comment("Add to original ctxt"),
-                #                Add(self.label, self.context, coeffs, coeffs, new_ctxt),
+                Mod(self.label, self.context, mul_by_rlk, mul_by_rlk),
+                Comment("Add to original poly"),
+                #                Add(self.label, self.context, coeffs, coeffs, mul_by_rlk),
                 #                Add(self.label, self.context, self.output, coeffs, self.input0),
                 Comment("End of relin kernel"),
             ]

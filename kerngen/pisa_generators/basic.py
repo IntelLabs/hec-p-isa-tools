@@ -12,7 +12,7 @@ from high_parser import Context, Immediate, HighOp, expand_ios, Polys
 
 
 # TODO move this to kernel utils
-def mixed_to_pisa_ops(ops: list[PIsaOp | list[PIsaOp] | HighOp]) -> list[PIsaOp]:
+def mixed_to_pisa_ops(ops: Iterable[PIsaOp | list[PIsaOp] | HighOp]) -> list[PIsaOp]:
     """Transform mixed list of op types to PIsaOp only"""
 
     def helper(op) -> list[PIsaOp]:
