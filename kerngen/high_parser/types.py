@@ -60,6 +60,28 @@ class Polys:
                 raise ValueError("Unknown mode for Polys")
 
 
+class KeyPolys(Polys):
+    """A Polys object for Keys"""
+
+    def __init__(self, *args, **kwargs):
+        digits = "digits"
+        self.digits = kwargs.get(digits, 0)
+        super().__init__(self, *args, **{k: v for k, v in kwargs if k != digits})
+
+    def expand(self, part: int, q: int, unit: int, digit: int = 0) -> str:
+        """Returns a string of the expanded symbol w.r.t. rns, part, and unit"""
+        # Sanity bounds checks
+        if (
+            self.start_parts > part >= self.parts
+            or self.start_rns > q >= self.rns
+            or digit > self.digits
+        ):
+            raise PolyOutOfBoundsError(
+                f"part `{part}` or q `{q}` are not within the key poly's range `{self!r}`"
+            )
+        return f"{self.name}_{part}_{q}_{unit}"
+
+
 class HighOp(ABC):
     """An abstract class to help define/enforce API"""
 
