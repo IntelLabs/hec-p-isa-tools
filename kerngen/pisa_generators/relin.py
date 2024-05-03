@@ -50,7 +50,7 @@ class Relin(HighOp):
                 ModUp(self.label, self.context, last_coeff, input_last_part),
                 Comment("Multiply by relin key"),
                 Mul(self.label, self.context, mul_by_rlk, upto_last_coeffs, relin_key),
-                Comment("Compute delta"),
+                Comment("Mod switch down"),
                 Mod(self.label, self.context, mul_by_rlk, mul_by_rlk),
                 Comment("Add to original poly"),
                 Add(self.label, self.context, self.output, mul_by_rlk, self.input0),
