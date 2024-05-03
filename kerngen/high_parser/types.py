@@ -27,8 +27,10 @@ class Polys:
     start_parts: int = 0
     start_rns: int = 0
 
-    def expand(self, part: int, q: int, unit: int) -> str:
+    # def expand(self, part: int, q: int, unit: int) -> str:
+    def expand(self, *args) -> str:
         """Returns a string of the expanded symbol w.r.t. rns, part, and unit"""
+        part, q, unit = args
         # Sanity bounds checks
         if self.start_parts > part >= self.parts or self.start_rns > q >= self.rns:
             raise PolyOutOfBoundsError(
@@ -36,9 +38,9 @@ class Polys:
             )
         return f"{self.name}_{part}_{q}_{unit}"
 
-    def __call__(self, part: int, q: int, unit: int) -> str:
+    def __call__(self, *args) -> str:
         """Forward `expand` method"""
-        return self.expand(part, q, unit)
+        return self.expand(*args)
 
     def __repr__(self) -> str:
         return self.name
@@ -65,11 +67,13 @@ class KeyPolys(Polys):
 
     def __init__(self, *args, **kwargs):
         digits = "digits"
-        self.digits = kwargs.get(digits, 0)
+        self.digits = kwargs.get(digits, 1)
         super().__init__(*args, **{k: v for k, v in kwargs.items() if k != digits})
 
-    def expand(self, part: int, q: int, unit: int, digit: int = 0) -> str:
-        """Returns a string of the expanded symbol w.r.t. rns, part, and unit"""
+    # def expand(self, digit: int, part: int, q: int, unit: int) -> str:
+    def expand(self, *args) -> str:
+        """Returns a string of the expanded symbol w.r.t. digit, rns, part, and unit"""
+        digit, part, q, unit = args
         # Sanity bounds checks
         if (
             self.start_parts > part >= self.parts
@@ -77,9 +81,9 @@ class KeyPolys(Polys):
             or digit > self.digits
         ):
             raise PolyOutOfBoundsError(
-                f"part `{part}` or q `{q}` are not within the key poly's range `{self!r}`"
+                f"part `{digit}` or `{part}` or q `{q}` are not within the key poly's range `{self!r}`"
             )
-        return f"{self.name}_{part}_{q}_{unit}"
+        return f"{self.name}_{digit}_{part}_{q}_{unit}"
 
 
 class HighOp(ABC):

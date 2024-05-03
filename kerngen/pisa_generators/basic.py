@@ -8,7 +8,7 @@ from typing import ClassVar, Iterable
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
-from high_parser import Context, Immediate, HighOp, expand_ios, Polys
+from high_parser import Context, Immediate, HighOp, expand_ios, Polys, KeyPolys
 
 
 # TODO move this to kernel utils
@@ -116,9 +116,18 @@ class Mul(HighOp):
     context: Context
     output: Polys
     input0: Polys
-    input1: Polys
+    input1: KeyPolys | Polys
 
-    def generate_unit(self, unit: int, q: int, out_idx: int, in_idxs: InIdxs):
+    # pylint: disable=too-many-arguments
+    def generate_unit(
+        self,
+        unit: int,
+        q: int,
+        out_idx: int,
+        in_idxs: InIdxs,
+        *,
+        digit: int | None = None
+    ):
         """Helper for a given unit and q generate the p-isa ops for a multiplication"""
 
         def get_pisa_op(num):
@@ -130,17 +139,29 @@ class Mul(HighOp):
                 self.label,
                 self.output(out_idx, q, unit),
                 self.input0(in0_idx, q, unit),
-                self.input1(in1_idx, q, unit),
+                (
+                    self.input1(in1_idx, q, unit)
+                    if digit is None
+                    else self.input1(digit, in1_idx, q, unit)
+                ),
                 q,
             )
             for (in0_idx, in1_idx), op in zip(in_idxs, get_pisa_op(len(in_idxs)))
         ]
 
-    def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa  equivalent of a Mul"""
+    def _keypolys_to_pisa(self, all_idxs: list[InIdxs]) -> list[PIsaOp]:
+        ls = []
+        for digit, unit, q in it.product(
+            range(self.input1.digits),  # NOTE digits from input1 NOT input0
+            range(self.context.units),
+            range(self.input0.start_rns, self.input0.rns),
+        ):
+            for out_idx, in_idxs in enumerate(all_idxs):
+                ls.extend(self.generate_unit(unit, q, out_idx, in_idxs, digit=digit))
 
-        all_idxs = convolution_indices(self.input0, self.input1)
+        return ls
 
+    def _polys_to_pisa(self, all_idxs: list[InIdxs]) -> list[PIsaOp]:
         ls = []
         for unit, q in it.product(
             range(self.context.units), range(self.input0.start_rns, self.input0.rns)
@@ -149,6 +170,14 @@ class Mul(HighOp):
                 ls.extend(self.generate_unit(unit, q, out_idx, in_idxs))
 
         return ls
+
+    def to_pisa(self) -> list[PIsaOp]:
+        """Return the p-isa  equivalent of a Mul"""
+
+        all_idxs: list[InIdxs] = convolution_indices(self.input0, self.input1)
+        if isinstance(self.input1, KeyPolys):
+            return self._keypolys_to_pisa(all_idxs)
+        return self._polys_to_pisa(all_idxs)
 
 
 @dataclass
