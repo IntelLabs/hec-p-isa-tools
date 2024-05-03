@@ -12,6 +12,7 @@ from high_parser import Context, Immediate, HighOp, Polys
 from .basic import Mul, Muli, mixed_to_pisa_ops
 
 
+# pylint: disable=too-many-arguments
 def butterflies_ops(
     op: pisa_op.NTT | pisa_op.INTT,
     label: str,
@@ -91,7 +92,7 @@ class NTT(HighOp):
             input0=self.input0,
         )
 
-        return mixed_to_pisa_ops([mul, butterflies])
+        return mixed_to_pisa_ops(mul, butterflies)
 
 
 @dataclass
@@ -127,4 +128,4 @@ class INTT(HighOp):
         mul = Mul(self.label, self.context, self.output, self.output, ipsi)
         muli = Muli(self.label, self.context, self.output, self.output, iN)
 
-        return mixed_to_pisa_ops([butterflies, mul, muli])
+        return mixed_to_pisa_ops(butterflies, mul, muli)

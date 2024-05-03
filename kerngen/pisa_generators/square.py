@@ -24,8 +24,6 @@ class Square(HighOp):
         intermediate = Polys(name="inter", parts=self.input0.parts, rns=self.input0.rns)
 
         return mixed_to_pisa_ops(
-            [
-                Copy(self.label, self.context, intermediate, self.input0),
-                Mul(self.label, self.context, self.output, intermediate, self.input0),
-            ]
+            Copy(self.label, self.context, intermediate, self.input0),
+            Mul(self.label, self.context, self.output, intermediate, self.input0),
         )

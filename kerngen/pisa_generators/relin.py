@@ -44,16 +44,14 @@ class Relin(HighOp):
         upto_last_coeffs.start_parts = 0
 
         return mixed_to_pisa_ops(
-            [
-                Comment("Start of relin kernel"),
-                Comment("Extend base from Q to PQ"),
-                ModUp(self.label, self.context, last_coeff, input_last_part),
-                Comment("Multiply by relin key"),
-                Mul(self.label, self.context, mul_by_rlk, upto_last_coeffs, relin_key),
-                Comment("Mod switch down"),
-                Mod(self.label, self.context, mul_by_rlk, mul_by_rlk),
-                Comment("Add to original poly"),
-                Add(self.label, self.context, self.output, mul_by_rlk, self.input0),
-                Comment("End of relin kernel"),
-            ]
+            Comment("Start of relin kernel"),
+            Comment("Extend base from Q to PQ"),
+            ModUp(self.label, self.context, last_coeff, input_last_part),
+            Comment("Multiply by relin key"),
+            Mul(self.label, self.context, mul_by_rlk, upto_last_coeffs, relin_key),
+            Comment("Mod switch down"),
+            Mod(self.label, self.context, mul_by_rlk, mul_by_rlk),
+            Comment("Add to original poly"),
+            Add(self.label, self.context, self.output, mul_by_rlk, self.input0),
+            Comment("End of relin kernel"),
         )
