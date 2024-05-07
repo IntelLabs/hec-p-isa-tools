@@ -171,6 +171,18 @@ class Context(BaseModel):
         return max(1, self.poly_order // native_poly_size)
 
 
+class KernelContext(Context):
+    """Class representing a kernel context"""
+
+    # Recall that Context inherits from BaseModel
+    label: str
+
+    @classmethod
+    def from_context(cls, context: Context, label: str = "0") -> "KernelContext":
+        """Create a kernel context froma  context (and optionally a label)"""
+        return cls(label=label, **vars(context))
+
+
 class Data(BaseModel):
     """Class representing a data type with related attributes"""
 

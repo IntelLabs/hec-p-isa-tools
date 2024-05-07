@@ -7,7 +7,16 @@ from typing import Iterator
 
 from .generators import Generators
 from .pisa_operations import PIsaOp
-from .types import Context, Comment, EmptyLine, Data, Immediate, Polys, HighOp
+from .types import (
+    Context,
+    KernelContext,
+    Comment,
+    EmptyLine,
+    Data,
+    Immediate,
+    Polys,
+    HighOp,
+)
 
 MANIFEST_FILE = str(
     Path(__file__).parent.parent.absolute() / "pisa_generators/manifest.json"
@@ -112,7 +121,10 @@ class Parser:
                     raise ValueError("Generator not set")
 
                 cls = self.generators.get_pisa_op(command)
-                return cls.from_string(context_seen[0], symbols_map, rest, label=label)
+                kernel_context = KernelContext.from_context(
+                    context_seen[0], label=label
+                )
+                return cls.from_string(kernel_context, symbols_map, rest)
 
     def parse_inputs(self, lines: list[str]) -> ParseResults:
         """parse the inputs given in return list of data and operations"""
