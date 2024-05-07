@@ -167,6 +167,12 @@ mul = Mul(...)
 ```
 see [square.py](./pisa_generators/square.py) for a complete example of this.
 
+# Mixed operations
+You will find that during kernel writing, you will end up with a collection of
+either p-isa operation objects, other kernel objects, or a mixture of both. For
+your convienince a useful function `mixed_to_pisa_ops` is provided that can
+take all of these sequentially and outputs the required `list[PIsaOp]`.
+
 
 # Running the tests
 Tests are provided in the [tests](./tests) directory and use the
