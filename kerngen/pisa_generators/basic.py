@@ -8,7 +8,14 @@ from typing import ClassVar, Iterable
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
-from high_parser import Context, Immediate, HighOp, expand_ios, Polys, KeyPolys
+from high_parser import (
+    Immediate,
+    HighOp,
+    expand_ios,
+    Polys,
+    KeyPolys,
+    KernelContext,
+)
 
 
 # TODO move this to kernel utils
@@ -40,8 +47,7 @@ def _mixed_to_pisa_ops(ops: Iterable[PIsaOp | list[PIsaOp] | HighOp]) -> list[PI
 class CartesianOp(HighOp):
     """Class representing the high-level cartesian operation"""
 
-    label: str
-    context: Context
+    context: KernelContext
     output: Polys
     input0: Polys
     input1: Polys
@@ -53,7 +59,7 @@ class CartesianOp(HighOp):
         """Return the p-isa equivalent of an Add"""
         if self.input0.parts == self.input1.parts:
             return [
-                self.op(self.label, *expand_io, rns)
+                self.op(self.context.label, *expand_io, rns)
                 for expand_io, rns in expand_ios(
                     self.context, self.output, self.input0, self.input1
                 )
@@ -72,7 +78,7 @@ class CartesianOp(HighOp):
         ):
             ls.extend(
                 self.op(
-                    self.label,
+                    self.context.label,
                     self.output(part, q, unit),
                     first(part, q, unit),
                     second(0, q, unit),
@@ -82,7 +88,9 @@ class CartesianOp(HighOp):
             )
             ls.extend(
                 pisa_op.Copy(
-                    self.label, self.output(part, q, unit), second(part, q, unit)
+                    self.context.label,
+                    self.output(part, q, unit),
+                    second(part, q, unit),
                 )
                 for part in range(first.parts, second.parts)
             )
@@ -119,8 +127,7 @@ def convolution_indices(input0: Polys, input1: Polys) -> list[InIdxs]:
 class Mul(HighOp):
     """Class representing the high-level multiplication operation"""
 
-    label: str
-    context: Context
+    context: KernelContext
     output: Polys
     input0: Polys
     input1: KeyPolys | Polys
@@ -143,7 +150,7 @@ class Mul(HighOp):
 
         return [
             op(
-                self.label,
+                self.context.label,
                 self.output(out_idx, q, unit),
                 self.input0(in0_idx, q, unit),
                 (
@@ -191,8 +198,7 @@ class Mul(HighOp):
 class Muli(HighOp):
     """Class representing the high-level multiplication operation"""
 
-    label: str
-    context: Context
+    context: KernelContext
     output: Polys
     input0: Polys
     input1: Immediate
@@ -206,7 +212,7 @@ class Muli(HighOp):
 
         return [
             op(
-                self.label,
+                self.context.label,
                 self.output(out_idx, q, unit),
                 self.input0(in0_idx, q, unit),
                 self.input1(in1_idx, q, unit),
@@ -237,14 +243,13 @@ class Muli(HighOp):
 class Copy(HighOp):
     """Class representing the high-level copy operation"""
 
-    label: str
-    context: Context
+    context: KernelContext
     output: Polys
     input0: Polys
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa equivalent of a Copy"""
         return [
-            pisa_op.Copy(self.label, *expand_io)
+            pisa_op.Copy(self.context.label, *expand_io)
             for expand_io, _ in expand_ios(self.context, self.output, self.input0)
         ]

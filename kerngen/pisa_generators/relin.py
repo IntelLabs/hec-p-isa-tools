@@ -5,7 +5,7 @@
 from dataclasses import dataclass
 
 from high_parser.pisa_operations import PIsaOp, Comment
-from high_parser import Context, HighOp, KeyPolys, Polys
+from high_parser import KernelContext, HighOp, KeyPolys, Polys
 
 from .basic import Add, Mul, mixed_to_pisa_ops
 from .mod import Mod, ModUp
@@ -15,8 +15,7 @@ from .mod import Mod, ModUp
 class Relin(HighOp):
     """Class representing relinearization operation"""
 
-    label: str
-    context: Context
+    context: KernelContext
     output: Polys
     input0: Polys
 
@@ -46,12 +45,12 @@ class Relin(HighOp):
         return mixed_to_pisa_ops(
             Comment("Start of relin kernel"),
             Comment("Extend base from Q to PQ"),
-            ModUp(self.label, self.context, last_coeff, input_last_part),
+            ModUp(self.context, last_coeff, input_last_part),
             Comment("Multiply by relin key"),
-            Mul(self.label, self.context, mul_by_rlk, upto_last_coeffs, relin_key),
+            Mul(self.context, mul_by_rlk, upto_last_coeffs, relin_key),
             Comment("Mod switch down"),
-            Mod(self.label, self.context, mul_by_rlk, mul_by_rlk),
+            Mod(self.context, mul_by_rlk, mul_by_rlk),
             Comment("Add to original poly"),
-            Add(self.label, self.context, self.output, mul_by_rlk, self.input0),
+            Add(self.context, self.output, mul_by_rlk, self.input0),
             Comment("End of relin kernel"),
         )
