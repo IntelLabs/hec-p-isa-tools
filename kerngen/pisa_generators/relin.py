@@ -30,7 +30,7 @@ class Relin(HighOp):
         relin_key = KeyPolys("rlk", parts=2, rns=self.context.key_rns)
         mul_by_rlk = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
         mul_by_rlk_modded_down = Polys.from_polys(mul_by_rlk)
-        mul_by_rlk_modded_down.parts = self.input0.rns
+        mul_by_rlk_modded_down.rns = self.input0.rns
         input_last_part = Polys(
             "input",
             parts=self.input0.parts,
@@ -45,6 +45,9 @@ class Relin(HighOp):
         upto_last_coeffs.parts = 1
         upto_last_coeffs.start_parts = 0
 
+        add_original = Polys.from_polys(mul_by_rlk_modded_down)
+        add_original.name = self.input0.name
+
         return mixed_to_pisa_ops(
             Comment("Start of relin kernel"),
             Comment("Extend base from Q to PQ"),
@@ -54,6 +57,6 @@ class Relin(HighOp):
             Comment("Mod switch down"),
             Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk),
             Comment("Add to original poly"),
-            Add(self.context, self.output, mul_by_rlk_modded_down, self.input0),
+            Add(self.context, self.output, mul_by_rlk_modded_down, add_original),
             Comment("End of relin kernel"),
         )
