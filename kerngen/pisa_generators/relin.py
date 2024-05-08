@@ -29,8 +29,8 @@ class Relin(HighOp):
 
         relin_key = KeyPolys("rlk", parts=2, rns=self.context.key_rns)
         mul_by_rlk = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
-        c2_rlk_drop_last_rns = Polys.from_polys(mul_by_rlk)
-        c2_rlk_drop_last_rns.parts = self.input0.rns
+        mul_by_rlk_modded_down = Polys.from_polys(mul_by_rlk)
+        mul_by_rlk_modded_down.parts = self.input0.rns
         input_last_part = Polys(
             "input",
             parts=self.input0.parts,
@@ -52,8 +52,8 @@ class Relin(HighOp):
             Comment("Multiply by relin key"),
             Mul(self.context, mul_by_rlk, upto_last_coeffs, relin_key),
             Comment("Mod switch down"),
-            Mod(self.context, c2_rlk_drop_last_rns, mul_by_rlk),
+            Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk),
             Comment("Add to original poly"),
-            Add(self.context, self.output, c2_rlk_drop_last_rns, self.input0),
+            Add(self.context, self.output, mul_by_rlk_modded_down, self.input0),
             Comment("End of relin kernel"),
         )
