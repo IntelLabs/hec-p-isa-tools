@@ -209,7 +209,7 @@ class Immediate(BaseModel):
             return self.name
 
         # Sanity bounds checks
-        q, *_ = args
+        q = args[1]
         if q > self.rns:
             raise PolyOutOfBoundsError(
                 f"q `{q}` is more than the immediate with RNS `{self!r}`"

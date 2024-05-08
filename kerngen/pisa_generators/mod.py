@@ -61,7 +61,7 @@ class Mod(HighOp):
                         self.context.label,
                         x(part, q, unit),
                         y(part, last_q, unit),
-                        r2(q),
+                        r2(part, q, unit),
                         q,
                     )
                     for part, q, unit in product(

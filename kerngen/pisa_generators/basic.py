@@ -203,40 +203,25 @@ class Muli(HighOp):
     input0: Polys
     input1: Immediate
 
-    def generate_unit(self, unit: int, q: int, out_idx: int, in_idxs: InIdxs):
-        """Helper for a given unit and q generate the p-isa ops for a multiplication"""
+    def to_pisa(self) -> list[PIsaOp]:
+        """Return the p-isa equivalent of a multiply by an immediate. Note that
+        since immediates have one part this is a scalar multiplication."""
 
-        def get_pisa_op(num):
-            yield pisa_op.Muli
-            yield from (pisa_op.Maci for op in range(num - 1))
-
+        # Parts is last for convention of units, rns, parts
         return [
-            op(
+            pisa_op.Muli(
                 self.context.label,
-                self.output(out_idx, q, unit),
-                self.input0(in0_idx, q, unit),
-                self.input1(in1_idx, q, unit),
+                self.output(part, q, unit),
+                self.input0(part, q, unit),
+                self.input1(part, q, unit),
                 q,
             )
-            for (in0_idx, in1_idx), op in zip(in_idxs, get_pisa_op(len(in_idxs)))
+            for unit, q, part in it.product(
+                range(self.context.units),
+                range(self.input0.start_rns, self.input0.rns),
+                range(self.input0.start_parts, self.input0.parts),
+            )
         ]
-
-    def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa equivalent of a multiply by an immediate"""
-
-        # TODO Muli needs to be rethought. Immediates have equiv single part.
-        all_idxs = [
-            [(i, i)] if i >= self.input0.start_parts else []
-            for i in range(self.input0.parts)
-        ]
-        ls = []
-        for unit, q in it.product(
-            range(self.context.units), range(self.input0.start_rns, self.input0.rns)
-        ):
-            for out_idx, in_idxs in enumerate(all_idxs):
-                ls.extend(self.generate_unit(unit, q, out_idx, in_idxs))
-
-        return ls
 
 
 @dataclass
