@@ -92,7 +92,7 @@ class ModUp(HighOp):
         """Return the p-isa code to perform a modulus switch up (modup)"""
 
         one = Immediate(name="one")
-        r_squared = Immediate(name="R2", rns=2)
+        r_squared = Immediate(name="R2", rns=self.output.rns)
 
         # extended_poly like input_last_part will have only the last `part`
         extended_poly = Polys.from_polys(self.input0)
@@ -103,8 +103,8 @@ class ModUp(HighOp):
                 Comment("Start of modup kernel"),
                 INTT(self.context, extended_poly, self.input0),
                 Comment("Multiply Montgomery"),
-                Muli(self.context, extended_poly, extended_poly, one),
-                Muli(self.context, self.output, extended_poly, r_squared),
+                Muli(self.context, self.output, extended_poly, one),
+                Muli(self.context, self.output, self.output, r_squared),
                 Comment("Transform back to residue domain"),
                 NTT(self.context, self.output, self.output),
                 Comment("End of modup kernel"),
