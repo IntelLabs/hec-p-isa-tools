@@ -27,8 +27,10 @@ class Polys:
     start_parts: int = 0
     start_rns: int = 0
 
-    def expand(self, part: int, q: int, unit: int) -> str:
+    # def expand(self, part: int, q: int, unit: int) -> str:
+    def expand(self, *args) -> str:
         """Returns a string of the expanded symbol w.r.t. rns, part, and unit"""
+        part, q, unit = args
         # Sanity bounds checks
         if self.start_parts > part >= self.parts or self.start_rns > q >= self.rns:
             raise PolyOutOfBoundsError(
@@ -36,9 +38,9 @@ class Polys:
             )
         return f"{self.name}_{part}_{q}_{unit}"
 
-    def __call__(self, part: int, q: int, unit: int) -> str:
+    def __call__(self, *args) -> str:
         """Forward `expand` method"""
-        return self.expand(part, q, unit)
+        return self.expand(*args)
 
     def __repr__(self) -> str:
         return self.name
@@ -60,6 +62,30 @@ class Polys:
                 raise ValueError("Unknown mode for Polys")
 
 
+class KeyPolys(Polys):
+    """A Polys object for Keys"""
+
+    def __init__(self, *args, **kwargs):
+        digits = "digits"
+        self.digits = kwargs.get(digits, 1)
+        super().__init__(*args, **{k: v for k, v in kwargs.items() if k != digits})
+
+    # def expand(self, digit: int, part: int, q: int, unit: int) -> str:
+    def expand(self, *args) -> str:
+        """Returns a string of the expanded symbol w.r.t. digit, rns, part, and unit"""
+        digit, part, q, unit = args
+        # Sanity bounds checks
+        if (
+            self.start_parts > part >= self.parts
+            or self.start_rns > q >= self.rns
+            or digit > self.digits
+        ):
+            raise PolyOutOfBoundsError(
+                f"part `{digit}` or `{part}` or q `{q}` are not within the key poly's range `{self!r}`"
+            )
+        return f"{self.name}_{digit}_{part}_{q}_{unit}"
+
+
 class HighOp(ABC):
     """An abstract class to help define/enforce API"""
 
@@ -68,11 +94,11 @@ class HighOp(ABC):
         """Returns a list of the p-isa operations / instructions"""
 
     @classmethod
-    def from_string(cls, context, polys_map, args_line: str, label: str = "0"):
+    def from_string(cls, context, polys_map, args_line: str):
         """Construct HighOp from a string args"""
         try:
             ios = (polys_map[io] for io in args_line.split())
-            return cls(label, context, *ios)  # type: ignore
+            return cls(context, *ios)  # type: ignore
 
         except ValueError as e:
             raise ValueError(f"Could not unpack command string `{args_line}`") from e
@@ -110,17 +136,26 @@ class Context(BaseModel):
     scheme: str
     poly_order: int  # the N
     max_rns: int
+    key_rns: int | None
 
     @classmethod
     def from_string(cls, line: str):
         """Construct context from a string"""
-        scheme, poly_order, max_rns = line.split()
+        scheme, poly_order, max_rns, *optional = line.split()
+        try:
+            krns, *rest = optional
+        except ValueError:
+            krns = None
+        if optional != [] and rest != []:
+            raise ValueError(f"too many parameters for context given: {line}")
         int_poly_order = int(poly_order)
         int_max_rns = int(max_rns)
+        int_key_rns = int_max_rns + int(krns) if krns else None
         return cls(
             scheme=scheme.upper(),
             poly_order=int_poly_order,
             max_rns=int_max_rns,
+            key_rns=int_key_rns,
         )
 
     @property
@@ -134,6 +169,18 @@ class Context(BaseModel):
         # TODO hardcoding will be removed soon
         native_poly_size = 8192
         return max(1, self.poly_order // native_poly_size)
+
+
+class KernelContext(Context):
+    """Class representing a kernel context"""
+
+    # Recall that Context inherits from BaseModel
+    label: str
+
+    @classmethod
+    def from_context(cls, context: Context, label: str = "0") -> "KernelContext":
+        """Create a kernel context froma  context (and optionally a label)"""
+        return cls(label=label, **vars(context))
 
 
 class Data(BaseModel):
@@ -162,7 +209,7 @@ class Immediate(BaseModel):
             return self.name
 
         # Sanity bounds checks
-        q, *_ = args
+        q = args[1]
         if q > self.rns:
             raise PolyOutOfBoundsError(
                 f"q `{q}` is more than the immediate with RNS `{self!r}`"

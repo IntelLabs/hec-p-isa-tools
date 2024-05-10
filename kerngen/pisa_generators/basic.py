@@ -8,12 +8,26 @@ from typing import ClassVar, Iterable
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
-from high_parser import Context, Immediate, HighOp, expand_ios, Polys
+from high_parser import (
+    Immediate,
+    HighOp,
+    expand_ios,
+    Polys,
+    KeyPolys,
+    KernelContext,
+)
 
 
 # TODO move this to kernel utils
-def mixed_to_pisa_ops(ops: list[PIsaOp | list[PIsaOp] | HighOp]) -> list[PIsaOp]:
+def mixed_to_pisa_ops(*args) -> list[PIsaOp]:
     """Transform mixed list of op types to PIsaOp only"""
+    if len(args) == 1:
+        return _mixed_to_pisa_ops(*args)
+    return _mixed_to_pisa_ops(args)
+
+
+def _mixed_to_pisa_ops(ops: Iterable[PIsaOp | list[PIsaOp] | HighOp]) -> list[PIsaOp]:
+    """Helper to process mixed list of op types to PIsaOp only"""
 
     def helper(op) -> list[PIsaOp]:
         if isinstance(op, PIsaOp):
@@ -33,8 +47,7 @@ def mixed_to_pisa_ops(ops: list[PIsaOp | list[PIsaOp] | HighOp]) -> list[PIsaOp]
 class CartesianOp(HighOp):
     """Class representing the high-level cartesian operation"""
 
-    label: str
-    context: Context
+    context: KernelContext
     output: Polys
     input0: Polys
     input1: Polys
@@ -46,7 +59,7 @@ class CartesianOp(HighOp):
         """Return the p-isa equivalent of an Add"""
         if self.input0.parts == self.input1.parts:
             return [
-                self.op(self.label, *expand_io, rns)
+                self.op(self.context.label, *expand_io, rns)
                 for expand_io, rns in expand_ios(
                     self.context, self.output, self.input0, self.input1
                 )
@@ -65,7 +78,7 @@ class CartesianOp(HighOp):
         ):
             ls.extend(
                 self.op(
-                    self.label,
+                    self.context.label,
                     self.output(part, q, unit),
                     first(part, q, unit),
                     second(0, q, unit),
@@ -75,7 +88,9 @@ class CartesianOp(HighOp):
             )
             ls.extend(
                 pisa_op.Copy(
-                    self.label, self.output(part, q, unit), second(part, q, unit)
+                    self.context.label,
+                    self.output(part, q, unit),
+                    second(part, q, unit),
                 )
                 for part in range(first.parts, second.parts)
             )
@@ -97,11 +112,13 @@ class Sub(CartesianOp):
 InIdxs = list[tuple[int, int]]
 
 
-def convolution_indices(len_a, len_b) -> list[InIdxs]:
+def convolution_indices(input0: Polys, input1: Polys) -> list[InIdxs]:
     """Helper gives convolution of parts indices"""
-    # len_* is the deg + 1 of a polynomial (the vector)
-    idxs: list[InIdxs] = [[] for _ in range(len_a + len_b - 1)]
-    for t in it.product(range(len_a), range(len_b)):
+    # start_* is the deg + 1 of a polynomial (the vector)
+    idxs: list[InIdxs] = [[] for _ in range(input0.parts + input1.parts - 1)]
+    for t in it.product(
+        range(input0.start_parts, input0.parts), range(input1.start_parts, input1.parts)
+    ):
         idxs[sum(t)].append(t)
     return idxs
 
@@ -110,13 +127,21 @@ def convolution_indices(len_a, len_b) -> list[InIdxs]:
 class Mul(HighOp):
     """Class representing the high-level multiplication operation"""
 
-    label: str
-    context: Context
+    context: KernelContext
     output: Polys
     input0: Polys
-    input1: Polys
+    input1: KeyPolys | Polys
 
-    def generate_unit(self, unit: int, q: int, out_idx: int, in_idxs: InIdxs):
+    # pylint: disable=too-many-arguments
+    def generate_unit(
+        self,
+        unit: int,
+        q: int,
+        out_idx: int,
+        in_idxs: InIdxs,
+        *,
+        digit: int | None = None
+    ):
         """Helper for a given unit and q generate the p-isa ops for a multiplication"""
 
         def get_pisa_op(num):
@@ -125,20 +150,32 @@ class Mul(HighOp):
 
         return [
             op(
-                self.label,
+                self.context.label,
                 self.output(out_idx, q, unit),
                 self.input0(in0_idx, q, unit),
-                self.input1(in1_idx, q, unit),
+                (
+                    self.input1(in1_idx, q, unit)
+                    if digit is None
+                    else self.input1(digit, in1_idx, q, unit)
+                ),
                 q,
             )
             for (in0_idx, in1_idx), op in zip(in_idxs, get_pisa_op(len(in_idxs)))
         ]
 
-    def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa  equivalent of a Mul"""
+    def _keypolys_to_pisa(self, all_idxs: list[InIdxs]) -> list[PIsaOp]:
+        ls = []
+        for digit, unit, q in it.product(
+            range(self.input1.digits),  # NOTE digits from input1 NOT input0
+            range(self.context.units),
+            range(self.input0.start_rns, self.input0.rns),
+        ):
+            for out_idx, in_idxs in enumerate(all_idxs):
+                ls.extend(self.generate_unit(unit, q, out_idx, in_idxs, digit=digit))
 
-        all_idxs = convolution_indices(self.input0.parts, self.input1.parts)
+        return ls
 
+    def _polys_to_pisa(self, all_idxs: list[InIdxs]) -> list[PIsaOp]:
         ls = []
         for unit, q in it.product(
             range(self.context.units), range(self.input0.start_rns, self.input0.rns)
@@ -147,62 +184,57 @@ class Mul(HighOp):
                 ls.extend(self.generate_unit(unit, q, out_idx, in_idxs))
 
         return ls
+
+    def to_pisa(self) -> list[PIsaOp]:
+        """Return the p-isa  equivalent of a Mul"""
+
+        all_idxs: list[InIdxs] = convolution_indices(self.input0, self.input1)
+        if isinstance(self.input1, KeyPolys):
+            return self._keypolys_to_pisa(all_idxs)
+        return self._polys_to_pisa(all_idxs)
 
 
 @dataclass
 class Muli(HighOp):
     """Class representing the high-level multiplication operation"""
 
-    label: str
-    context: Context
+    context: KernelContext
     output: Polys
     input0: Polys
     input1: Immediate
 
-    def generate_unit(self, unit: int, q: int, out_idx: int, in_idxs: InIdxs):
-        """Helper for a given unit and q generate the p-isa ops for a multiplication"""
+    def to_pisa(self) -> list[PIsaOp]:
+        """Return the p-isa equivalent of a multiply by an immediate. Note that
+        since immediates have one part this is a scalar multiplication."""
 
-        def get_pisa_op(num):
-            yield pisa_op.Muli
-            yield from (pisa_op.Maci for op in range(num - 1))
-
+        # Parts is last for convention of units, rns, parts
         return [
-            op(
-                self.label,
-                self.output(out_idx, q, unit),
-                self.input0(in0_idx, q, unit),
-                self.input1(in1_idx, q, unit),
+            pisa_op.Muli(
+                self.context.label,
+                self.output(part, q, unit),
+                self.input0(part, q, unit),
+                self.input1(part, q, unit),
                 q,
             )
-            for (in0_idx, in1_idx), op in zip(in_idxs, get_pisa_op(len(in_idxs)))
+            for unit, q, part in it.product(
+                range(self.context.units),
+                range(self.input0.start_rns, self.input0.rns),
+                range(self.input0.start_parts, self.input0.parts),
+            )
         ]
-
-    def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa  equivalent of a Mul"""
-
-        all_idxs = convolution_indices(self.input0.parts, 1)
-        ls = []
-        for unit, q in it.product(
-            range(self.context.units), range(self.input0.start_rns, self.input0.rns)
-        ):
-            for out_idx, in_idxs in enumerate(all_idxs):
-                ls.extend(self.generate_unit(unit, q, out_idx, in_idxs))
-
-        return ls
 
 
 @dataclass
 class Copy(HighOp):
     """Class representing the high-level copy operation"""
 
-    label: str
-    context: Context
+    context: KernelContext
     output: Polys
     input0: Polys
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa equivalent of a Copy"""
         return [
-            pisa_op.Copy(self.label, *expand_io)
+            pisa_op.Copy(self.context.label, *expand_io)
             for expand_io, _ in expand_ios(self.context, self.output, self.input0)
         ]
