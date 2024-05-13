@@ -32,7 +32,7 @@ class KeyMul(HighOp):
         ls: list[pisa_op] = []
         for digit, op in get_pisa_op(self.input1.digits):
             for part, q, unit in product(
-                range(self.input0.start_parts, self.input0.parts),
+                range(self.input1.start_parts, self.input1.parts),
                 range(self.input0.start_rns, self.input0.rns),
                 range(self.context.units),
             ):
