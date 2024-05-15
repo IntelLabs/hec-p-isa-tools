@@ -62,11 +62,6 @@ class RNSDecompExtend(HighOp):
         """Return the p-isa code performing RNS-prime decomposition followed by
         base extension"""
 
-        extended_poly = Polys.from_polys(self.input0)
-        extended_poly.rns = self.context.key_rns
-        last_coeff = Polys.from_polys(self.input0)
-        last_coeff.name = "coeffs"
-        last_coeff.rns = self.context.key_rns
         rns_poly = Polys.from_polys(self.input0)
         rns_poly.name = "ct"
 
@@ -76,24 +71,24 @@ class RNSDecompExtend(HighOp):
         ls: list[pisa_op] = []
         for _ in range(self.input0.rns):
             for part, pq, unit in product(
-                range(extended_poly.start_parts, extended_poly.parts),
+                range(self.input0.start_parts, self.input0.parts),
                 range(self.context.key_rns),
                 range(self.context.units),
             ):
                 ls.append(
                     pisa_op.Muli(
                         self.context.label,
-                        last_coeff(part, pq, unit),
-                        extended_poly(part, pq, unit),
+                        self.output(part, pq, unit),
+                        self.output(part, pq, unit),
                         r2(part, pq, unit),
                         pq,
                     )
                 )
-            ls.extend(NTT(self.context, extended_poly, extended_poly).to_pisa())
+            ls.extend(NTT(self.context, self.output, self.output).to_pisa())
 
         return mixed_to_pisa_ops(
             INTT(self.context, rns_poly, self.input0),
-            Muli(self.context, extended_poly, rns_poly, one),
+            Muli(self.context, self.output, rns_poly, one),
             ls,
         )
 
