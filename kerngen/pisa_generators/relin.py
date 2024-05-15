@@ -7,10 +7,11 @@ from itertools import product
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp, Comment
-from high_parser import KernelContext, HighOp, KeyPolys, Polys
+from high_parser import KernelContext, HighOp, Immediate, KeyPolys, Polys
 
-from .basic import Add, mixed_to_pisa_ops
-from .mod import Mod, ModUp
+from .basic import Add, Muli, mixed_to_pisa_ops
+from .mod import Mod
+from .ntt import INTT, NTT
 
 
 @dataclass
@@ -50,6 +51,54 @@ class KeyMul(HighOp):
 
 
 @dataclass
+class RNSDecompExtend(HighOp):
+    """Class representing RNS-prime decomposition and base extension"""
+
+    context: KernelContext
+    output: Polys
+    input0: Polys
+
+    def to_pisa(self) -> list[PIsaOp]:
+        """Return the p-isa code performing RNS-prime decomposition followed by
+        base extension"""
+
+        extended_poly = Polys.from_polys(self.input0)
+        extended_poly.rns = self.context.key_rns
+        last_coeff = Polys.from_polys(self.input0)
+        last_coeff.name = "coeffs"
+        last_coeff.rns = self.context.key_rns
+        rns_poly = Polys.from_polys(self.input0)
+        rns_poly.name = "ct"
+
+        one = Immediate(name="one")
+        r2 = Immediate(name="R2", rns=self.input0.rns)
+
+        ls: list[pisa_op] = []
+        for _ in range(self.input0.rns):
+            for part, pq, unit in product(
+                range(extended_poly.start_parts, extended_poly.parts),
+                range(self.context.key_rns),
+                range(self.context.units),
+            ):
+                ls.append(
+                    pisa_op.Muli(
+                        self.context.label,
+                        last_coeff(part, pq, unit),
+                        extended_poly(part, pq, unit),
+                        r2(part, pq, unit),
+                        pq,
+                    )
+                )
+            ls.extend(NTT(self.context, extended_poly, extended_poly).to_pisa())
+
+        return mixed_to_pisa_ops(
+            INTT(self.context, rns_poly, self.input0),
+            Muli(self.context, extended_poly, rns_poly, one),
+            ls,
+        )
+
+
+@dataclass
 class Relin(HighOp):
     """Class representing relinearization operation"""
 
@@ -71,12 +120,8 @@ class Relin(HighOp):
         mul_by_rlk = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
         mul_by_rlk_modded_down = Polys.from_polys(mul_by_rlk)
         mul_by_rlk_modded_down.rns = self.input0.rns
-        input_last_part = Polys(
-            "input",
-            parts=self.input0.parts,
-            rns=self.output.rns,
-            start_parts=self.input0.parts - 1,
-        )
+        input_last_part = Polys.from_polys(self.input0, mode="last_part")
+        input_last_part.name = "input"
 
         last_coeff = Polys.from_polys(input_last_part)
         last_coeff.name = "coeffs"
@@ -91,7 +136,7 @@ class Relin(HighOp):
         return mixed_to_pisa_ops(
             Comment("Start of relin kernel"),
             Comment("Extend base from Q to PQ"),
-            ModUp(self.context, last_coeff, input_last_part),
+            RNSDecompExtend(self.context, last_coeff, input_last_part),
             Comment("Multiply by relin key"),
             KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key),
             Comment("Mod switch down"),
