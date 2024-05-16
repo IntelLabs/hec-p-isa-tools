@@ -30,36 +30,33 @@ class KeyMul(HighOp):
             yield 0, pisa_op.Mul
             yield from ((op, pisa_op.Mac) for op in range(1, num))
 
-        ls: list[pisa_op] = []
-        for digit, op in get_pisa_op(self.input1.digits):
+        return [
+            op(
+                self.context.label,
+                self.output(part, q, unit),
+                self.input0(part, q, unit),
+                self.input1(digit, part, q, unit),
+                q,
+            )
+            for digit, op in get_pisa_op(self.input1.digits)
             for part, q, unit in product(
                 range(self.input1.start_parts, self.input1.parts),
                 range(self.input0.start_rns, self.input0.rns),
                 range(self.context.units),
-            ):
-                ls.append(
-                    op(
-                        self.context.label,
-                        self.output(part, q, unit),
-                        self.input0(part, q, unit),
-                        self.input1(digit, part, q, unit),
-                        q,
-                    )
-                )
-
-        return ls
+            )
+        ]
 
 
 @dataclass
-class RNSDecompExtend(HighOp):
-    """Class representing RNS-prime decomposition and base extension"""
+class DigitDecompExtend(HighOp):
+    """Class representing Digit decomposition and base extension"""
 
     context: KernelContext
     output: Polys
     input0: Polys
 
     def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa code performing RNS-prime decomposition followed by
+        """Return the p-isa code performing Digit decomposition followed by
         base extension"""
 
         rns_poly = Polys.from_polys(self.input0)
@@ -70,20 +67,20 @@ class RNSDecompExtend(HighOp):
 
         ls: list[pisa_op] = []
         for _ in range(self.input0.rns):
-            for part, pq, unit in product(
-                range(self.input0.start_parts, self.input0.parts),
-                range(self.context.key_rns),
-                range(self.context.units),
-            ):
-                ls.append(
-                    pisa_op.Muli(
-                        self.context.label,
-                        self.output(part, pq, unit),
-                        self.output(part, pq, unit),
-                        r2(part, pq, unit),
-                        pq,
-                    )
+            ls.extend(
+                pisa_op.Muli(
+                    self.context.label,
+                    self.output(part, pq, unit),
+                    self.output(part, pq, unit),
+                    r2(part, pq, unit),
+                    pq,
                 )
+                for part, pq, unit in product(
+                    range(self.input0.start_parts, self.input0.parts),
+                    range(self.context.key_rns),
+                    range(self.context.units),
+                )
+            )
             ls.extend(NTT(self.context, self.output, self.output).to_pisa())
 
         return mixed_to_pisa_ops(
@@ -103,11 +100,10 @@ class Relin(HighOp):
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform a relinearization (relin)"""
-        # Step 1: Extend basis with special primes (ModSwitchUp)
-        # Step 2: Calculate something
-        # Step 3: Compute delta (rounding error correction)
-        # Step 4: Compute new ctxt mod Q
-        # Step 5: Add to original ctxt
+        # Step 1: Digit decomp and extend basis with special primes (ModSwitchUp)
+        # Step 2: Multiply with relinearisation key
+        # Step 3: Mod down to Q
+        # Step 4: Add to original ctxt
 
         relin_key = KeyPolys(
             "rlk", parts=2, rns=self.context.key_rns, digits=self.input0.rns
@@ -130,8 +126,8 @@ class Relin(HighOp):
 
         return mixed_to_pisa_ops(
             Comment("Start of relin kernel"),
-            Comment("Extend base from Q to PQ"),
-            RNSDecompExtend(self.context, last_coeff, input_last_part),
+            Comment("Digit decomposition and extend base from Q to PQ"),
+            DigitDecompExtend(self.context, last_coeff, input_last_part),
             Comment("Multiply by relin key"),
             KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key),
             Comment("Mod switch down"),
