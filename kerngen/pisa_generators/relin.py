@@ -102,10 +102,6 @@ class Relin(HighOp):
         """Return the p-isa code to perform a relinearization (relin). Note:
         currently only supports polynomials with two parts. Currently only
         supports number of digits equal to the RNS size"""
-        # Step 1: Digit decomp and extend basis with special primes (ModSwitchUp)
-        # Step 2: Multiply with relinearisation key
-        # Step 3: Mod down to Q
-        # Step 4: Add to original ctxt
 
         relin_key = KeyPolys(
             "rlk", parts=2, rns=self.context.key_rns, digits=self.input0.rns
@@ -132,7 +128,7 @@ class Relin(HighOp):
             DigitDecompExtend(self.context, last_coeff, input_last_part),
             Comment("Multiply by relin key"),
             KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key),
-            Comment("Mod switch down"),
+            Comment("Mod switch down to Q"),
             Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk),
             Comment("Add to original poly"),
             Add(self.context, self.output, mul_by_rlk_modded_down, add_original),
