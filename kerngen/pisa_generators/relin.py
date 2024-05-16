@@ -99,7 +99,9 @@ class Relin(HighOp):
     input0: Polys
 
     def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa code to perform a relinearization (relin)"""
+        """Return the p-isa code to perform a relinearization (relin). Note:
+        currently only supports polynomials with two parts. Currently only
+        supports number of digits equal to the RNS size"""
         # Step 1: Digit decomp and extend basis with special primes (ModSwitchUp)
         # Step 2: Multiply with relinearisation key
         # Step 3: Mod down to Q
