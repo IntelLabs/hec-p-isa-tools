@@ -1,15 +1,16 @@
 # Introduction
 
-This is the kernel generator (kerngen) responsible for producing HERACLES ISA
-kernels for various polynomial operations that occur in FHE. A kernel is a code
-snippet of p-ISA instructions with the purpose of implementing some high level
+This is the kernel generator (`kerngen`) responsible for producing HERACLES ISA
+kernels for various polynomial operations that occur in cryptography (or
+elsewhere) such as in homomorphic encryption (HE). A kernel is a code snippet
+of p-ISA instructions with the purpose of implementing some high level
 polynomial operation.
 
-Kerngen essentially takes an higher level language as input and outputs the
+`kerngen` essentially takes an higher level language as input and outputs the
 kernels requested.
 
 # Dependencies
-Kerngen is written as a pure python program. Requirements required to be
+`kerngen` is written as a pure python program. Requirements required to be
 installed,
 
 - python >= 3.10
@@ -35,11 +36,11 @@ command line utility convention and the resulting p-ISA kernel is sent to
 `stdout`.
 
 
-# Input high language
+# Input kernel language
 
 There are several kinds of commands. Keywords that cannot be used for kernel
 names `CONTEXT`, `DATA`, `IMMEDIATE`.  All other commands are assumed to be
-operations. All ops are case insensitive, but the convention we use the
+operations. All operations are case insensitive, but the convention we use the
 operations capitalized. These are defined in the
 [manifest.json](./pisa_generators/manifest.json) file.
 ```
@@ -93,7 +94,7 @@ disabled by passing the `-q` or `--quiet` flag to the kernel generator, i.e.,
 
 You can add new kernel generators that you have developed by creating a class
 that inherits from the `HighOp` abstract class (interface) and implementing the
-`to_pisa` method; turning this instruction into a p-isa instruction class.
+`to_pisa` method; turning this instruction into a p-ISA instruction class.
 Examples can be seen in the simpler implementations given in
 [basic.py](./pisa_generators/basic.py). Also, provide a class method
 `from_string` that will be passed the args for that command.
@@ -142,7 +143,7 @@ represent the inputs and outputs of the operation. This type represents the
 polynomials and holds information such as the `name` of symbol that represents
 the polynomial, the number of `parts`, and the `rns`.
 
-At a high level kernels convert high-level operations into low-level p-isa
+At a high level kernels convert high-level operations into low-level p-ISA
 operations, thus all kernels will need to inherit from `HighOp` and define the
 conversion function `to_pisa` as follows
 ```python
@@ -155,7 +156,7 @@ class NewKernel(HighOp):
     input0: Polys
 
     def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa equivalent of the NewKernel operation"""
+        """Return the p-ISA equivalent of the NewKernel operation"""
 ```
 
 If the kernel consists of an algorithm already represented by an existing
@@ -173,7 +174,7 @@ see [square.py](./pisa_generators/square.py) for a complete example of this.
 
 # Mixed operations
 You will find that during kernel writing, you will end up with a collection of
-either p-isa operation objects, other kernel objects, or a mixture of both. For
+either p-ISA operation objects, other kernel objects, or a mixture of both. For
 your convienince a useful function `mixed_to_pisa_ops` is provided that can
 take all of these sequentially and outputs the required `list[PIsaOp]`.
 
