@@ -55,8 +55,8 @@ ADD c a b
 ```
 
 ## CONTEXT
-Context defines the global properties `(scheme, poly_order, max_rns)` of the
-input script.
+Context defines the global properties `(scheme, poly_order, max_rns,
+key_rns(optional))` of the input script.
 `CONTEXT` sets a global context for properties required by the kernels.
 - first field defines what we call scheme. In reality, it specifies the set of
 kernel instructions given in the manifest file, see []().
@@ -65,6 +65,10 @@ kernels how many units (multiples of the native polynomial size) are required
 and handled.
 - third field defines the max RNS, the global max number of how many moduli that
 the kernels can have or need to handle.
+- (optional) fourth field defines the key RNS, the number of additional moduli
+that the relinearization key has relative to the third field. i.e. If `max_rns`
+is 3 and `key_rns` is 1 then total max RNS of the relinearization key will be
+4. Note this field is only required for calling the `relin` kernel.
 
 ## DATA
 `DATA` defines symbols to be used and their attribute(s) (`num_parts`) where
