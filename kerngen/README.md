@@ -67,8 +67,8 @@ and handled.
 the kernels can have or need to handle.
 - (optional) fourth field defines the key RNS, the number of additional moduli
 that the relinearization key has relative to the third field. i.e. If `max_rns`
-is 3 and `key_rns` is 1 then total max RNS of the relinearization key will be
-4. Note this field is only required for calling the `relin` kernel.
+is 3 and `key_rns` is 1 the total max RNS of the relinearization key will be 4.
+Note this field is only required for calling the `relin` kernel.
 
 ## DATA
 `DATA` defines symbols to be used and their attribute(s) (`num_parts`) where
