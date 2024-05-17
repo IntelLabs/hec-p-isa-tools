@@ -12,7 +12,7 @@ polynomial operation.
 installed,
 
 - python >= 3.10
-- pip
+- pip (recommend >= 24.0)
 - and python [requirements](./requirements.txt).
 
 To install the python dependencies and development tools simply run,
@@ -189,6 +189,5 @@ Tests are provided in the [tests](./tests) directory and use the
 [pytest](https://pypi.org/project/pytest/) framework. To run the tests run the
 following
 ```bash
-cd tests
-pytest .
+pytest <test-directory>
 ```
