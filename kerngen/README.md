@@ -1,20 +1,22 @@
 # Introduction
 
 This is the kernel generator (kerngen) responsible for producing HERACLES ISA
-kernels for various polynomial operations that occur in FHE. A kernel are code
-snippets of p-ISA instructions with the purpose of implementing some high level
-polynomial gate.
+kernels for various polynomial operations that occur in FHE. A kernel is a code
+snippet of p-ISA instructions with the purpose of implementing some high level
+polynomial operation.
 
 Kerngen essentially takes an higher level language as input and outputs the
 kernels requested.
 
 # Dependencies
+Kerngen is written as a pure python program. Requirements required to be
+installed,
 
 - python >= 3.10
 - pip
+- and python [requirements](./requirements.txt).
 
-and what is listed in the [requirements](./requirements.txt) file. To install
-the python dependencies and development tools simply run,
+To install the python dependencies and development tools simply run,
 
 ```bash
 pip -r requirements.txt
@@ -24,11 +26,13 @@ pip -r requirements.txt
 # Implementation
 
 The design is a simplified interpreter pattern. A domain specific language
-(DSL) defined as 'high language' is received as input to the kernel generator.
-This 'high language' describes FHE scheme and context parameters, as well as
-the operation with relative operands. This language is interpreted as a `high
-level instruction` which is then mapped to its corresponding `low level p-ISA
-instruction`. The resulting ISA kernel is sent to `stdout`.
+(DSL) defined as 'kernel language' is received as input to the kernel
+generator.  This kernel language describes (which can be used for HE schemes)
+and context parameters, as well as the operation with relative operands. This
+language is interpreted as a `high level instruction` which is then mapped to
+its corresponding `low level p-ISA instruction`. Kerngen uses a common unix
+command line utility convention and the resulting p-ISA kernel is sent to
+`stdout`.
 
 
 # Input high language
