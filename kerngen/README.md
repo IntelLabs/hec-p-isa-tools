@@ -6,8 +6,6 @@ elsewhere) such as in homomorphic encryption (HE). A kernel is a code snippet
 of p-ISA instructions with the purpose of implementing some high level
 polynomial operation.
 
-`kerngen` essentially takes an higher level language as input and outputs the
-kernels requested.
 
 # Dependencies
 `kerngen` is written as a pure python program. Requirements required to be
@@ -27,7 +25,7 @@ pip -r requirements.txt
 # Implementation
 
 The design is a simplified interpreter pattern. A domain specific language
-(DSL) defined as 'kernel language' is received as input to the kernel
+defined as a 'kernel language' is received as input to the kernel
 generator.  This kernel language describes (which can be used for HE schemes)
 and context parameters, as well as the operation with relative operands. This
 language is interpreted as a `high level instruction` which is then mapped to
@@ -39,10 +37,16 @@ command line utility convention and the resulting p-ISA kernel is sent to
 # Input kernel language
 
 There are several kinds of commands. Keywords that cannot be used for kernel
-names `CONTEXT`, `DATA`, `IMMEDIATE`.  All other commands are assumed to be
-operations. All operations are case insensitive, but the convention we use the
-operations capitalized. These are defined in the
-[manifest.json](./pisa_generators/manifest.json) file.
+names,
+```
+- `CONTEXT`
+- `DATA`
+- `IMM`
+```
+
+All other commands are assumed to be operations. All operations are case
+insensitive, but the convention we use is the operations are capitalized. These
+are defined in the [manifest.json](./pisa_generators/manifest.json) file.
 ```
 CONTEXT BGV 8192 4
 DATA a 2
@@ -68,8 +72,9 @@ the kernels can have or need to handle.
 `num_parts` is the number of polynomials that comprise the data variable.
 
 ## IMMEDIATE
-`IMMEDIATE` declares a fixed symbol name that can be used for operations that
+`IMM` declares a fixed symbol name that can be used for operations that
 expect and immediate value(s).
+
 
 # Generating kernels
 
