@@ -1,20 +1,21 @@
 # Introduction
 
-This is the kernel generator (kerngen) responsible for producing HERACLES ISA
-kernels for various polynomial operations that occur in FHE. A kernel are code
-snippets of p-ISA instructions with the purpose of implementing some high level
-polynomial gate.
+This is the kernel generator (`kerngen`) responsible for producing HERACLES ISA
+kernels for various polynomial operations that occur in cryptography (or
+elsewhere) such as in homomorphic encryption (HE). A kernel is a code snippet
+of p-ISA instructions with the purpose of implementing some high level
+polynomial operation.
 
-Kerngen essentially takes an higher level language as input and outputs the
-kernels requested.
 
 # Dependencies
+`kerngen` is written as a pure python program. Requirements required to be
+installed,
 
 - python >= 3.10
-- pip
+- pip (recommend >= 24.0)
+- and python [requirements](./requirements.txt).
 
-and what is listed in the [requirements](./requirements.txt) file. To install
-the python dependencies and development tools simply run,
+To install the python dependencies and development tools simply run,
 
 ```bash
 pip -r requirements.txt
@@ -24,20 +25,27 @@ pip -r requirements.txt
 # Implementation
 
 The design is a simplified interpreter pattern. A domain specific language
-(DSL) defined as 'high language' is received as input to the kernel generator.
-This 'high language' describes FHE scheme and context parameters, as well as
-the operation with relative operands. This language is interpreted as a `high
-level instruction` which is then mapped to its corresponding `low level p-ISA
-instruction`. The resulting ISA kernel is sent to `stdout`.
+defined as a 'kernel language' is received as input to the kernel generator.
+This kernel language describes (which can be used for HE schemes) operations on
+polynomials with given context parameters. This language is interpreted as a
+`high level instruction` which is then mapped to its corresponding `low level
+p-ISA instruction`. `kerngen` uses a common unix command line utility
+convention and the resulting p-ISA kernel is sent to `stdout`.
 
 
-# Input high language
+# Input kernel language
 
 There are several kinds of commands. Keywords that cannot be used for kernel
-names `CONTEXT`, `DATA`, `IMMEDIATE`.  All other commands are assumed to be
-operations. All ops are case insensitive, but the convention we use the
-operations capitalized. These are defined in the
-[manifest.json](./pisa_generators/manifest.json) file.
+names,
+```
+- `CONTEXT`
+- `DATA`
+- `IMM`
+```
+
+All other commands are assumed to be operations. All operations are case
+insensitive, but the convention we use is the operations are capitalized. These
+are defined in the [manifest.json](./pisa_generators/manifest.json) file.
 ```
 CONTEXT BGV 8192 4
 DATA a 2
@@ -47,8 +55,8 @@ ADD c a b
 ```
 
 ## CONTEXT
-Context defines the global properties `(scheme, poly_order, max_rns)` of the
-input script.
+Context defines the global properties `(scheme, poly_order, max_rns,
+key_rns(optional))` of the input script.
 `CONTEXT` sets a global context for properties required by the kernels.
 - first field defines what we call scheme. In reality, it specifies the set of
 kernel instructions given in the manifest file, see []().
@@ -57,14 +65,19 @@ kernels how many units (multiples of the native polynomial size) are required
 and handled.
 - third field defines the max RNS, the global max number of how many moduli that
 the kernels can have or need to handle.
+- (optional) fourth field defines the key RNS, the number of additional moduli
+that the relinearization key has relative to the third field. i.e. If `max_rns`
+is 3 and `key_rns` is 1 the total max RNS of the relinearization key will be 4.
+Note this field is only required for calling the `relin` kernel.
 
 ## DATA
 `DATA` defines symbols to be used and their attribute(s) (`num_parts`) where
 `num_parts` is the number of polynomials that comprise the data variable.
 
 ## IMMEDIATE
-`IMMEDIATE` declares a fixed symbol name that can be used for operations that
+`IMM` declares a fixed symbol name that can be used for operations that
 expect and immediate value(s).
+
 
 # Generating kernels
 
@@ -89,7 +102,7 @@ disabled by passing the `-q` or `--quiet` flag to the kernel generator, i.e.,
 
 You can add new kernel generators that you have developed by creating a class
 that inherits from the `HighOp` abstract class (interface) and implementing the
-`to_pisa` method; turning this instruction into a p-isa instruction class.
+`to_pisa` method; turning this instruction into a p-ISA instruction class.
 Examples can be seen in the simpler implementations given in
 [basic.py](./pisa_generators/basic.py). Also, provide a class method
 `from_string` that will be passed the args for that command.
@@ -138,7 +151,7 @@ represent the inputs and outputs of the operation. This type represents the
 polynomials and holds information such as the `name` of symbol that represents
 the polynomial, the number of `parts`, and the `rns`.
 
-At a high level kernels convert high-level operations into low-level p-isa
+At a high level kernels convert high-level operations into low-level p-ISA
 operations, thus all kernels will need to inherit from `HighOp` and define the
 conversion function `to_pisa` as follows
 ```python
@@ -151,7 +164,7 @@ class NewKernel(HighOp):
     input0: Polys
 
     def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa equivalent of the NewKernel operation"""
+        """Return the p-ISA equivalent of the NewKernel operation"""
 ```
 
 If the kernel consists of an algorithm already represented by an existing
@@ -169,8 +182,8 @@ see [square.py](./pisa_generators/square.py) for a complete example of this.
 
 # Mixed operations
 You will find that during kernel writing, you will end up with a collection of
-either p-isa operation objects, other kernel objects, or a mixture of both. For
-your convienince a useful function `mixed_to_pisa_ops` is provided that can
+either p-ISA operation objects, other kernel objects, or a mixture of both. For
+your convenience a useful function `mixed_to_pisa_ops` is provided that can
 take all of these sequentially and outputs the required `list[PIsaOp]`.
 
 
@@ -179,6 +192,5 @@ Tests are provided in the [tests](./tests) directory and use the
 [pytest](https://pypi.org/project/pytest/) framework. To run the tests run the
 following
 ```bash
-cd tests
-pytest .
+pytest <test-directory>
 ```

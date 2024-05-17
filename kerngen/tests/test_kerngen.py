@@ -104,7 +104,7 @@ def fixture_gen_op_data(request):
         f"{request.param} a b c",
     )
     # TODO: Build this string properly
-    out = f"13, {Op[request.param].value}, a_0_0_0, b_0_0_0, c_0_0_0, 0"
+    out = f"0, {Op[request.param].value}, a_0_0_0, b_0_0_0, c_0_0_0, 0"
     return "\n".join(in_lines), out
 
 
