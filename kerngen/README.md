@@ -25,13 +25,13 @@ pip -r requirements.txt
 # Implementation
 
 The design is a simplified interpreter pattern. A domain specific language
-defined as a 'kernel language' is received as input to the kernel
-generator.  This kernel language describes (which can be used for HE schemes)
-and context parameters, as well as the operation with relative operands. This
-language is interpreted as a `high level instruction` which is then mapped to
-its corresponding `low level p-ISA instruction`. Kerngen uses a common unix
-command line utility convention and the resulting p-ISA kernel is sent to
-`stdout`.
+defined as a 'kernel language' is received as input to the kernel generator.
+This kernel language describes (which can be used for HE schemes) operations
+on polynomials and context parameters, as well as the operation with relative
+operands. This language is interpreted as a `high level instruction` which is
+then mapped to its corresponding `low level p-ISA instruction`. `kerngen` uses
+a common unix command line utility convention and the resulting p-ISA kernel is
+sent to `stdout`.
 
 
 # Input kernel language
