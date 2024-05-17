@@ -1,4 +1,5 @@
-pydantic ~= 2.7
+# NOTE pytest requires pydantic to be to be [1.7, 2.0)
+pydantic ~= 1.10
 
 # for dev / commits
 black ~= 24.3
