@@ -63,7 +63,7 @@ class DigitDecompExtend(HighOp):
         rns_poly.name = "ct"
 
         one = Immediate(name="one")
-        r2 = Immediate(name="R2", rns=self.input0.rns)
+        r2 = Immediate(name="R2", rns=self.context.key_rns)
 
         ls: list[pisa_op] = []
         for _ in range(self.input0.rns):
