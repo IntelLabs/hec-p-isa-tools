@@ -144,7 +144,7 @@ class Butterfly:
         if Legacy.mode is True:
             return (
                 f"{self.label}, {op}, {self.output0}, {self.output1}, "
-                f"{self.input0}, {self.input1}, w_{self.stage}_{self.unit}_{self.q}, {self.q}"
+                f"{self.input0}, {self.input1}, w_{self.q}_{self.stage}_{self.unit}, {self.q}"
             )
         return (
             f"{self.label}, {op}, {self.output0}, {self.output1}, "
