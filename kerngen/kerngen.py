@@ -10,7 +10,7 @@ import sys
 from typing import Iterable
 
 from high_parser.parser import Parser
-from high_parser.legacy import Legacy
+from high_parser.config import Config
 
 
 def parse_args():
@@ -37,7 +37,7 @@ def main(args) -> None:
     """Main entrypoint. Load available p-isa ops and parse isa instructions."""
 
     parse_results = Parser().parse_inputs(sys.stdin.readlines())
-    Legacy.mode = args.legacy
+    Config.legacy_mode = args.legacy
 
     # String blocks of the p-isa instructions (forward the Nones)
     pisa_ops: list[str | None] = list(
