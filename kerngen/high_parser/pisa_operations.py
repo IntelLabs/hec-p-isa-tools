@@ -6,7 +6,7 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
-from .legacy import Legacy
+from .config import Config
 
 
 class PIsaOp(ABC):
@@ -141,7 +141,7 @@ class Butterfly:
 
     def _op_str(self, op: str) -> str:
         """Return the p-isa instructions of an multiplication and accumulate"""
-        if Legacy.mode is True:
+        if Config.legacy_mode is True:
             return (
                 f"{self.label}, {op}, {self.output0}, {self.output1}, "
                 f"{self.input0}, {self.input1}, w_{self.q}_{self.stage}_{self.unit}, {self.q}"
