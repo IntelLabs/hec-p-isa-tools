@@ -54,7 +54,7 @@ class ParseResults:
     def get_pisa_ops(self) -> Iterator[list[PIsaOp] | None]:
         """generator returns lists of p-isa instructions"""
         commands = self._commands
-        # label = log2(poly modulus degree) if in legacy mode
+        # NOTE: label = log2(poly modulus degree) if in legacy mode
         if Config.legacy_mode is True:
             for command in commands:
                 if isinstance(command, HighOp) and hasattr(command, "context"):
