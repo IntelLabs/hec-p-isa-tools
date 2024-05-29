@@ -1,10 +1,12 @@
 # Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 """Module for parsing isa commands"""
 
 from pathlib import Path
 from typing import Iterator
 
+from .config import Config
 from .generators import Generators
 from .pisa_operations import PIsaOp
 from .types import (
@@ -52,6 +54,12 @@ class ParseResults:
     def get_pisa_ops(self) -> Iterator[list[PIsaOp] | None]:
         """generator returns lists of p-isa instructions"""
         commands = self._commands
+        # NOTE: label = log2(poly modulus degree) if in legacy mode
+        if Config.legacy_mode is True:
+            for command in commands:
+                if isinstance(command, HighOp) and hasattr(command, "context"):
+                    command.context.label = self.context.ntt_stages
+
         return (
             command.to_pisa() if isinstance(command, HighOp) else None
             for command in commands

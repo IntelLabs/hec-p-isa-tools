@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 # Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 """Module for generating p-isa kernels"""
 
@@ -9,6 +10,7 @@ import sys
 from typing import Iterable
 
 from high_parser.parser import Parser
+from high_parser.config import Config
 
 
 def parse_args():
@@ -16,6 +18,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Kernel Generator")
     parser.add_argument(
         "-q", "--quiet", action="store_true", help="disable comments in output"
+    )
+    parser.add_argument(
+        "-l", "--legacy", action="store_true", help="enable legacy mode"
     )
     return parser.parse_args()
 
@@ -32,6 +37,7 @@ def main(args) -> None:
     """Main entrypoint. Load available p-isa ops and parse isa instructions."""
 
     parse_results = Parser().parse_inputs(sys.stdin.readlines())
+    Config.legacy_mode = args.legacy
 
     # String blocks of the p-isa instructions (forward the Nones)
     pisa_ops: list[str | None] = list(
