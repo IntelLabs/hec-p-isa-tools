@@ -40,6 +40,10 @@ Under the `high_parser` directory is the core of the `kerngen` logic with the
 principal classes being `Parser` and `Generator`. For completeness, we take a
 quick look through the files.
 
+- `__init__.py` is worth a mention because it contains imports to the most
+  commonly used types. This makes it easier to import those types from the top
+  level including when writing kernels e.g. `from high_parser import Polys`.
+
 - `config.py` is a minor file primarily containing the `Config` class. The
   class itself is used as global singleton object to hold congiuration
   information of `kerngen`. It was introduced to not disturb the existing
