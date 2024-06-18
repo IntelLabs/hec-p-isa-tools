@@ -45,7 +45,7 @@ quick look through the files.
   level including when writing kernels e.g. `from high_parser import Polys`.
 
 - `config.py` is a minor file primarily containing the `Config` class. The
-  class itself is used as global singleton object to hold congiuration
+  class itself is used as a global singleton object to hold configuration
   information of `kerngen`. It was introduced to not disturb the existing
   APIs while changing global behaviour i.e. a legacy mode.
 
@@ -54,8 +54,8 @@ quick look through the files.
   Instances of `Parser` have an instance of this class for a given manifest
   file.  Instances should be created using the factory class method
   `from_manifest` and providing the path to the manifest file and a
-  `scheme`.  Although it is referred to as `scheme` it is fact just a key
-  label to mapping of a collection of grouped kernels.  Lookup can then be
+  `scheme`.  Although it is referred to as `scheme` it is in fact just a key
+  label mapping to a collection of grouped kernels.  Lookup can then be
   performed using `get_kernel` given a valid kernel operation name.
 
 - `parser.py` contains `Parser` responsible for parsing the input kernel
@@ -64,7 +64,7 @@ quick look through the files.
   `ParserResult`, an object containing all the parsed information. Note that
   the object is lazy in generating the P-ISA operations which are returned as a
   python generator when the `get_pisa_ops` method is called.  Note that one
-  current perculiarity is that once a parser is instantiated that a generator
+  current peculiarity is that once a parser is instantiated that a generator
   must be set before parsing can be done. This is a current limitation that
   `kerngen` currently can only have kernels defined under the `pisa_generators`
   directory.
@@ -72,7 +72,7 @@ quick look through the files.
 - `pisa_operations.py` contains all the known P-ISA operations. These are
   essentially objects that are responsible for formatting the operation
   strings for `kerngen` outputs. The class names reflect the P-ISA
-  operations ad closely as possible.
+  operations as closely as possible.
 
 - `types.py` has many types used by `kerngen` by the `Parser` and by kernel
   classes. This is where the parser types are implemented, namely,
