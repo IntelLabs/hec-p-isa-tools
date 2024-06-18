@@ -35,11 +35,32 @@ p-ISA instruction`. `kerngen` uses a common unix command line utility
 convention and the resulting p-ISA kernel is sent to `stdout`.
 
 ## Internals
-`Generator` responsible for dealing with the manifest file and loading
-appropriate kernel class.
 
-`Parser` responsible for parsing the input kernel language and creating the
-correct corresponding command objects for the interpreter to process.
+Under the `high_parser` directory is the core of the `kerngen` logic with the
+principal classes being `Parser` and `Generator`. For completeness, we take a
+quick look through the files.
+
+- `config.py` is a minor file primarily containing the `Config` class. The
+  class itself is used as global singleton object to hold congiuration
+  information of `kerngen`. It was introduced to not disturb the existing
+  APIs while changing global behaviour i.e. a legacy mode.
+
+- `generators.py` contains the `Generator` class responsible for dealing
+  with the manifest file and loading the appropriate kernel class. Instances of
+  `Parser` have an instance of this class for a given manifest file.
+  Instances should be created using the factory class method
+  `from_manifest` and providing the path to the manifest file and a `scheme`.
+  Although it is referred to as `scheme` it is fact just a key label to
+  mapping of a collection of grouped kernels.
+  Lookup can then be performed using `get_kernel` given a valid kernel
+  operation name.
+- `parser.py` contains `Parser` responsible for parsing the input kernel
+  language and creating the correct corresponding command objects for the
+  interpreter to process.
+
+- `pisa_operations.py`
+
+- `types.py`
 
 
 # Input kernel language
