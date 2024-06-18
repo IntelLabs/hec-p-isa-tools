@@ -128,7 +128,7 @@ class Parser:
                 if self.generators is None:
                     raise ValueError("Generator not set")
 
-                cls = self.generators.get_pisa_op(command)
+                cls = self.generators.get_kernel(command)
                 kernel_context = KernelContext.from_context(
                     context_seen[0], label=label
                 )

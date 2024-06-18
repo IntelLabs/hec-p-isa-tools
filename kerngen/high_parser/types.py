@@ -1,4 +1,5 @@
 # Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 """Module for parsing isa commands"""
 
@@ -169,7 +170,7 @@ class Context(BaseModel):
     @property
     def units(self):
         """units based on 8192 ~ 8K sized polynomials"""
-        # TODO hardcoding will be removed soon
+        # TODO remove hardcoding. Maybe move this to Config?
         native_poly_size = 8192
         return max(1, self.poly_order // native_poly_size)
 
@@ -228,4 +229,4 @@ class Immediate(BaseModel):
         return cls(name=name)
 
 
-ParserType = Context | Data | EmptyLine | Comment | HighOp
+ParserType = Context | Data | EmptyLine | Comment | Immediate | HighOp

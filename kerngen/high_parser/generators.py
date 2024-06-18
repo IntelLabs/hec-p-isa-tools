@@ -1,4 +1,5 @@
 # Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 """Module providing an interface to pisa generators"""
 
@@ -36,12 +37,12 @@ class Generators:
                     f"Scheme `{scheme.upper()}` not found in manifest file"
                 ) from e
 
-    def available_pisa_ops(self) -> str:
+    def available_kernels(self) -> str:
         """Returns a list of available pisa ops."""
         return "\n".join(f"{op}" for op in self.map.keys())
 
-    def get_pisa_op(self, opname: str):
-        """Returns the pisa op object given a valid op name"""
+    def get_kernel(self, opname: str):
+        """Returns the kernel generator given a valid op name"""
         try:
             # Capitalize the opname because it is the name of the class!
             class_name, module_file = self.map[opname.upper()]

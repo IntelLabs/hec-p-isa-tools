@@ -24,6 +24,8 @@ pip -r requirements.txt
 
 # Implementation
 
+## Overview
+
 The design is a simplified interpreter pattern. A domain specific language
 defined as a 'kernel language' is received as input to the kernel generator.
 This kernel language describes (which can be used for HE schemes) operations on
@@ -31,6 +33,61 @@ polynomials with given context parameters. This language is interpreted as a
 `high level instruction` which is then mapped to its corresponding `low level
 p-ISA instruction`. `kerngen` uses a common unix command line utility
 convention and the resulting p-ISA kernel is sent to `stdout`.
+
+## Internals
+
+Under the `high_parser` directory is the core of the `kerngen` logic with the
+principal classes being `Parser` and `Generator`. For completeness, we take a
+quick look through the files.
+
+- `__init__.py` is worth a mention because it contains imports to the most
+  commonly used types. This makes it easier to import those types from the top
+  level including when writing kernels e.g. `from high_parser import Polys`.
+
+- `config.py` is a minor file primarily containing the `Config` class. The
+  class itself is used as a global singleton object to hold configuration
+  information of `kerngen`. It was introduced to not disturb the existing
+  APIs while changing global behaviour i.e. a legacy mode.
+
+- `generators.py` contains the `Generator` class responsible for dealing
+  with the manifest file and loading the appropriate kernel class.
+  Instances of `Parser` have an instance of this class for a given manifest
+  file.  Instances should be created using the factory class method
+  `from_manifest` and providing the path to the manifest file and a
+  `scheme`.  Although it is referred to as `scheme` it is in fact just a key
+  label mapping to a collection of grouped kernels.  Lookup can then be
+  performed using `get_kernel` given a valid kernel operation name.
+
+- `parser.py` contains `Parser` responsible for parsing the input kernel
+  language and creating the correct corresponding command objects for the
+  interpreter to process. The output of parsing is given by an instance of
+  `ParserResult`, an object containing all the parsed information. Note that
+  the object is lazy in generating the P-ISA operations which are returned as a
+  python generator when the `get_pisa_ops` method is called.  Note that one
+  current peculiarity is that once a parser is instantiated that a generator
+  must be set before parsing can be done. This is a current limitation that
+  `kerngen` currently can only have kernels defined under the `pisa_generators`
+  directory.
+
+- `pisa_operations.py` contains all the known P-ISA operations. These are
+  essentially objects that are responsible for formatting the operation
+  strings for `kerngen` outputs. The class names reflect the P-ISA
+  operations as closely as possible.
+
+- `types.py` has many types used by `kerngen` by the `Parser` and by kernel
+  classes. This is where the parser types are implemented, namely,
+  `Context`, `Data`, `EmptyLine`, `Comment`, `Immediate`, `HighOp`. Note
+  that `HighOp` is the class that all kernels inherit from. The other main
+  type of note that is implemented here is the `Polys` class. This is the
+  type that is heavily utilized by kernel writers to represent polynomials.
+  At the most basic, these polynomial objects contain: a `part`,
+  elements/coefficients of the high-level data structure which themselves
+  represent polynomials; an `rns` number that describes up to how many RNS
+  numbers a `part` is decomposed by; and a `unit` represents how many units
+  (a.k.a. a block) a `part` has to be divided by. The `unit` is both an
+  underlying hardware division, but also for NTT operations to work a
+  `part`, the `part` must be at least split in two to feed in as inputs to
+  the operation.
 
 
 # Input kernel language
