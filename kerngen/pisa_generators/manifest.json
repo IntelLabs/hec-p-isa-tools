@@ -9,14 +9,9 @@
     "NTT": ["NTT", "ntt.py"],
     "INTT": ["INTT", "ntt.py"],
     "MOD": ["Mod", "mod.py"],
-<<<<<<< HEAD
     "MODUP": ["ModUp", "mod.py"],
     "RELIN": ["Relin", "relin.py"],
     "ROTATE": ["Rotate", "rotate.py"]
-=======
-    "MOD_SWITCH": ["Mod", "mod.py"],
-    "RELIN": ["Relin", "relin.py"]
->>>>>>> 32e984d (Modified default manifest to use MOD_SWITCH key instead of MOD. The fix enables generate_p_isa_ops_pgm and run_p_isa to scripts in functional modeler to run properly and keeps the naming convention consistant between hec-p-isa-tools and HERACLES-SEAL-isa-mapping.)
   },
   "CKKS": {
     "ADD": ["Add", "basic.py"],
