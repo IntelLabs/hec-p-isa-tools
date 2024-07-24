@@ -14,5 +14,6 @@
     "ROTATE": ["Rotate", "rotate.py"]
   },
   "CKKS": {
+    "RESCALE": ["Rescale", "rescale.py"]
   }
 }
