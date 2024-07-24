@@ -9,9 +9,10 @@
     "NTT": ["NTT", "ntt.py"],
     "INTT": ["INTT", "ntt.py"],
     "MOD": ["Mod", "mod.py"],
-    "MOD_SWITCH": ["Mod", "mod.py"],
+    "MODUP": ["Modup", "mod.py"],
     "RELIN": ["Relin", "relin.py"]
   },
   "CKKS": {
+    "RESCALE": ["Rescale", "rescale.py"]
   }
 }
