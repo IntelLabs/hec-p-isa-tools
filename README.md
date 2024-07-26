@@ -1,9 +1,9 @@
-# HERACLES P-ISA Tools
+# HERACLES Polynomial Instruction Set Architecture Tools
 ## Overview
 Intel’s [HERACLES accelerator technology](https://dl.acm.org/doi/10.1145/3560810.3565290) aims at improving the computational performance of [Fully Homomorphic Encryption (FHE)](https://en.wikipedia.org/wiki/Homomorphic_encryption).
 FHE is a form of encryption that allows computation to be performed on encrypted data without having to decrypt the data, which brings in profound and beneficial implications for data privacy and data confidentiality. But these benefits come with a significant performance cost, which has so far confined FHE based application to specifc use case archetypes primarely in use by the regulated industries and governemnt.
 
-Most of the FHE schemes of today perform the computation of very large polynomial rings, thus requiring considerable compute power and data movement between main memory and the CPU's registers. HERACLES improves the performance of FHE by accelerating the computation over the large polynomials and optimizing the data movement involved in the computation.
+Most of the FHE schemes of today perform the computation using very large polynomial rings, thus requiring considerable compute power and data movement between main memory and the CPU's registers. HERACLES improves the performance of FHE by accelerating the computation over the large polynomials and optimizing the data movement involved in the computation.
 
 HERACLES introduces a new Polynomial Data type which does not exist in today's traditional CPUs. For this new polynomial data type, it supports a new set of novel and fundamental instructions, the Polynomial Instructions Set Architecture (P-ISA), that operates directly on large polynomials in a SIMD fashion. We at Intel Labs are developing a new compiler pipeline, the Encrypted Computing SDK, to make it easier for developers to develop new implementations of FHE schemes and also integrate with existing libraries.
 
@@ -38,3 +38,28 @@ We are currently at Phase 1, more specifically developing the P-ISA Tools compon
 
 Currently our development is focussed on the [Kernel Generator](./kerngen). Follow the instructions to start experimenting with it.
 
+# Contributing
+Intel HE Toolkit welcomes external contributions through pull requests to the
+`main` branch.
+
+Please sign your commits before making a pull request. See instructions
+[here](https://docs.github.com/en/github/authenticating-to-github/managing-commit-signature-verification/signing-commits)
+for how to sign commits.
+
+Before contributing, please ensure that you run
+[pre-commit](https://pre-commit.com) with
+```bash
+pre-commit install
+pre-commit run --all-files
+```
+and make sure all checks pass.
+
+Also please run
+```bash
+pytest tests
+```
+to make sure the tests pass.
+
+We encourage feedback and suggestions via
+[GitHub Issues](https://github.com/IntelLabs/hec-p-isa-tools/issues) as well as via
+[GitHub Discussions](https://github.com/IntelLabs/hec-p-isa-tools/discussions).
