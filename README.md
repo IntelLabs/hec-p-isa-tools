@@ -72,7 +72,7 @@ requests to the `main` branch.
 
 Please reffer to the [Contributing](CONTRIBUTING.md) and
 [Code of Conduct](CODE_OF_CONDUCT) documents for additional information on
-the contribution acceptace guidelines.
+the contribution acceptance guidelines.
 
 We use signed commits, please remember to sign your commits before making a 
 pull request.  See instructions
