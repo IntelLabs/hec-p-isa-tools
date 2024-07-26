@@ -1,4 +1,7 @@
 # HERACLES Polynomial Instruction Set Architecture Tools
+[![CodeQL](https://github.com/ossf/scorecard-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/intellabs/hec-p-isa-tools/actions/workflows/codeql-analysis.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/intellabs/hec-p-isa-tools/badge)](https://scorecard.dev/viewer/?uri=github.com/intellabs/hec-p-isa-tools)
+
 ## Overview
 Intel’s [HERACLES accelerator technology](https://dl.acm.org/doi/10.1145/3560810.3565290)
 aims at improving the computational performance of
