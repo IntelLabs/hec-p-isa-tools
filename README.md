@@ -7,7 +7,7 @@ FHE allows computation to be performed on
 encrypted data without having to decrypt the data which brings in
 profound and beneficial implications for data privacy and data confidentiality.
 However, these benefits come with a significant performance cost which has so far
-confined FHE based application to specific use case archetypes primarily in use
+confined FHE based applications to specific use case archetypes primarily in use
 by the regulated industries and government.
 
 Most of the FHE schemes of today perform the computation using very large
