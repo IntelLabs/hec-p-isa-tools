@@ -3,12 +3,12 @@
 Intel’s [HERACLES accelerator technology](https://dl.acm.org/doi/10.1145/3560810.3565290)
 aims at improving the computational performance of
 [Fully Homomorphic Encryption (FHE)](https://en.wikipedia.org/wiki/Homomorphic_encryption).
-FHE is a form of encryption that allows computation to be performed on
-encrypted data without having to decrypt the data, which brings in
+FHE allows computation to be performed on
+encrypted data without having to decrypt the data which brings in
 profound and beneficial implications for data privacy and data confidentiality.
-But these benefits come with a significant performance cost, which has so far
+However, these benefits come with a significant performance cost which has so far
 confined FHE based application to specifc use case archetypes primarely in use
-by the regulated industries and governemnt.
+by the regulated industries and government.
 
 Most of the FHE schemes of today perform the computation using very large
 polynomial rings, thus requiring considerable compute power and data
