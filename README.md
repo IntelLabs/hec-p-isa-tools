@@ -86,7 +86,7 @@ pre-commit install
 pre-commit run --all-files
 ```
 
-Please run run the tests provided in each of the components and make sure 
+Please run the tests provided in each of the components and make sure 
 the tests pass.
 
 # Feedback
