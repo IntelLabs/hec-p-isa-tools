@@ -30,7 +30,7 @@ new implementations of FHE schemes and also integrate with existing libraries.
 The Encrypted Computing SDK (or HERACLES SDK) will realze a multistage
 transformation (compiler) pipeline, inspired by the
 [LLVM Compiler Infrastructure](https://llvm.org/). We have adopted a 
-modular approach based on language independednt intermediate
+modular approach based on language independent intermediate
 representations (IR) that promotes the separation of concerns at each
 stage of the pipeline and allowing for dedicated tranformations and
 optimizations.
