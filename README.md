@@ -7,7 +7,7 @@ FHE allows computation to be performed on
 encrypted data without having to decrypt the data which brings in
 profound and beneficial implications for data privacy and data confidentiality.
 However, these benefits come with a significant performance cost which has so far
-confined FHE based application to specifc use case archetypes primarely in use
+confined FHE based application to specific use case archetypes primarily in use
 by the regulated industries and government.
 
 Most of the FHE schemes of today perform the computation using very large
@@ -27,12 +27,12 @@ new implementations of FHE schemes and also integrate with existing libraries.
 <p>
 <img src="docs/images/HERACLES_SDK_Integration_3rd_Party.png" align="left" width="600" />
   
-The Encrypted Computing SDK (or HERACLES SDK) will realze a multistage
+The Encrypted Computing SDK (or HERACLES SDK) will realize a multistage
 transformation (compiler) pipeline, inspired by the
 [LLVM Compiler Infrastructure](https://llvm.org/). We have adopted a 
 modular approach based on language independent intermediate
 representations (IR) that promotes the separation of concerns at each
-stage of the pipeline and allowing for dedicated tranformations and
+stage of the pipeline and allowing for dedicated transformations and
 optimizations.
 
 This approach also allows for integration with 3rd Party compilers and
@@ -70,7 +70,7 @@ Follow the instructions [here](./kerngen) to start experimenting with it.
 Intel P-ISA Tools project welcomes external contributions through pull 
 requests to the `main` branch.
 
-Please reffer to the [Contributing](CONTRIBUTING.md) and
+Please refer to the [Contributing](CONTRIBUTING.md) and
 [Code of Conduct](CODE_OF_CONDUCT) documents for additional information on
 the contribution acceptance guidelines.
 
@@ -79,8 +79,8 @@ pull request.  See instructions
 [here](https://docs.github.com/en/github/authenticating-to-github/managing-commit-signature-verification/signing-commits)
 for how to sign commits.
 
-We also use pre-commits, so before contributing, please ensure that you run
-[pre-commit](https://pre-commit.com) with and make sure all checks pass.
+We also use `pre-commit`, so before contributing, please ensure that you run
+[pre-commit](https://pre-commit.com) and make sure all checks pass with
 ```bash
 pre-commit install
 pre-commit run --all-files
