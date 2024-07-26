@@ -39,7 +39,7 @@ We are currently at Phase 1, more specifically developing the P-ISA Tools compon
 Currently our development is focussed on the [Kernel Generator](./kerngen). Follow the instructions to start experimenting with it.
 
 # Contributing
-Intel HE Toolkit welcomes external contributions through pull requests to the
+Intel P-ISA Tools project welcomes external contributions through pull requests to the
 `main` branch.
 
 Please sign your commits before making a pull request. See instructions
@@ -47,18 +47,13 @@ Please sign your commits before making a pull request. See instructions
 for how to sign commits.
 
 Before contributing, please ensure that you run
-[pre-commit](https://pre-commit.com) with
+[pre-commit](https://pre-commit.com) with and make sure all checks pass.
 ```bash
 pre-commit install
 pre-commit run --all-files
 ```
-and make sure all checks pass.
 
-Also please run
-```bash
-pytest tests
-```
-to make sure the tests pass.
+Also please run run the tests provided in each of the components, and make sure the tests pass.
 
 We encourage feedback and suggestions via
 [GitHub Issues](https://github.com/IntelLabs/hec-p-isa-tools/issues) as well as via
