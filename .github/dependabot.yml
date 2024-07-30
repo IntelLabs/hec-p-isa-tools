@@ -4,3 +4,6 @@ updates:
     directory: "/kerngen" # Location of package manifests
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-minor", "version-update:semver-patch"]
