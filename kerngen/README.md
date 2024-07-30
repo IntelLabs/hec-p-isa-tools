@@ -18,7 +18,7 @@ installed,
 To install the python dependencies and development tools simply run,
 
 ```bash
-pip -r requirements.txt
+pip install -r requirements.txt
 ```
 
 
@@ -116,12 +116,15 @@ Context defines the global properties `(scheme, poly_order, max_rns,
 key_rns(optional))` of the input script.
 `CONTEXT` sets a global context for properties required by the kernels.
 - first field defines what we call scheme. In reality, it specifies the set of
-kernel instructions given in the manifest file, see []().
-- second field defines the polynomial size. This is required to when generating
-kernels how many units (multiples of the native polynomial size) are required
-and handled.
-- third field defines the max RNS, the global max number of how many moduli that
-the kernels can have or need to handle.
+kernel instructions given in the manifest file, see
+[manifest.json](./pisa_generators/manifest.json).
+- second field defines the native polynomial size that a given HW implementation
+supports (8192 in HERACLES silicon case). This is required by the generating
+kernels to define how many units ( multiples of the native polynomial size) are
+required and handled.
+- third field defines the max RNS, the global max number of how many
+(32 bit in HERACLES silicon case)moduli that the kernels can have or need to
+handle.
 - (optional) fourth field defines the key RNS, the number of additional moduli
 that the relinearization key has relative to the third field. i.e. If `max_rns`
 is 3 and `key_rns` is 1 the total max RNS of the relinearization key will be 4.
