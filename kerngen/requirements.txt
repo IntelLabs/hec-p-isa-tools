@@ -3,7 +3,7 @@ pydantic ~= 2.8
 
 # for dev / commits
 black ~= 24.3
-pylint ~= 3.1
+pylint ~= 3.2
 
 # for testing
-pytest ~= 8.1
+pytest ~= 8.3
