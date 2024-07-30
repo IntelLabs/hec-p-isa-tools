@@ -41,6 +41,9 @@ def fuzz_parser(data):
 
     hashes = "#" * 3
 
+    # pylint: disable=unused-variable
+    context = parse_results.context
+
     for kernel_no, (pisa_op, command) in enumerate(filtered):
         print(hashes, f"Kernel ({kernel_no}):", command, hashes)
         print(pisa_op)
