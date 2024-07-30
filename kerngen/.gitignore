@@ -2,8 +2,19 @@
 **.high
 data/
 
-# Vim artefacts
+# Vim artifacts
 **.sw?
 
-# Python artefacts
-**/__pycache__/
+# Python artifacts
+__pycache__/
+.pytest_cache
+*.pyc
+*.pyo
+**/venv
+
+# Fuzzing artifacts
+**/CORPUS/*
+!**/CORPUS/corpus.data
+**/.coverage
+**/crash*
+**/results

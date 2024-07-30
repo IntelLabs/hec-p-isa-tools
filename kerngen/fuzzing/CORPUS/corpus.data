@@ -1,0 +1,10 @@
+CONTEXT BGV 8192 4
+Data a 2
+Data b 2
+Data c 2
+ADD a b c
+.CONTEXT BGV 8192 4
+Data a 2
+Data b 2
+Data c 2
+MUL a b c
