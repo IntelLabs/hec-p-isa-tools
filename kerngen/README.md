@@ -122,9 +122,8 @@ kernel instructions given in the manifest file, see
 supports (8192 in HERACLES silicon case). This is required by the generating
 kernels to define how many units (multiples of the native polynomial size) are
 required and handled.
-- third field defines the max RNS, the global max number of how many
-(32 bit in HERACLES silicon case) moduli that the kernels can have or need to
-handle.
+- third field defines the max RNS, the global max number of how many 32 bit prime number moduli
+(HERACLES silicon case) are in the modulus chain that the kernels can have or need to handle.
 - (optional) fourth field defines the key RNS, the number of additional moduli
 that the relinearization key has relative to the third field. i.e. If `max_rns`
 is 3 and `key_rns` is 1 the total max RNS of the relinearization key will be 4.
