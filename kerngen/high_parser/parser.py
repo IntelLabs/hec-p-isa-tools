@@ -31,15 +31,32 @@ class ParseResults:
     """Queryable class about parse results"""
 
     def __init__(self, iterable, symbols_map):
-        self._commands = list(iterable)
+        self._commands = ParseResults._validate_commands(list(iterable))
         self._symbols_map = symbols_map
+
+    @staticmethod
+    def _get_context_from_commands_list(commands):
+        """Validates that the commands list contains a single context"""
+        context_list = [context for context in commands if isinstance(context, Context)]
+        if not context_list:
+            raise LookupError("No Context found for commands list for ParseResults")
+        if len(context_list) > 1:
+            raise LookupError(
+                "Multiple Context found in commands list for ParseResults"
+            )
+        return context_list[0]
+
+    @staticmethod
+    def _validate_commands(commands):
+        """Validate commands. Raises a LookupError if context is missing."""
+        ParseResults._get_context_from_commands_list(commands)
+        # Todo: add other checks here
+        return commands
 
     @property
     def context(self):
         """Return found context"""
-        return next(
-            context for context in self._commands if isinstance(context, Context)
-        )
+        return ParseResults._get_context_from_commands_list(self._commands)
 
     @property
     def commands(self):

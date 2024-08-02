@@ -1,10 +1,15 @@
 # Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright (C) 2024 Intel Corporation
 
 """Test the expected behaviour of the kerngen script"""
 
 from enum import Enum
 from pathlib import Path
 from subprocess import run
+from high_parser.parser import ParseResults
+from high_parser.types import Context
 import pytest
 
 
@@ -91,6 +96,26 @@ def test_invalid_scheme(kerngen_path):
     assert not result.stdout
     assert "GeneratorError: Scheme `SCHEME` not found in manifest file" in result.stderr
     assert result.returncode != 0
+
+
+def test_parse_results_missing_context_in_constructor():
+    """Test ParseResults constructor for missing context"""
+    with pytest.raises(LookupError) as e:
+        ParseResults([], {})
+    assert "No Context found for commands list for ParseResults" in str(e.value)
+
+
+def test_parse_results_multiple_context_in_constructor():
+    """Test ParseResults constructor for multiple context"""
+    with pytest.raises(LookupError) as e:
+        ParseResults(
+            [
+                Context(scheme="BGV", poly_order=8192, max_rns=1),
+                Context(scheme="CKKS", poly_order=8192, max_rns=1),
+            ],
+            {},
+        )
+    assert "Multiple Context found in commands list for ParseResults" in str(e.value)
 
 
 @pytest.fixture(name="gen_op_data")
