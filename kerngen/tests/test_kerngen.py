@@ -98,23 +98,25 @@ def test_invalid_scheme(kerngen_path):
     assert result.returncode != 0
 
 
-def test_parse_results_missing_context_in_constructor():
+def test_parse_results_missing_context():
     """Test ParseResults constructor for missing context"""
     with pytest.raises(LookupError) as e:
-        ParseResults([], {})
+        parse_results = ParseResults([], {})
+        print(parse_results.context)  # will generate a lookup error
     assert "No Context found for commands list for ParseResults" in str(e.value)
 
 
-def test_parse_results_multiple_context_in_constructor():
+def test_parse_results_multiple_context():
     """Test ParseResults constructor for multiple context"""
     with pytest.raises(LookupError) as e:
-        ParseResults(
+        parse_results = ParseResults(
             [
                 Context(scheme="BGV", poly_order=8192, max_rns=1),
                 Context(scheme="CKKS", poly_order=8192, max_rns=1),
             ],
             {},
         )
+        print(parse_results.context)  # will raise a LookupError
     assert "Multiple Context found in commands list for ParseResults" in str(e.value)
 
 

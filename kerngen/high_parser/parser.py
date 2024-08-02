@@ -31,7 +31,7 @@ class ParseResults:
     """Queryable class about parse results"""
 
     def __init__(self, iterable, symbols_map):
-        self._commands = ParseResults._validate_commands(list(iterable))
+        self._commands = list(iterable)
         self._symbols_map = symbols_map
 
     @staticmethod
@@ -45,13 +45,6 @@ class ParseResults:
                 "Multiple Context found in commands list for ParseResults"
             )
         return context_list[0]
-
-    @staticmethod
-    def _validate_commands(commands):
-        """Validate commands. Raises a LookupError if context is missing."""
-        ParseResults._get_context_from_commands_list(commands)
-        # Todo: add other checks here
-        return commands
 
     @property
     def context(self):
