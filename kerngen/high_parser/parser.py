@@ -34,12 +34,22 @@ class ParseResults:
         self._commands = list(iterable)
         self._symbols_map = symbols_map
 
+    @staticmethod
+    def _get_context_from_commands_list(commands):
+        """Validates that the commands list contains a single context"""
+        context_list = [context for context in commands if isinstance(context, Context)]
+        if not context_list:
+            raise LookupError("No Context found for commands list for ParseResults")
+        if len(context_list) > 1:
+            raise LookupError(
+                "Multiple Context found in commands list for ParseResults"
+            )
+        return context_list[0]
+
     @property
     def context(self):
         """Return found context"""
-        return next(
-            context for context in self._commands if isinstance(context, Context)
-        )
+        return ParseResults._get_context_from_commands_list(self._commands)
 
     @property
     def commands(self):
