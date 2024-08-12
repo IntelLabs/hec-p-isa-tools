@@ -17,6 +17,11 @@ extension-pkg-allow-list=pydantic
 # Minimum number of public methods for a class (see R0903).
 min-public-methods = 0
 
+[DESIGN]
+
+# Maximum number of attributes for a class (see R0902).
+max-attributes=8
+
 [FORMAT]
 # `black` takes care of our line lengths, but just in case it gets ridiculous
 max-line-length=230
