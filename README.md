@@ -17,7 +17,7 @@ by the regulated industries and government.
 Most of the FHE schemes of today perform the computation using very large
 polynomial rings, thus requiring considerable compute power and data
 movement between main memory and the CPU's registers. HERACLES improves
-the performance of FHE by accelerating the computation over the large 
+the performance of FHE by accelerating the computation over the large
 polynomials and optimizing the data movement involved in the computation.
 
 HERACLES introduces a new Polynomial Data type which does not exist in
@@ -30,10 +30,10 @@ new implementations of FHE schemes and also integrate with existing libraries.
 
 <p>
 <img src="docs/images/HERACLES_SDK_Integration_3rd_Party.png" align="left" width="600" />
-  
+
 The Encrypted Computing SDK (or HERACLES SDK) will realize a multistage
 transformation (compiler) pipeline, inspired by the
-[LLVM Compiler Infrastructure](https://llvm.org/). We have adopted a 
+[LLVM Compiler Infrastructure](https://llvm.org/). We have adopted a
 modular approach based on language independent intermediate
 representations (IR) that promotes the separation of concerns at each
 stage of the pipeline and allowing for dedicated transformations and
@@ -64,21 +64,21 @@ transpilers.
 
 We are currently at Phase 1, more specifically developing the P-ISA Tools
 component which comprises three main tools, a) Kernel Generator, b) Program
-Mapper, and c) Functional Modeler Simulator. 
+Mapper, and c) Functional Modeler Simulator.
 Each tool in this repo is self contained and has its own local README.
 
 Current development is focussed on the Kernel Generator.
 Follow the instructions [here](./kerngen) to start experimenting with it.
 
 # Contributing
-Intel P-ISA Tools project welcomes external contributions through pull 
+Intel P-ISA Tools project welcomes external contributions through pull
 requests to the `main` branch.
 
 Please refer to the [Contributing](CONTRIBUTING.md) and
 [Code of Conduct](CODE_OF_CONDUCT) documents for additional information on
 the contribution acceptance guidelines.
 
-We use signed commits, please remember to sign your commits before making a 
+We use signed commits, please remember to sign your commits before making a
 pull request.  See instructions
 [here](https://docs.github.com/en/github/authenticating-to-github/managing-commit-signature-verification/signing-commits)
 for how to sign commits.
@@ -90,7 +90,7 @@ pre-commit install
 pre-commit run --all-files
 ```
 
-Please run the tests provided in each of the components and make sure 
+Please run the tests provided in each of the components and make sure
 the tests pass.
 
 # Feedback
