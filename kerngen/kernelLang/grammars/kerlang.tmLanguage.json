@@ -1,0 +1,15 @@
+{
+  "scopeName": "source.kerlang",
+  "patterns": [
+    {
+      "name": "comment.line.double-dash.kerlang",
+      "match": "# .*$"
+    },
+    {
+      "name": "keyword.operator.kerlang",
+      "match": "\\b(COPY|ADD|MUL|MULI|RELIN|NTT|INTT|MOD|MODUP|SQUARE)\\b"
+		}
+  ],
+  "repository": {},
+  "fileTypes": ["kerlang"]
+}

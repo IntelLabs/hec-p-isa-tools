@@ -7,3 +7,6 @@ data/
 
 # Python artefacts
 **/__pycache__/
+
+# Playground
+playground/
