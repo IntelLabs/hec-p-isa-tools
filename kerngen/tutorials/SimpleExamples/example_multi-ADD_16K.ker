@@ -1,0 +1,11 @@
+CONTEXT BGV 16384 1
+DATA a 2
+DATA b 2
+DATA c 2
+DATA d 2
+DATA e 2
+DATA f 2
+DATA g 2
+ADD c a b
+ADD f d e
+ADD g c f
