@@ -10,3 +10,6 @@ data/
 
 # Playground
 zz_playground/
+
+# vs code local config
+.vscode
