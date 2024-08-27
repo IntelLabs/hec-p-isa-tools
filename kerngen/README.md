@@ -118,10 +118,9 @@ key_rns(optional))` of the input script.
 - first field defines what we call scheme. In reality, it specifies the set of
 kernel instructions given in the manifest file, see
 [manifest.json](./pisa_generators/manifest.json).
-- second field defines the native polynomial size that a given HW implementation
-supports (8192 in HERACLES silicon case). This is required by the generating
-kernels to define how many units (multiples of the native polynomial size) are
-required and handled.
+- second field defines the polynomial size for the `DATA`. This is required by
+the generating kernels to define how many units (multiples of the native polynomial
+size, 8192 in HERACLES silicon case) are required and handled.
 - third field defines the max RNS, the global max number of how many 32 bit prime number moduli
 (HERACLES silicon case) are in the modulus chain that the kernels can have or need to handle.
 - (optional) fourth field defines the key RNS, the number of additional moduli
@@ -130,7 +129,7 @@ is 3 and `key_rns` is 1 the total max RNS of the relinearization key will be 4.
 Note this field is only required for calling the `relin` kernel.
 
 ## DATA
-`DATA` defines symbols to be used and their attribute(s) (`num_parts`) where
+`DATA` defines polynomial symbols to be used and their attribute(s) (`num_parts`) where
 `num_parts` is the number of polynomials that comprise the data variable.
 
 ## IMMEDIATE
