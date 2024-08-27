@@ -7,3 +7,9 @@ data/
 
 # Python artefacts
 **/__pycache__/
+
+# Playground
+zz_playground/
+
+# vs code local config
+.vscode
