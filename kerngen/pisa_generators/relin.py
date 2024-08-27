@@ -110,7 +110,7 @@ class Relin(HighOp):
         mul_by_rlk_modded_down = Polys.from_polys(mul_by_rlk)
         mul_by_rlk_modded_down.rns = self.input0.rns
         input_last_part = Polys.from_polys(self.input0, mode="last_part")
-        input_last_part.name = "input"
+        input_last_part.name = self.input0.name
 
         last_coeff = Polys.from_polys(input_last_part)
         last_coeff.name = "coeffs"
