@@ -41,8 +41,6 @@ class KeyMul(HighOp):
                     self.context.label,
                     self.output(part, q, unit),
                     input0_tmp(2, q, unit),
-                    # self.input0(2, q, unit),
-                    # self.input1(digit, part, q, unit),
                     self.input1(digit, part, q, unit),
                     q,
                 )
@@ -92,9 +90,6 @@ class DigitDecompExtend(HighOp):
             output_tmp = Polys.from_polys(self.output)
             output_tmp.name += "_" + ascii_letters[input_rns_index]
             ls.extend(NTT(self.context, output_tmp, self.output).to_pisa())
-            # HERE
-
-            # ls.extend(KeyMul(self.context, self.mul_by_rlk, self.upto_last_coeffs, self.relin_key).to_pisa())
 
         return mixed_to_pisa_ops(
             INTT(self.context, rns_poly, self.input0),
@@ -126,7 +121,7 @@ class Relin(HighOp):
         mul_by_rlk_modded_down = Polys.from_polys(mul_by_rlk)
         mul_by_rlk_modded_down.rns = self.input0.rns
         input_last_part = Polys.from_polys(self.input0, mode="last_part")
-        input_last_part.name = "ct0"
+        input_last_part.name = self.input0.name
 
         last_coeff = Polys.from_polys(input_last_part)
         last_coeff.name = "coeffs"
