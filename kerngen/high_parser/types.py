@@ -74,10 +74,10 @@ class KeyPolys(Polys):
         self.digits = kwargs.get(digits, 1)
         super().__init__(*args, **{k: v for k, v in kwargs.items() if k != digits})
 
-    # def expand(self, digit: int, part: int, q: int, unit: int) -> str:
+    # def expand(self, part: int, digit: int, q: int, unit: int) -> str:
     def expand(self, *args) -> str:
         """Returns a string of the expanded symbol w.r.t. digit, rns, part, and unit"""
-        digit, part, q, unit = args
+        part, digit, q, unit = args
         # Sanity bounds checks
         if (
             self.start_parts > part >= self.parts
