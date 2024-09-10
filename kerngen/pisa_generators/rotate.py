@@ -1,9 +1,9 @@
 # Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 """Module containing conversions or operations from isa to p-isa."""
 
 from dataclasses import dataclass
-from itertools import product
 
 from high_parser.pisa_operations import PIsaOp, Comment
 from high_parser import KernelContext, HighOp, Polys, KeyPolys
@@ -12,6 +12,7 @@ from .basic import Add, mixed_to_pisa_ops
 from .relin import KeyMul, DigitDecompExtend
 from .mod import Mod
 from .ntt import INTT, NTT
+
 
 @dataclass
 class Rotate(HighOp):
@@ -25,6 +26,8 @@ class Rotate(HighOp):
         """Return the p-isa code to perform a relinearization (relin). Note:
         currently only supports polynomials with two parts. Currently only
         supports number of digits equal to the RNS size"""
+        self.output.parts = 2
+        self.input0.parts = 2
 
         relin_key = KeyPolys(
             "rlk", parts=2, rns=self.context.key_rns, digits=self.input0.rns
@@ -32,8 +35,9 @@ class Rotate(HighOp):
         mul_by_rlk = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
         mul_by_rlk_modded_down = Polys.from_polys(mul_by_rlk)
         mul_by_rlk_modded_down.rns = self.input0.rns
+        mul_by_rlk_modded_down.name = self.output.name
         input_last_part = Polys.from_polys(self.input0, mode="last_part")
-        input_last_part.name = "input"
+        input_last_part.name = self.input0.name
 
         last_coeff = Polys.from_polys(input_last_part)
         last_coeff.name = "coeffs"
@@ -45,19 +49,29 @@ class Rotate(HighOp):
         add_original = Polys.from_polys(mul_by_rlk_modded_down)
         add_original.name = self.input0.name
 
+        cd = Polys.from_polys(self.input0)
+        cd.name = "cd"
+        cd.parts = 1
+        cd.start_parts = 0
+        start_input = Polys.from_polys(self.input0)
+        start_input.start_parts = 0
+        start_input.parts = 1
+
+        first_part_rlk = Polys.from_polys(mul_by_rlk_modded_down)
+        first_part_rlk.parts = 1
+        first_part_rlk.start_parts = 0
         return mixed_to_pisa_ops(
-            Comment("Start of rotate kernel - similar to relin, except missing final add"),
+            Comment(
+                "Start of rotate kernel - similar to relin, except missing final add"
+            ),
             DigitDecompExtend(self.context, last_coeff, input_last_part),
             Comment("Multiply by rotate key"),
             KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key),
             Comment("Mod switch down to Q"),
             Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk),
             Comment("Start of new code for rotate"),
-            INTT(self.context, mul_by_rlk_modded_down, add_original),
-            NTT(self.context, mul_by_rlk_modded_down, mul_by_rlk_modded_down),
-            Add(self.context, self.output, mul_by_rlk_modded_down, add_original),
-            Comment("End of rotate kernel")
+            INTT(self.context, cd, start_input),
+            NTT(self.context, cd, cd),
+            Add(self.context, self.output, cd, first_part_rlk),
+            # Comment("End of rotate kernel")
         )
-
-
-        
