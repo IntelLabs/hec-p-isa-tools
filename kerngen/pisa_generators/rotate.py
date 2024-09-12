@@ -28,31 +28,31 @@ class Rotate(HighOp):
         supports number of digits equal to the RNS size"""
         self.output.parts = 2
         self.input0.parts = 2
-
         relin_key = KeyPolys(
-            "rlk", parts=2, rns=self.context.key_rns, digits=self.input0.rns
+            "gk", parts=2, rns=self.context.key_rns, digits=self.input0.rns
         )
-        mul_by_rlk = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
+        # pylint: disable=duplicate-code
+        mul_by_rlk = Polys("c2_gk", parts=2, rns=self.context.key_rns)
         mul_by_rlk_modded_down = Polys.from_polys(mul_by_rlk)
         mul_by_rlk_modded_down.rns = self.input0.rns
         mul_by_rlk_modded_down.name = self.output.name
+
         input_last_part = Polys.from_polys(self.input0, mode="last_part")
         input_last_part.name = self.input0.name
 
         last_coeff = Polys.from_polys(input_last_part)
         last_coeff.name = "coeffs"
         last_coeff.rns = self.context.key_rns
+
         upto_last_coeffs = Polys.from_polys(last_coeff)
         upto_last_coeffs.parts = 1
         upto_last_coeffs.start_parts = 0
-
-        add_original = Polys.from_polys(mul_by_rlk_modded_down)
-        add_original.name = self.input0.name
 
         cd = Polys.from_polys(self.input0)
         cd.name = "cd"
         cd.parts = 1
         cd.start_parts = 0
+
         start_input = Polys.from_polys(self.input0)
         start_input.start_parts = 0
         start_input.parts = 1
@@ -60,13 +60,15 @@ class Rotate(HighOp):
         first_part_rlk = Polys.from_polys(mul_by_rlk_modded_down)
         first_part_rlk.parts = 1
         first_part_rlk.start_parts = 0
+        # pylint: enable=duplicate-code
+
         return mixed_to_pisa_ops(
             Comment(
                 "Start of rotate kernel - similar to relin, except missing final add"
             ),
             DigitDecompExtend(self.context, last_coeff, input_last_part),
             Comment("Multiply by rotate key"),
-            KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key),
+            KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key, 1),
             Comment("Mod switch down to Q"),
             Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk),
             Comment("Start of new code for rotate"),

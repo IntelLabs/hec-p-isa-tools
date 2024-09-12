@@ -24,6 +24,7 @@ class KeyMul(HighOp):
     output: Polys
     input0: Polys
     input1: KeyPolys
+    input0_part: int
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform a key multiplication"""
@@ -40,7 +41,7 @@ class KeyMul(HighOp):
                 op(
                     self.context.label,
                     self.output(part, q, unit),
-                    input0_tmp(2, q, unit),
+                    input0_tmp(self.input0_part, q, unit),
                     self.input1(digit, part, q, unit),
                     q,
                 )
@@ -138,7 +139,7 @@ class Relin(HighOp):
             Comment("Digit decomposition and extend base from Q to PQ"),
             DigitDecompExtend(self.context, last_coeff, input_last_part),
             Comment("Multiply by relin key"),
-            KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key),
+            KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key, 2),
             Comment("Mod switch down to Q"),
             Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk),
             Comment("Add to original poly"),
