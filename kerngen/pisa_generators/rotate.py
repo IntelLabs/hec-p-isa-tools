@@ -54,15 +54,13 @@ class Rotate(HighOp):
         first_part_rlk.start_parts = 0
 
         return mixed_to_pisa_ops(
-            Comment(
-                "Start of rotate kernel - similar to relin, except missing final add"
-            ),
+            Comment("Start of rotate kernel"),
+            Comment("Digit Decomp"),
             DigitDecompExtend(self.context, last_coeff, input_last_part),
             Comment("Multiply by rotate key"),
             KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key, 1),
             Comment("Mod switch down to Q"),
             Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk),
-            Comment("Start of new code for rotate"),
             INTT(self.context, cd, start_input),
             NTT(self.context, cd, cd),
             Add(self.context, self.output, cd, first_part_rlk),
