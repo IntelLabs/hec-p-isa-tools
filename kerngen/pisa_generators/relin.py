@@ -6,6 +6,7 @@
 from dataclasses import dataclass
 from itertools import product
 from string import ascii_letters
+from typing import Tuple
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp, Comment
@@ -14,6 +15,22 @@ from high_parser import KernelContext, HighOp, Immediate, KeyPolys, Polys
 from .basic import Add, Muli, mixed_to_pisa_ops
 from .mod import Mod
 from .ntt import INTT, NTT
+
+
+def init_common_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Polys]:
+    """Initialize commonly used polys in both relin and rotate kernels"""
+    input_last_part = Polys.from_polys(input, mode="last_part")
+    input_last_part.name = input0.name
+
+    last_coeff = Polys.from_polys(input_last_part)
+    last_coeff.name = "coeffs"
+    last_coeff.rns = rns
+
+    upto_last_coeffs = Polys.from_polys(last_coeff)
+    upto_last_coeffs.parts = 1
+    upto_last_coeffs.start_parts = 0
+
+    return input_last_part, last_coeff, upto_last_coeffs
 
 
 @dataclass
@@ -121,15 +138,10 @@ class Relin(HighOp):
         mul_by_rlk = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
         mul_by_rlk_modded_down = Polys.from_polys(mul_by_rlk)
         mul_by_rlk_modded_down.rns = self.input0.rns
-        input_last_part = Polys.from_polys(self.input0, mode="last_part")
-        input_last_part.name = self.input0.name
 
-        last_coeff = Polys.from_polys(input_last_part)
-        last_coeff.name = "coeffs"
-        last_coeff.rns = self.context.key_rns
-        upto_last_coeffs = Polys.from_polys(last_coeff)
-        upto_last_coeffs.parts = 1
-        upto_last_coeffs.start_parts = 0
+        input_last_part, last_coeff, upto_last_coeffs = init_common_polys(
+            self.input0, self.context.key_rns
+        )
 
         add_original = Polys.from_polys(mul_by_rlk_modded_down)
         add_original.name = self.input0.name
