@@ -41,7 +41,7 @@ class KeyMul(HighOp):
     output: Polys
     input0: Polys
     input1: KeyPolys
-    input0_part: int
+    input0_fixed_part: int
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform a key multiplication"""
@@ -58,7 +58,7 @@ class KeyMul(HighOp):
                 op(
                     self.context.label,
                     self.output(part, q, unit),
-                    input0_tmp(self.input0_part, q, unit),
+                    input0_tmp(self.input0_fixed_part, q, unit),
                     self.input1(digit, part, q, unit),
                     q,
                 )
