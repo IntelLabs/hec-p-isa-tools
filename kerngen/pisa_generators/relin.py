@@ -19,7 +19,7 @@ from .ntt import INTT, NTT
 
 def init_common_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Polys]:
     """Initialize commonly used polys in both relin and rotate kernels"""
-    input_last_part = Polys.from_polys(input, mode="last_part")
+    input_last_part = Polys.from_polys(input0, mode="last_part")
     input_last_part.name = input0.name
 
     last_coeff = Polys.from_polys(input_last_part)
