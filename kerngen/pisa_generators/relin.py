@@ -133,7 +133,7 @@ class Relin(HighOp):
         add_original = Polys.from_polys(mul_by_rlk_modded_down)
         add_original.name = self.input0.name
 
-        opts = mixed_to_pisa_ops(
+        return mixed_to_pisa_ops(
             Comment("Start of relin kernel"),
             Comment("Digit decomposition and extend base from Q to PQ"),
             DigitDecompExtend(self.context, last_coeff, input_last_part),
@@ -145,4 +145,3 @@ class Relin(HighOp):
             Add(self.context, self.output, mul_by_rlk_modded_down, add_original),
             Comment("End of relin kernel"),
         )
-        return opts
