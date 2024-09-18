@@ -87,7 +87,7 @@ class KeyPolys(Polys):
             raise PolyOutOfBoundsError(
                 f"part `{digit}` or `{part}` or q `{q}` are not within the key poly's range `{self!r}`"
             )
-        return f"{self.name}_{digit}_{part}_{q}_{unit}"
+        return f"{self.name}_{part}_{digit}_{q}_{unit}"
 
 
 class HighOp(ABC):
