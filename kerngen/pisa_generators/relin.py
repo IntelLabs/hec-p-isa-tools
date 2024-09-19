@@ -1,63 +1,13 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-"""Module containing relin, keymul, etc."""
-from string import ascii_letters
-import itertools as it
-
+"""Module containing relin."""
 from dataclasses import dataclass
-import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp, Comment
-from high_parser import KernelContext, HighOp, Immediate, KeyPolys, Polys
-
-from .basic import Add, Muli, KeyMul, mixed_to_pisa_ops
+from high_parser import KernelContext, HighOp, KeyPolys, Polys
+from .basic import Add, KeyMul, mixed_to_pisa_ops, init_common_polys
 from .mod import Mod
-from .ntt import INTT, NTT
-
-
-@dataclass
-class DigitDecompExtend(HighOp):
-    """Class representing Digit decomposition and base extension"""
-
-    context: KernelContext
-    output: Polys
-    input0: Polys
-
-    def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa code performing Digit decomposition followed by
-        base extension"""
-
-        rns_poly = Polys.from_polys(self.input0)
-        rns_poly.name = "ct"
-
-        one = Immediate(name="one")
-        r2 = Immediate(name="R2", rns=self.context.key_rns)
-
-        ls: list[pisa_op] = []
-        for input_rns_index in range(self.input0.rns):
-            ls.extend(
-                pisa_op.Muli(
-                    self.context.label,
-                    self.output(part, pq, unit),
-                    rns_poly(part, input_rns_index, unit),
-                    r2(part, pq, unit),
-                    pq,
-                )
-                for part, pq, unit in it.product(
-                    range(self.input0.start_parts, self.input0.parts),
-                    range(self.context.key_rns),
-                    range(self.context.units),
-                )
-            )
-            output_tmp = Polys.from_polys(self.output)
-            output_tmp.name += "_" + ascii_letters[input_rns_index]
-            ls.extend(NTT(self.context, output_tmp, self.output).to_pisa())
-
-        return mixed_to_pisa_ops(
-            INTT(self.context, rns_poly, self.input0),
-            Muli(self.context, rns_poly, rns_poly, one),
-            ls,
-        )
+from .decomp import DigitDecompExtend
 
 
 @dataclass
@@ -82,15 +32,9 @@ class Relin(HighOp):
         mul_by_rlk = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
         mul_by_rlk_modded_down = Polys.from_polys(mul_by_rlk)
         mul_by_rlk_modded_down.rns = self.input0.rns
-        input_last_part = Polys.from_polys(self.input0, mode="last_part")
-        input_last_part.name = self.input0.name
-
-        last_coeff = Polys.from_polys(input_last_part)
-        last_coeff.name = "coeffs"
-        last_coeff.rns = self.context.key_rns
-        upto_last_coeffs = Polys.from_polys(last_coeff)
-        upto_last_coeffs.parts = 1
-        upto_last_coeffs.start_parts = 0
+        input_last_part, last_coeff, upto_last_coeffs = init_common_polys(
+            self.input0, self.context.key_rns
+        )
 
         add_original = Polys.from_polys(mul_by_rlk_modded_down)
         add_original.name = self.input0.name
@@ -100,7 +44,7 @@ class Relin(HighOp):
             Comment("Digit decomposition and extend base from Q to PQ"),
             DigitDecompExtend(self.context, last_coeff, input_last_part),
             Comment("Multiply by relin key"),
-            KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key),
+            KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key, 2),
             Comment("Mod switch down to Q"),
             Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk),
             Comment("Add to original poly"),
