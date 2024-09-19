@@ -14,6 +14,16 @@
     "ROTATE": ["Rotate", "rotate.py"]
   },
   "CKKS": {
+    "ADD": ["Add", "basic.py"],
+    "MUL": ["Mul", "basic.py"],
+    "MULI": ["Muli", "basic.py"],
+    "COPY": ["Copy", "basic.py"],
+    "SUB": ["Sub", "basic.py"],
+    "SQUARE": ["Square", "square.py"],
+    "NTT": ["NTT", "ntt.py"],
+    "INTT": ["INTT", "ntt.py"],
+    "MOD": ["Mod", "mod.py"],
+    "MODUP": ["Modup", "mod.py"],
     "RESCALE": ["Rescale", "rescale.py"]
   }
 }
