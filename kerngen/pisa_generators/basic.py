@@ -7,7 +7,7 @@
 
 import itertools as it
 from dataclasses import dataclass
-from typing import ClassVar, Iterable
+from typing import ClassVar, Iterable, Tuple
 from string import ascii_letters
 
 import high_parser.pisa_operations as pisa_op
@@ -279,3 +279,19 @@ class KeyMul(HighOp):
                 )
             )
         return ls
+
+
+def init_common_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Polys]:
+    """Initialize commonly used polys in both relin and rotate kernels"""
+    input_last_part = Polys.from_polys(input0, mode="last_part")
+    input_last_part.name = input0.name
+
+    last_coeff = Polys.from_polys(input_last_part)
+    last_coeff.name = "coeffs"
+    last_coeff.rns = rns
+
+    upto_last_coeffs = Polys.from_polys(last_coeff)
+    upto_last_coeffs.parts = 1
+    upto_last_coeffs.start_parts = 0
+
+    return input_last_part, last_coeff, upto_last_coeffs
