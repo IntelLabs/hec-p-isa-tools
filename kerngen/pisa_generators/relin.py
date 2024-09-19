@@ -2,55 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Module containing relin, keymul, etc."""
+from string import ascii_letters
+import itertools as it
 
 from dataclasses import dataclass
-from itertools import product
-from string import ascii_letters
-
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp, Comment
 from high_parser import KernelContext, HighOp, Immediate, KeyPolys, Polys
 
-from .basic import Add, Muli, mixed_to_pisa_ops
+from .basic import Add, Muli, KeyMul, mixed_to_pisa_ops
 from .mod import Mod
 from .ntt import INTT, NTT
-
-
-@dataclass
-class KeyMul(HighOp):
-    """Class representing a key multiplication operation"""
-
-    context: KernelContext
-    output: Polys
-    input0: Polys
-    input1: KeyPolys
-
-    def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa code to perform a key multiplication"""
-
-        def get_pisa_op(num):
-            yield 0, pisa_op.Mul
-            yield from ((op, pisa_op.Mac) for op in range(1, num))
-
-        ls: list[pisa_op] = []
-        for digit, op in get_pisa_op(self.input1.digits):
-            input0_tmp = Polys.from_polys(self.input0)
-            input0_tmp.name += "_" + ascii_letters[digit]
-            ls.extend(
-                op(
-                    self.context.label,
-                    self.output(part, q, unit),
-                    input0_tmp(2, q, unit),
-                    self.input1(digit, part, q, unit),
-                    q,
-                )
-                for part, q, unit in product(
-                    range(self.input1.start_parts, self.input1.parts),
-                    range(self.input0.start_rns, self.input0.rns),
-                    range(self.context.units),
-                )
-            )
-        return ls
 
 
 @dataclass
@@ -81,7 +43,7 @@ class DigitDecompExtend(HighOp):
                     r2(part, pq, unit),
                     pq,
                 )
-                for part, pq, unit in product(
+                for part, pq, unit in it.product(
                     range(self.input0.start_parts, self.input0.parts),
                     range(self.context.key_rns),
                     range(self.context.units),
