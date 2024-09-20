@@ -1,10 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright (C) 2024 Intel Corporation
 
 """Module containing conversions or operations from isa to p-isa."""
 
 import itertools as it
 from dataclasses import dataclass
-from typing import ClassVar, Iterable
+from typing import ClassVar, Iterable, Tuple
+from string import ascii_letters
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp
@@ -238,3 +242,57 @@ class Copy(HighOp):
             pisa_op.Copy(self.context.label, *expand_io)
             for expand_io, _ in expand_ios(self.context, self.output, self.input0)
         ]
+
+
+@dataclass
+class KeyMul(HighOp):
+    """Class representing a key multiplication operation"""
+
+    context: KernelContext
+    output: Polys
+    input0: Polys
+    input1: KeyPolys
+    input0_fixed_part: int
+
+    def to_pisa(self) -> list[PIsaOp]:
+        """Return the p-isa code to perform a key multiplication"""
+
+        def get_pisa_op(num):
+            yield 0, pisa_op.Mul
+            yield from ((op, pisa_op.Mac) for op in range(1, num))
+
+        ls: list[pisa_op] = []
+        for digit, op in get_pisa_op(self.input1.digits):
+            input0_tmp = Polys.from_polys(self.input0)
+            input0_tmp.name += "_" + ascii_letters[digit]
+            ls.extend(
+                op(
+                    self.context.label,
+                    self.output(part, q, unit),
+                    input0_tmp(self.input0_fixed_part, q, unit),
+                    self.input1(digit, part, q, unit),
+                    q,
+                )
+                for part, q, unit in it.product(
+                    range(self.input1.start_parts, self.input1.parts),
+                    range(self.input0.start_rns, self.input0.rns),
+                    range(self.context.units),
+                )
+            )
+        return ls
+
+
+def extract_last_part_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Polys]:
+    """Split and extract the last part of input0 with a change of rns"""
+    input_last_part = Polys.from_polys(input0, mode="last_part")
+    input_last_part.name = input0.name
+
+    last_coeff = Polys.from_polys(input_last_part)
+    last_coeff.name = "coeffs"
+    last_coeff.rns = rns
+
+    upto_last_coeffs = Polys.from_polys(last_coeff)
+    upto_last_coeffs.parts = 1
+    upto_last_coeffs.start_parts = 0
+
+    return input_last_part, last_coeff, upto_last_coeffs
