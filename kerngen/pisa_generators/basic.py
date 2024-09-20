@@ -283,7 +283,7 @@ class KeyMul(HighOp):
 
 
 def init_common_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Polys]:
-    """Initialize commonly used polys in both relin and rotate kernels"""
+    """Split and extract the last part of input0 with a change of rns"""
     input_last_part = Polys.from_polys(input0, mode="last_part")
     input_last_part.name = input0.name
 
