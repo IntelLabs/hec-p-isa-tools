@@ -282,7 +282,7 @@ class KeyMul(HighOp):
         return ls
 
 
-def init_common_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Polys]:
+def extract_last_part_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Polys]:
     """Split and extract the last part of input0 with a change of rns"""
     input_last_part = Polys.from_polys(input0, mode="last_part")
     input_last_part.name = input0.name

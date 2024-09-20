@@ -5,7 +5,7 @@
 from dataclasses import dataclass
 from high_parser.pisa_operations import PIsaOp, Comment
 from high_parser import KernelContext, HighOp, KeyPolys, Polys
-from .basic import Add, KeyMul, mixed_to_pisa_ops, init_common_polys
+from .basic import Add, KeyMul, mixed_to_pisa_ops, extract_last_part_polys
 from .mod import Mod
 from .decomp import DigitDecompExtend
 
@@ -32,7 +32,7 @@ class Relin(HighOp):
         mul_by_rlk = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
         mul_by_rlk_modded_down = Polys.from_polys(mul_by_rlk)
         mul_by_rlk_modded_down.rns = self.input0.rns
-        input_last_part, last_coeff, upto_last_coeffs = init_common_polys(
+        input_last_part, last_coeff, upto_last_coeffs = extract_last_part_polys(
             self.input0, self.context.key_rns
         )
 
