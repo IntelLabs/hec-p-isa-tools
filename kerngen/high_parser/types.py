@@ -134,6 +134,11 @@ class EmptyLine(BaseModel):
     """Holder of an empty line"""
 
 
+# TODO remove hardcoding. Maybe move this to Config?
+NATIVE_POLY_SIZE = 8192
+MAX_POLY_SIZE = 131072
+
+
 class Context(BaseModel):
     """Class representing a given context of the scheme"""
 
@@ -153,6 +158,15 @@ class Context(BaseModel):
         if optional != [] and rest != []:
             raise ValueError(f"too many parameters for context given: {line}")
         int_poly_order = int(poly_order)
+        if (
+            int_poly_order < NATIVE_POLY_SIZE
+            or int_poly_order > MAX_POLY_SIZE
+            or not math.log2(int_poly_order).is_integer()
+        ):
+            raise ValueError(
+                f"Poly order `{int_poly_order}` must be power of two >= {NATIVE_POLY_SIZE} and < {MAX_POLY_SIZE}"
+            )
+
         int_max_rns = int(max_rns)
         int_key_rns = int_max_rns + int(krns) if krns else None
         return cls(
@@ -170,9 +184,7 @@ class Context(BaseModel):
     @property
     def units(self):
         """units based on 8192 ~ 8K sized polynomials"""
-        # TODO remove hardcoding. Maybe move this to Config?
-        native_poly_size = 8192
-        return max(1, self.poly_order // native_poly_size)
+        return max(1, self.poly_order // NATIVE_POLY_SIZE)
 
 
 class KernelContext(Context):

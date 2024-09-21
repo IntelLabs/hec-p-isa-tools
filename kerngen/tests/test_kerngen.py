@@ -96,6 +96,18 @@ def test_invalid_scheme(kerngen_path):
     assert result.returncode != 0
 
 
+def test_invalid_poly_order(kerngen_path):
+    """Poly order should be powers of two >= 8k"""
+    input_string = "CONTEXT BGV 16000 4 2\nADD a b c\n"
+    result = execute_process(
+        [kerngen_path],
+        data_in=input_string,
+    )
+    assert not result.stdout
+    assert "ValueError: Poly order `16000` must be power of two >=" in result.stderr
+    assert result.returncode != 0
+
+
 def test_parse_results_missing_context():
     """Test ParseResults constructor for missing context"""
     with pytest.raises(LookupError) as e:
