@@ -96,15 +96,19 @@ def test_invalid_scheme(kerngen_path):
     assert result.returncode != 0
 
 
-def test_invalid_poly_order(kerngen_path):
-    """Poly order should be powers of two >= 8k"""
-    input_string = "CONTEXT BGV 16000 4 2\nADD a b c\n"
+@pytest.mark.parametrize("invalid_poly", [16000, 8000, 2**18])
+def test_invalid_poly_order(kerngen_path, invalid_poly):
+    """Poly order should be powers of two >= 2^13 and <= 2^17"""
+    input_string = "CONTEXT BGV " + str(invalid_poly) + " 4 2\nADD a b c\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
     )
     assert not result.stdout
-    assert "ValueError: Poly order `16000` must be power of two >=" in result.stderr
+    assert (
+        "ValueError: Poly order `" + str(invalid_poly) + "` must be power of two >="
+        in result.stderr
+    )
     assert result.returncode != 0
 
 
