@@ -136,7 +136,7 @@ class EmptyLine(BaseModel):
 
 # TODO remove hardcoding. Maybe move this to Config?
 NATIVE_POLY_SIZE = 8192
-MIN_POLY_SIZE = 8192
+MIN_POLY_SIZE = 16384
 MAX_POLY_SIZE = 131072
 
 
