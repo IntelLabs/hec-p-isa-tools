@@ -98,7 +98,7 @@ def test_invalid_scheme(kerngen_path):
 
 @pytest.mark.parametrize("invalid_poly", [16000, 2**12, 2**13, 2**18])
 def test_invalid_poly_order(kerngen_path, invalid_poly):
-    """Poly order should be powers of two >= 2^13 and <= 2^17"""
+    """Poly order should be powers of two >= 2^14 and <= 2^17"""
     input_string = "CONTEXT BGV " + str(invalid_poly) + " 4 2\nADD a b c\n"
     result = execute_process(
         [kerngen_path],
