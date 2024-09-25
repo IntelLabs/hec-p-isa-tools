@@ -8,8 +8,8 @@ from dataclasses import dataclass
 from high_parser.pisa_operations import PIsaOp, Comment
 from high_parser import KernelContext, HighOp, Polys, KeyPolys
 
-from .basic import Add, mixed_to_pisa_ops
-from .relin import KeyMul, DigitDecompExtend, extract_last_part_polys
+from .basic import Add, KeyMul, mixed_to_pisa_ops, extract_last_part_polys
+from .decomp import DigitDecompExtend
 from .mod import Mod
 from .ntt import INTT, NTT
 
