@@ -47,7 +47,7 @@ def test_op(kerngen_path, gen_op_data):
 def test_missing_context(kerngen_path):
     """Test kerngen raises an exception when context is not the first line of
     input"""
-    input_string = "ADD a b c\nCONTEXT BGV 8192 4\n"
+    input_string = "ADD a b c\nCONTEXT BGV 16384 4\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -59,7 +59,7 @@ def test_missing_context(kerngen_path):
 
 def test_multiple_contexts(kerngen_path):
     """Test kerngen raises an exception when more than one context is given"""
-    input_string = "CONTEXT BGV 8192 4\nData a 2\nCONTEXT BGV 8192 4\n"
+    input_string = "CONTEXT BGV 16384 4\nData a 2\nCONTEXT BGV 16384 4\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -72,7 +72,7 @@ def test_multiple_contexts(kerngen_path):
 def test_unrecognised_opname(kerngen_path):
     """Test kerngen raises an exception when receiving an unrecognised
     opname"""
-    input_string = "CONTEXT BGV 8192 4\nOPERATION a b c\n"
+    input_string = "CONTEXT BGV 16384 4\nOPERATION a b c\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -86,7 +86,7 @@ def test_unrecognised_opname(kerngen_path):
 
 def test_invalid_scheme(kerngen_path):
     """Test kerngen raises an exception when receiving an invalid scheme"""
-    input_string = "CONTEXT SCHEME 8192 4\nADD a b c\n"
+    input_string = "CONTEXT SCHEME 16384 4\nADD a b c\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -125,8 +125,8 @@ def test_parse_results_multiple_context():
     with pytest.raises(LookupError) as e:
         parse_results = ParseResults(
             [
-                Context(scheme="BGV", poly_order=8192, max_rns=1),
-                Context(scheme="CKKS", poly_order=8192, max_rns=1),
+                Context(scheme="BGV", poly_order=16384, max_rns=1),
+                Context(scheme="CKKS", poly_order=16384, max_rns=1),
             ],
             {},
         )
@@ -138,7 +138,7 @@ def test_parse_results_multiple_context():
 def fixture_gen_op_data(request):
     """Given an op name, return both the input and expected output strings"""
     in_lines = (
-        "CONTEXT BGV 8192 4",
+        "CONTEXT BGV 16384 4",
         "Data a 2",
         "Data b 2",
         "Data c 2",
