@@ -14,7 +14,7 @@ from high_parser.pisa_operations import Add as pisa_op_add
 
 from high_parser import KernelContext, Immediate, HighOp, Polys
 
-from .basic import Muli, mixed_to_pisa_ops
+from .basic import Muli, mixed_to_pisa_ops, Sub
 from .ntt import INTT, NTT
 
 
@@ -25,6 +25,74 @@ class Rescale(HighOp):
     context: KernelContext
     output: Polys
     input0: Polys
+
+    @dataclass
+    class PartialOpOptions:
+        """Optional arguments for partial_op helper function"""
+
+        output_last_q: bool = False
+        input0_last_q: bool = False
+        input1_last_q: bool = False
+        input1_first_part: bool = False
+        op_last_q: bool = False
+
+    @dataclass
+    class PartialOpPolys:
+        """Polynomials used in partial ops"""
+
+        output: Polys
+        input0: Polys
+        input1: Polys
+        input_remaining_rns: Polys
+
+    def partial_op(
+        self,
+        op,
+        polys: PartialOpPolys,
+        options: PartialOpOptions,
+    ):
+        """ "A helper function to perform partial operation, such as add/sub on last half (input1) to all of input0"""
+        last_q = self.input0.rns - 1
+        return [
+            op(
+                self.context.label,
+                polys.output(part, last_q if options.output_last_q else q, unit),
+                polys.input0(part, last_q if options.input0_last_q else q, unit),
+                polys.input1(
+                    0 if options.input1_first_part else part,
+                    last_q if options.input1_last_q else q,
+                    unit,
+                ),
+                last_q if options.op_last_q else q,
+            )
+            for part, q, unit in product(
+                range(polys.input_remaining_rns.parts),
+                range(polys.input_remaining_rns.rns),
+                range(self.context.units),
+            )
+        ]
+
+    def add_last_half(self, output, input0, input1, input_remaining_rns):
+        """Add input0 to input1 (first part)"""
+        return self.partial_op(
+            pisa_op_add,
+            self.PartialOpPolys(output, input0, input1, input_remaining_rns),
+            self.PartialOpOptions(
+                output_last_q=True,
+                input0_last_q=True,
+                input1_last_q=True,
+                input1_first_part=True,
+                op_last_q=True,
+            ),
+        )
+
+    def sub_last_half(self, output, input0, input1, input_remaining_rns):
+        """Subtract input1 (first part) with input0 (last RNS)"""
+        return self.partial_op(
+            pisa_op_sub,
+            self.PartialOpPolys(output, input0, input1, input_remaining_rns),
+            self.PartialOpOptions(input0_last_q=True, input1_first_part=True),
+        )
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform an mod switch down"""
@@ -58,50 +126,13 @@ class Rescale(HighOp):
                 Comment("Start of Rescale kernel."),
                 INTT(context, y, input_last_rns),
                 Muli(context, y, y, one),
-                [
-                    pisa_op_add(
-                        self.context.label,
-                        y(part, last_q, unit),
-                        y(part, last_q, unit),
-                        q_last_half(0, last_q, unit),
-                        last_q,
-                    )
-                    for part, q, unit in product(
-                        range(input_remaining_rns.parts),
-                        range(input_remaining_rns.rns),
-                        range(context.units),
-                    )
-                ],
-                [
-                    pisa_op_sub(
-                        self.context.label,
-                        x(part, q, unit),
-                        y(part, last_q, unit),
-                        q_i_last_half(0, q, unit),
-                        q,
-                    )
-                    for part, q, unit in product(
-                        range(input_remaining_rns.parts),
-                        range(input_remaining_rns.rns),
-                        range(context.units),
-                    )
-                ],
+                Comment("Add the last part of the input to y"),
+                self.add_last_half(y, y, q_last_half, input_remaining_rns),
+                Comment("Subtract q_i (last half/last rns) from y"),
+                self.sub_last_half(x, y, q_i_last_half, input_remaining_rns),
                 Muli(context, x, x, r2),
                 NTT(context, x, x),
-                [
-                    pisa_op_sub(
-                        self.context.label,
-                        x(part, q, unit),
-                        self.input0(part, q, unit),
-                        x(part, q, unit),
-                        q,
-                    )
-                    for part, q, unit in product(
-                        range(input_remaining_rns.parts),
-                        range(input_remaining_rns.rns),
-                        range(context.units),
-                    )
-                ],
+                Sub(context, x, Polys.from_polys(self.input0, mode="drop_last_rns"), x),
                 Muli(context, self.output, x, iq),
                 Comment("End of Rescale kernel."),
             ]
