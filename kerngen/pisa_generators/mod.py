@@ -45,6 +45,9 @@ class Mod(HighOp):
         temp_input_last_rns = duplicate_polys(input_last_rns, "y")
         temp_input_remaining_rns = duplicate_polys(input_remaining_rns, "x")
 
+        # ckks
+        # p_half = Polys("pHalf", parts=1, rns=self.context.key_rns)
+        # p_half_lmax_k = Polys("pHalf_lmax_k", parts=1, rns=last_q)
         # Compute the `delta_i = t * [-t^-1 * c_i] mod ql` where `i` are the parts
         # The `one` acts as a select flag as whether or not R2 the Montgomery
         # factor should be applied
@@ -53,9 +56,17 @@ class Mod(HighOp):
                 Comment("Start of mod kernel"),
                 Comment("Compute the delta from last rns"),
                 INTT(self.context, temp_input_last_rns, input_last_rns),
+                # <BGV>
                 Muli(self.context, temp_input_last_rns, temp_input_last_rns, it),
+                # </BGV>
                 Muli(self.context, temp_input_last_rns, temp_input_last_rns, one),
                 Comment("Compute the remaining rns"),
+                # <CKKS>
+                # ADD
+                # sub
+                # muli
+                # </CKKS>
+                # <BGV>
                 # drop down to pisa ops to use correct rns q
                 muli_last_half(
                     self.context,
@@ -65,7 +76,13 @@ class Mod(HighOp):
                     input_remaining_rns,
                     last_q,
                 ),
+                # </BGV>
                 NTT(self.context, temp_input_remaining_rns, temp_input_remaining_rns),
+                # <CKKS>
+                # sub
+                # muli
+                # </CKKS>
+                # <BGV>
                 Muli(
                     self.context, temp_input_remaining_rns, temp_input_remaining_rns, t
                 ),
@@ -76,6 +93,7 @@ class Mod(HighOp):
                     temp_input_remaining_rns,
                     input_remaining_rns,
                 ),
+                # </BGV>
                 Muli(self.context, self.output, temp_input_remaining_rns, iq),
                 Comment("End of mod kernel"),
             ]
