@@ -308,3 +308,14 @@ def split_last_rns_polys(input0: Polys) -> Tuple[Polys, Polys]:
 def duplicate_polys(input0: Polys, name: str) -> Polys:
     """Creates a duplicate of input0 with new name"""
     return Polys(name, input0.parts, input0.rns, input0.start_parts, input0.start_rns)
+
+
+def common_immediates(
+    r2_rns=None, iq_rns=None
+) -> Tuple[Immediate, Immediate, Immediate]:
+    """Generate commonly used immediates"""
+    return (
+        Immediate(name="one"),
+        Immediate(name="R2", rns=r2_rns),
+        Immediate(name="iq", rns=iq_rns),
+    )

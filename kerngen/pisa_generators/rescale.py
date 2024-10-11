@@ -12,9 +12,16 @@ from high_parser.pisa_operations import PIsaOp, Comment
 from high_parser.pisa_operations import Sub as pisa_op_sub
 from high_parser.pisa_operations import Add as pisa_op_add
 
-from high_parser import KernelContext, Immediate, HighOp, Polys
+from high_parser import KernelContext, HighOp, Polys
 
-from .basic import Muli, mixed_to_pisa_ops, Sub, split_last_rns_polys, duplicate_polys
+from .basic import (
+    Muli,
+    mixed_to_pisa_ops,
+    Sub,
+    split_last_rns_polys,
+    duplicate_polys,
+    common_immediates,
+)
 from .ntt import INTT, NTT
 
 
@@ -100,20 +107,16 @@ class Rescale(HighOp):
         context = self.context
         last_q = self.input0.rns - 1
 
-        # <common 1>
-        one = Immediate(name="one")
-        r2 = Immediate(name="R2", rns=last_q)
-        iq = Immediate(name="iq", rns=last_q)
-        # </common 1>
+        one, r2, iq = common_immediates(r2_rns=last_q, iq_rns=last_q)
         q_last_half = Polys("qLastHalf", 1, self.input0.rns)
         q_i_last_half = Polys("qiLastHalf", 1, rns=last_q)
 
-        # <common 2>
-        # Drop down input rns
+        # split input
         input_last_rns, input_remaining_rns = split_last_rns_polys(self.input0)
-        # Temp.
-        y = duplicate_polys(input_last_rns, "y")
-        x = duplicate_polys(input_remaining_rns, "x")
+
+        # Create temp vars for input_last/remaining
+        temp_input_last_rns = duplicate_polys(input_last_rns, "y")
+        temp_input_remaining_rns = duplicate_polys(input_remaining_rns, "x")
 
         # Compute the `delta_i = t * [-t^-1 * c_i] mod ql` where `i` are the parts
         # The `one` acts as a select flag as whether or not R2 the Montgomery
@@ -121,16 +124,31 @@ class Rescale(HighOp):
         return mixed_to_pisa_ops(
             [
                 Comment("Start of Rescale kernel."),
-                INTT(context, y, input_last_rns),
-                Muli(context, y, y, one),
+                INTT(context, temp_input_last_rns, input_last_rns),
+                Muli(context, temp_input_last_rns, temp_input_last_rns, one),
                 Comment("Add the last part of the input to y"),
-                self.add_last_half(y, y, q_last_half, input_remaining_rns),
+                self.add_last_half(
+                    temp_input_last_rns,
+                    temp_input_last_rns,
+                    q_last_half,
+                    input_remaining_rns,
+                ),
                 Comment("Subtract q_i (last half/last rns) from y"),
-                self.sub_last_half(x, y, q_i_last_half, input_remaining_rns),
-                Muli(context, x, x, r2),
-                NTT(context, x, x),
-                Sub(context, x, Polys.from_polys(self.input0, mode="drop_last_rns"), x),
-                Muli(context, self.output, x, iq),
+                self.sub_last_half(
+                    temp_input_remaining_rns,
+                    temp_input_last_rns,
+                    q_i_last_half,
+                    input_remaining_rns,
+                ),
+                Muli(context, temp_input_remaining_rns, temp_input_remaining_rns, r2),
+                NTT(context, temp_input_remaining_rns, temp_input_remaining_rns),
+                Sub(
+                    context,
+                    temp_input_remaining_rns,
+                    Polys.from_polys(self.input0, mode="drop_last_rns"),
+                    temp_input_remaining_rns,
+                ),
+                Muli(context, self.output, temp_input_remaining_rns, iq),
                 Comment("End of Rescale kernel."),
             ]
 <<<<<<< HEAD
