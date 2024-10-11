@@ -296,3 +296,15 @@ def extract_last_part_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Poly
     upto_last_coeffs.start_parts = 0
 
     return input_last_part, last_coeff, upto_last_coeffs
+
+
+def split_last_rns_polys(input0: Polys) -> Tuple[Polys, Polys]:
+    """Split and extract last RNS of input0"""
+    return Polys.from_polys(input0, mode="last_rns"), Polys.from_polys(
+        input0, mode="drop_last_rns"
+    )
+
+
+def duplicate_polys(input0: Polys, name: str) -> Polys:
+    """Creates a duplicate of input0 with new name"""
+    return Polys(name, input0.parts, input0.rns, input0.start_parts, input0.start_rns)
