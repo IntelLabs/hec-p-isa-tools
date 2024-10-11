@@ -11,7 +11,14 @@ from itertools import product
 from high_parser.pisa_operations import PIsaOp, Comment, Muli as pisa_op_muli
 from high_parser import KernelContext, Immediate, HighOp, Polys
 
-from .basic import Add, Muli, mixed_to_pisa_ops, split_last_rns_polys, duplicate_polys
+from .basic import (
+    Add,
+    Muli,
+    mixed_to_pisa_ops,
+    split_last_rns_polys,
+    duplicate_polys,
+    common_immediates,
+)
 from .ntt import INTT, NTT
 
 
@@ -29,19 +36,15 @@ class Mod(HighOp):
         context = self.context
         last_q = self.input0.rns - 1
         it = Immediate(name="it")
-        # <common 1>
-        one = Immediate(name="one")
-        r2 = Immediate(name="R2", rns=last_q)
-        iq = Immediate(name="iq", rns=last_q)
-        # </common 1>
         t = Immediate(name="t", rns=last_q)
+        one, r2, iq = common_immediates(r2_rns=last_q, iq_rns=last_q)
 
         # Drop down input rns
         input_last_rns, input_remaining_rns = split_last_rns_polys(self.input0)
 
         # Temp.
-        y = duplicate_polys(input_last_rns, "y")
-        x = duplicate_polys(input_remaining_rns, "x")
+        temp_input_last_rns = duplicate_polys(input_last_rns, "y")
+        temp_input_remaining_rns = duplicate_polys(input_remaining_rns, "x")
 
         # Compute the `delta_i = t * [-t^-1 * c_i] mod ql` where `i` are the parts
         # The `one` acts as a select flag as whether or not R2 the Montgomery
@@ -50,16 +53,16 @@ class Mod(HighOp):
             [
                 Comment("Start of mod kernel"),
                 Comment("Compute the delta from last rns"),
-                INTT(context, y, input_last_rns),
-                Muli(context, y, y, it),
-                Muli(context, y, y, one),
+                INTT(context, temp_input_last_rns, input_last_rns),
+                Muli(context, temp_input_last_rns, temp_input_last_rns, it),
+                Muli(context, temp_input_last_rns, temp_input_last_rns, one),
                 Comment("Compute the remaining rns"),
                 # drop down to pisa ops to use correct rns q
                 [
                     pisa_op_muli(
                         self.context.label,
-                        x(part, q, unit),
-                        y(part, last_q, unit),
+                        temp_input_remaining_rns(part, q, unit),
+                        temp_input_last_rns(part, last_q, unit),
                         r2(part, q, unit),
                         q,
                     )
@@ -69,11 +72,16 @@ class Mod(HighOp):
                         range(context.units),
                     )
                 ],
-                NTT(context, x, x),
-                Muli(context, x, x, t),
+                NTT(context, temp_input_remaining_rns, temp_input_remaining_rns),
+                Muli(context, temp_input_remaining_rns, temp_input_remaining_rns, t),
                 Comment("Add the delta correction to mod down polys"),
-                Add(context, x, x, input_remaining_rns),
-                Muli(context, self.output, x, iq),
+                Add(
+                    context,
+                    temp_input_remaining_rns,
+                    temp_input_remaining_rns,
+                    input_remaining_rns,
+                ),
+                Muli(context, self.output, temp_input_remaining_rns, iq),
                 Comment("End of mod kernel"),
             ]
         )
