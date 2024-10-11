@@ -14,7 +14,7 @@ from high_parser.pisa_operations import Add as pisa_op_add
 
 from high_parser import KernelContext, Immediate, HighOp, Polys
 
-from .basic import Muli, mixed_to_pisa_ops, Sub
+from .basic import Muli, mixed_to_pisa_ops, Sub, split_last_rns_polys, duplicate_polys
 from .ntt import INTT, NTT
 
 
@@ -99,24 +99,21 @@ class Rescale(HighOp):
         # Convenience and Immediates
         context = self.context
         last_q = self.input0.rns - 1
+
+        # <common 1>
         one = Immediate(name="one")
         r2 = Immediate(name="R2", rns=last_q)
         iq = Immediate(name="iq", rns=last_q)
+        # </common 1>
         q_last_half = Polys("qLastHalf", 1, self.input0.rns)
         q_i_last_half = Polys("qiLastHalf", 1, rns=last_q)
 
+        # <common 2>
         # Drop down input rns
-        input_last_rns = Polys.from_polys(self.input0, mode="last_rns")
-        input_remaining_rns = Polys.from_polys(self.input0, mode="drop_last_rns")
-
+        input_last_rns, input_remaining_rns = split_last_rns_polys(self.input0)
         # Temp.
-        y = Polys(
-            "y",
-            input_last_rns.parts,
-            input_last_rns.rns,
-            start_rns=input_last_rns.start_rns,
-        )
-        x = Polys("x", input_remaining_rns.parts, input_remaining_rns.rns)
+        y = duplicate_polys(input_last_rns, "y")
+        x = duplicate_polys(input_remaining_rns, "x")
 
         # Compute the `delta_i = t * [-t^-1 * c_i] mod ql` where `i` are the parts
         # The `one` acts as a select flag as whether or not R2 the Montgomery
