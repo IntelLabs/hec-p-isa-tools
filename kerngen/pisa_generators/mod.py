@@ -6,9 +6,8 @@
 """Module containing conversions or operations from isa to p-isa."""
 
 from dataclasses import dataclass
-from itertools import product
 
-from high_parser.pisa_operations import PIsaOp, Comment, Muli as pisa_op_muli
+from high_parser.pisa_operations import PIsaOp, Comment
 from high_parser import KernelContext, Immediate, HighOp, Polys
 
 from .basic import (
@@ -20,6 +19,7 @@ from .basic import (
     common_immediates,
 )
 from .ntt import INTT, NTT
+from .partial_op import muli_last_half
 
 
 @dataclass
@@ -32,8 +32,7 @@ class Mod(HighOp):
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform an mod switch down"""
-        # Convenience and Immediates
-        context = self.context
+        # Immediates
         last_q = self.input0.rns - 1
         it = Immediate(name="it")
         t = Immediate(name="t", rns=last_q)
@@ -53,35 +52,31 @@ class Mod(HighOp):
             [
                 Comment("Start of mod kernel"),
                 Comment("Compute the delta from last rns"),
-                INTT(context, temp_input_last_rns, input_last_rns),
-                Muli(context, temp_input_last_rns, temp_input_last_rns, it),
-                Muli(context, temp_input_last_rns, temp_input_last_rns, one),
+                INTT(self.context, temp_input_last_rns, input_last_rns),
+                Muli(self.context, temp_input_last_rns, temp_input_last_rns, it),
+                Muli(self.context, temp_input_last_rns, temp_input_last_rns, one),
                 Comment("Compute the remaining rns"),
                 # drop down to pisa ops to use correct rns q
-                [
-                    pisa_op_muli(
-                        self.context.label,
-                        temp_input_remaining_rns(part, q, unit),
-                        temp_input_last_rns(part, last_q, unit),
-                        r2(part, q, unit),
-                        q,
-                    )
-                    for part, q, unit in product(
-                        range(input_remaining_rns.parts),
-                        range(input_remaining_rns.rns),
-                        range(context.units),
-                    )
-                ],
-                NTT(context, temp_input_remaining_rns, temp_input_remaining_rns),
-                Muli(context, temp_input_remaining_rns, temp_input_remaining_rns, t),
+                muli_last_half(
+                    self.context,
+                    temp_input_remaining_rns,
+                    temp_input_last_rns,
+                    r2,
+                    input_remaining_rns,
+                    last_q,
+                ),
+                NTT(self.context, temp_input_remaining_rns, temp_input_remaining_rns),
+                Muli(
+                    self.context, temp_input_remaining_rns, temp_input_remaining_rns, t
+                ),
                 Comment("Add the delta correction to mod down polys"),
                 Add(
-                    context,
+                    self.context,
                     temp_input_remaining_rns,
                     temp_input_remaining_rns,
                     input_remaining_rns,
                 ),
-                Muli(context, self.output, temp_input_remaining_rns, iq),
+                Muli(self.context, self.output, temp_input_remaining_rns, iq),
                 Comment("End of mod kernel"),
             ]
         )
