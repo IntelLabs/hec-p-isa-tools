@@ -1,4 +1,5 @@
 # Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 """Module containing conversions or operations from isa to p-isa."""
 
@@ -12,6 +13,15 @@ from high_parser import KernelContext, Immediate, HighOp, Polys
 from .basic import Mul, Muli, mixed_to_pisa_ops
 
 
+def generate_unit_index(size: int, op: pisa_op.NTT | pisa_op.INTT):
+    """Helper to return unit indices for ntt/intt"""
+    for i in range(int(size / 2)):
+        if issubclass(op, pisa_op.NTT):
+            yield (i, int(size / 2) + i, i * 2, i * 2 + 1)
+        else:
+            yield (i * 2, i * 2 + 1, i, int(size / 2) + i)
+
+
 # pylint: disable=too-many-arguments
 def butterflies_ops(
     op: pisa_op.NTT | pisa_op.INTT,
@@ -21,42 +31,44 @@ def butterflies_ops(
     input0: Polys,
     *,  # only kwargs after
     init_input: bool = False,
+    unit_size: int = 8192
 ) -> list[PIsaOp]:
     """Helper to return butterflies pisa operations for NTT/INTT"""
-    ntt_stages = context.ntt_stages
-    ntt_stages_div_by_two = ntt_stages % 2
+    ntt_stages_div_by_two = context.ntt_stages % 2
 
+    # generate the stages, which depends on the total ntt stages.
     stage_dst_srcs = [
         (
             (stage, outtmp, output)
             if ntt_stages_div_by_two == stage % 2
             else (stage, output, outtmp)
         )
-        for stage in range(ntt_stages)
+        for stage in range(context.ntt_stages)
     ]
 
+    # For INTTs, start with input0 on the first stage destinations
     if init_input is True:
         stage_dst_srcs[0] = (
-            (0, outtmp, input0) if ntt_stages_div_by_two == 0 else (0, input0, outtmp)
+            (0, outtmp, input0) if ntt_stages_div_by_two == 0 else (0, output, input0)
         )
 
     return [
         op(
             context.label,
-            dst(part, q, unit),
-            dst(part, q, next_unit),
-            src(part, q, unit),
-            src(part, q, next_unit),
+            dst(part, q, unit[0]),
+            dst(part, q, unit[1]),
+            src(part, q, unit[2]),
+            src(part, q, unit[3]),
             stage,
-            unit,
+            unit[0] if issubclass(op, pisa_op.NTT) else unit[2],
             q,
         )
         # units for omegas (aka w) taken from 16K onwards
-        for part, (stage, dst, src), q, (unit, next_unit) in it.product(
+        for part, (stage, dst, src), q, unit in it.product(
             range(input0.start_parts, input0.parts),
             stage_dst_srcs,
             range(input0.start_rns, input0.rns),
-            it.pairwise(range(context.units)),
+            generate_unit_index(int(context.poly_order / unit_size), op),
         )
     ]
 
@@ -79,7 +91,12 @@ class NTT(HighOp):
         outtmp = Polys("outtmp", self.output.parts, self.output.rns)
 
         # Essentially a scalar mul since psi 1 part
-        mul = Mul(self.context, self.output, self.input0, psi)
+        if self.context.ntt_stages % 2 == 0:
+            # Even case: butterfly input starts "coeff"
+            mul = Mul(self.context, self.output, self.input0, psi)
+        else:
+            # Odd case: butterfly input stats with "outtmp"
+            mul = Mul(self.context, outtmp, self.input0, psi)
 
         butterflies = butterflies_ops(
             pisa_op.NTT,
