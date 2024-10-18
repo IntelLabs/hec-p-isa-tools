@@ -1,0 +1,21 @@
+CONTEXT BGV 16384 1
+# inputs
+DATA a 2
+DATA b 2
+DATA c 2
+DATA d 2
+DATA e 2
+DATA f 2
+# temp variables
+DATA temp1 2
+DATA temp2 2
+DATA temp3 2
+DATA temp4 2
+# output
+DATA g 2
+# Code
+ADD temp1 a b
+ADD temp2 c d
+ADD temp3 e f
+ADD temp4 temp1 temp2
+ADD f temp3 temp4
