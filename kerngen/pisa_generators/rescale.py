@@ -86,8 +86,4 @@ class Rescale(HighOp):
                 Muli(self.context, self.output, temp_input_remaining_rns, iq),
                 Comment("End of Rescale kernel."),
             ]
-<<<<<<< HEAD
-            )
-=======
         )
->>>>>>> 2e51ccc (initial working version of rescale. Confirmed working for 16-128K poly order.)
