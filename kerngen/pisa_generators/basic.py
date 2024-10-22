@@ -1,8 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright (C) 2024 Intel Corporation
-
 """Module containing conversions or operations from isa to p-isa."""
 
 import itertools as it
@@ -296,3 +294,139 @@ def extract_last_part_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Poly
     upto_last_coeffs.start_parts = 0
 
     return input_last_part, last_coeff, upto_last_coeffs
+
+
+def split_last_rns_polys(input0: Polys) -> Tuple[Polys, Polys]:
+    """Split and extract last RNS of input0"""
+    return Polys.from_polys(input0, mode="last_rns"), Polys.from_polys(
+        input0, mode="drop_last_rns"
+    )
+
+
+def duplicate_polys(input0: Polys, name: str) -> Polys:
+    """Creates a duplicate of input0 with new name"""
+    return Polys(name, input0.parts, input0.rns, input0.start_parts, input0.start_rns)
+
+
+def common_immediates(
+    r2_rns=None, iq_rns=None
+) -> Tuple[Immediate, Immediate, Immediate]:
+    """Generate commonly used immediates"""
+    return (
+        Immediate(name="one"),
+        Immediate(name="R2", rns=r2_rns),
+        Immediate(name="iq", rns=iq_rns),
+    )
+
+
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-positional-arguments
+
+
+@dataclass
+class PartialOpOptions:
+    """Optional arguments for partial_op helper function"""
+
+    output_last_q: bool = False
+    input0_last_q: bool = False
+    input1_last_q: bool = False
+    input1_first_part: bool = False
+    op_last_q: bool = False
+
+
+@dataclass
+class PartialOpPolys:
+    """Polynomials used in partial ops"""
+
+    output: Polys
+    input0: Polys
+    input1: Polys
+    input_remaining_rns: Polys
+
+
+def partial_op(
+    context: KernelContext,
+    op,
+    polys: PartialOpPolys,
+    options: PartialOpOptions,
+    last_q: int,
+):
+    """ "A helper function to perform partial operation, such as add/sub on last half (input1) to all of input0"""
+    return [
+        op(
+            context.label,
+            polys.output(part, last_q if options.output_last_q else q, unit),
+            polys.input0(part, last_q if options.input0_last_q else q, unit),
+            polys.input1(
+                0 if options.input1_first_part else part,
+                last_q if options.input1_last_q else q,
+                unit,
+            ),
+            last_q if options.op_last_q else q,
+        )
+        for part, q, unit in it.product(
+            range(polys.input_remaining_rns.parts),
+            range(polys.input_remaining_rns.rns),
+            range(context.units),
+        )
+    ]
+
+
+def add_last_half(
+    context: KernelContext,
+    output: Polys,
+    input0: Polys,
+    input1: Polys,
+    input_remaining_rns: Polys,
+    last_q: int,
+):
+    """Add input0 to input1 (first part)"""
+    return partial_op(
+        context,
+        pisa_op.Add,
+        PartialOpPolys(output, input0, input1, input_remaining_rns),
+        PartialOpOptions(
+            output_last_q=True,
+            input0_last_q=True,
+            input1_last_q=True,
+            input1_first_part=True,
+            op_last_q=True,
+        ),
+        last_q,
+    )
+
+
+def sub_last_half(
+    context: KernelContext,
+    output: Polys,
+    input0: Polys,
+    input1: Polys,
+    input_remaining_rns: Polys,
+    last_q: int,
+):
+    """Subtract input1 (first part) with input0 (last RNS)"""
+    return partial_op(
+        context,
+        pisa_op.Sub,
+        PartialOpPolys(output, input0, input1, input_remaining_rns),
+        PartialOpOptions(input0_last_q=True, input1_first_part=True),
+        last_q,
+    )
+
+
+def muli_last_half(
+    context: KernelContext,
+    output: Polys,
+    input0: Polys,
+    input1: Polys,
+    input_remaining_rns: Polys,
+    last_q: int,
+):
+    """Muli input0/1 w/input0 last RNS"""
+    return partial_op(
+        context,
+        pisa_op.Muli,
+        PartialOpPolys(output, input0, input1, input_remaining_rns),
+        PartialOpOptions(input0_last_q=True),
+        last_q,
+    )
