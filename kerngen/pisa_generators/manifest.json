@@ -25,6 +25,7 @@
     "MOD": ["Mod", "mod.py"],
     "MODUP": ["Modup", "mod.py"],
     "RELIN": ["Relin", "relin.py"],
-    "RESCALE": ["Rescale", "rescale.py"]
+    "RESCALE": ["Rescale", "rescale.py"],
+    "ROTATE": ["Rotate", "rotate.py"]
   }
 }
