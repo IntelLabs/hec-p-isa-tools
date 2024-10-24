@@ -24,6 +24,7 @@
     "INTT": ["INTT", "ntt.py"],
     "MOD": ["Mod", "mod.py"],
     "MODUP": ["Modup", "mod.py"],
+    "RELIN": ["Relin", "relin.py"],
     "RESCALE": ["Rescale", "rescale.py"]
   }
 }
