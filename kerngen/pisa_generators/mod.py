@@ -1,8 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-# Copyright (C) 2024 Intel Corporation
-
 """Module containing conversions or operations from isa to p-isa."""
 
 from dataclasses import dataclass
@@ -12,15 +10,17 @@ from high_parser import KernelContext, Immediate, HighOp, Polys
 
 from .basic import (
     Add,
-    Muli,
     Sub,
+    Muli,
     mixed_to_pisa_ops,
     split_last_rns_polys,
     duplicate_polys,
     common_immediates,
+    muli_last_half,
+    add_last_half,
+    sub_last_half,
 )
 from .ntt import INTT, NTT
-from .partial_op import muli_last_half, add_last_half, sub_last_half
 
 
 @dataclass

@@ -10,7 +10,6 @@ from dataclasses import dataclass
 from high_parser.pisa_operations import PIsaOp, Comment
 
 from high_parser import KernelContext, HighOp, Polys
-from .partial_op import add_last_half, sub_last_half
 
 from .basic import (
     Muli,
@@ -19,6 +18,8 @@ from .basic import (
     split_last_rns_polys,
     duplicate_polys,
     common_immediates,
+    add_last_half,
+    sub_last_half,
 )
 from .ntt import INTT, NTT
 
