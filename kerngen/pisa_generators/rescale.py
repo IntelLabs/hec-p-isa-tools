@@ -62,7 +62,7 @@ class Rescale(HighOp):
                     temp_input_last_rns,
                     temp_input_last_rns,
                     q_last_half,
-                    input_remaining_rns,
+                    Polys.from_polys(input_remaining_rns, mode="single_rns"),
                     last_q,
                 ),
                 Comment("Subtract q_i (last half/last rns) from y"),
