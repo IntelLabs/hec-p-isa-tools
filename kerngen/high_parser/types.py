@@ -57,6 +57,9 @@ class Polys:
             case "last_rns":
                 copy.start_rns = copy.rns - 1
                 return cls(**vars(copy))
+            case "single_rns":
+                copy.rns = 1
+                return cls(**vars(copy))
             case "last_part":
                 copy.start_parts = copy.parts - 1
                 return cls(**vars(copy))
