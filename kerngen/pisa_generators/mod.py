@@ -123,7 +123,7 @@ class Mod(HighOp):
                                 temp_input_last_rns,
                                 p_half,
                                 Polys.from_polys(
-                                    input_remaining_rns, mode="drop_last_rns"
+                                    input_remaining_rns, mode="single_rns"
                                 ),
                                 last_q,
                             ),
