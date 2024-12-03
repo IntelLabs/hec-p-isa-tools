@@ -1,0 +1,29 @@
+CONTEXT BGV 16384 4 1
+
+DATA InputMatrix_row01 2
+DATA InputMatrix_row02 2
+DATA InputMatrix_row03 2
+DATA InputMatrix_row04 2
+
+DATA InputPlain_row01 1
+DATA InputPlain_row02 1
+DATA InputPlain_row03 1
+DATA InputPlain_row04 1
+
+DATA Temp01 2
+DATA Temp02 2
+DATA Temp03 2
+DATA Temp04 2
+
+DATA SumPart01 2
+DATA SumPart02 2
+DATA SumTotal 2
+
+MUL Temp01 InputMatrix_row01 InputPlain_row01
+MUL Temp02 InputMatrix_row02 InputPlain_row02
+MUL Temp03 InputMatrix_row03 InputPlain_row03
+MUL Temp04 InputMatrix_row04 InputPlain_row04
+
+ADD SumPart01 Temp01 Temp02
+ADD SumPart02 Temp03 Temp04
+ADD SumTotal SumPart01 SumPart02
