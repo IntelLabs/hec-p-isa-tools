@@ -13,6 +13,8 @@ from pydantic import BaseModel
 
 from .pisa_operations import PIsaOp
 
+from .optional import OptionalsParser
+
 
 class PolyOutOfBoundsError(Exception):
     """Exception for Poly attributes being out of bounds"""
@@ -141,46 +143,6 @@ class EmptyLine(BaseModel):
 NATIVE_POLY_SIZE = 8192
 MIN_POLY_SIZE = 16384
 MAX_POLY_SIZE = 131072
-MAX_KRNS_DELTA = 128
-MAX_DIGIT = 3
-MIN_KRNS_DELTA = MIN_DIGIT = 0
-
-
-def _parse_optional(optionals: list[str]):
-    """Parse optional key/value pairs"""
-    krns_delta = None
-    num_digits = None
-
-    def valid_num_option(value: str, min_val: int, max_val: int):
-        """Validate numeric options with min/max range"""
-        if value.isnumeric() and int(value) > min_val and int(value) < max_val:
-            return True
-        return False
-
-    for option in optionals:
-        try:
-            key, value = option.split("=")
-            match key:
-                case "krns_delta":
-                    if not valid_num_option(value, MIN_KRNS_DELTA, MAX_KRNS_DELTA):
-                        raise ValueError(
-                            f"krns_delta must be in range ({MIN_KRNS_DELTA}, {MAX_KRNS_DELTA}): krns_delta={krns_delta}"
-                        )
-                    krns_delta = int(value)
-                case "num_digits":
-                    if not valid_num_option(value, MIN_DIGIT, MAX_DIGIT):
-                        raise ValueError(
-                            f"num_digits must be in range ({MIN_DIGIT}, {MAX_DIGIT}): num_digits={num_digits}"
-                        )
-                    num_digits = int(value)
-                case _:
-                    raise KeyError(f"Invalid optional key for Context: {key}")
-        except ValueError as err:
-            raise ValueError(
-                f"Optional variables must be key/value pairs (e.g. krns_delta=1, num_digits=3): '{option}'"
-            ) from err
-
-    return krns_delta, num_digits
 
 
 class Context(BaseModel):
@@ -197,7 +159,7 @@ class Context(BaseModel):
     def from_string(cls, line: str):
         """Construct context from a string"""
         scheme, poly_order, max_rns, *optional = line.split()
-        krns_delta, num_digits = _parse_optional(optional)
+        optional_dict = OptionalsParser.parse(optional)
         int_poly_order = int(poly_order)
         if (
             int_poly_order < MIN_POLY_SIZE
@@ -209,8 +171,12 @@ class Context(BaseModel):
             )
 
         int_max_rns = int(max_rns)
-        int_key_rns = int_max_rns + krns_delta if krns_delta else None
-        int_num_digits = num_digits if num_digits else None
+        int_key_rns = int_max_rns
+        int_num_digits = None
+        if len(optional_dict) > 0:
+            int_key_rns += optional_dict.get("krns_delta", 0)
+            int_num_digits = optional_dict.get("num_digits", None)
+
         return cls(
             scheme=scheme.upper(),
             poly_order=int_poly_order,
