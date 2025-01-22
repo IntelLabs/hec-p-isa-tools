@@ -84,6 +84,18 @@ def test_context_optional_without_key(kerngen_path):
     assert result.returncode != 0
 
 
+def test_context_unsupported_optional_variable(kerngen_path):
+    """Test kerngen raises an exception when more than one context is given"""
+    input_string = "CONTEXT BGV 16384 4 test=3\nData a 2\n"
+    result = execute_process(
+        [kerngen_path],
+        data_in=input_string,
+    )
+    assert not result.stdout
+    assert "Invalid optional name for Context: 'test'" in result.stderr
+    assert result.returncode != 0
+
+
 @pytest.mark.parametrize("invalid", [-1, 256, 0.1, "str"])
 def test_context_optional_invalid_values(kerngen_path, invalid):
     """Test kerngen raises an exception if value is out of range for correct key"""
