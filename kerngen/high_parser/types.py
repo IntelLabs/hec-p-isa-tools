@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 from .pisa_operations import PIsaOp
 
-from .optional import OptionalsParser
+from .options_handler import OptionalsParser
 
 
 class PolyOutOfBoundsError(Exception):
