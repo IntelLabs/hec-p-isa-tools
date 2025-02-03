@@ -92,7 +92,7 @@ def test_context_unsupported_optional_variable(kerngen_path):
         data_in=input_string,
     )
     assert not result.stdout
-    assert "Invalid optional name for Context: 'test'" in result.stderr
+    assert "Invalid optional name: 'test'" in result.stderr
     assert result.returncode != 0
 
 

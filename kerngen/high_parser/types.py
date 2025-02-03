@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 from .pisa_operations import PIsaOp
 
-from .options_handler import OptionalsParser
+from .options_handler import OptionalDictParser
 
 
 class PolyOutOfBoundsError(Exception):
@@ -159,7 +159,7 @@ class Context(BaseModel):
     def from_string(cls, line: str):
         """Construct context from a string"""
         scheme, poly_order, max_rns, *optionals = line.split()
-        optional_dict = OptionalsParser.parse(optionals)
+        optional_dict = OptionalDictParser.parse(optionals)
         int_poly_order = int(poly_order)
         if (
             int_poly_order < MIN_POLY_SIZE
