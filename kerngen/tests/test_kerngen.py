@@ -78,7 +78,7 @@ def test_context_optional_without_key(kerngen_path):
     )
     assert not result.stdout
     assert (
-        "ValueError: Optional variables must be key/value pairs (e.g. krns_delta=1, num_digits=3): '1'"
+        "ValueError: Options must be key/value pairs (e.g. krns_delta=1, num_digits=3): '1'"
         in result.stderr
     )
     assert result.returncode != 0
@@ -92,7 +92,7 @@ def test_context_unsupported_optional_variable(kerngen_path):
         data_in=input_string,
     )
     assert not result.stdout
-    assert "Invalid optional name: 'test'" in result.stderr
+    assert "Invalid options name: 'test'" in result.stderr
     assert result.returncode != 0
 
 
@@ -106,7 +106,7 @@ def test_context_optional_invalid_values(kerngen_path, invalid):
     )
     assert not result.stdout
     assert (
-        f"ValueError: Optional variables must be key/value pairs (e.g. krns_delta=1, num_digits=3): 'krns_delta={invalid}'"
+        f"ValueError: Options must be key/value pairs (e.g. krns_delta=1, num_digits=3): 'krns_delta={invalid}'"
         in result.stderr
     )
     assert result.returncode != 0

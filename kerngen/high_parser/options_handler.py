@@ -6,8 +6,8 @@
 from abc import ABC, abstractmethod
 
 
-class OptionalDict(ABC):
-    """Abstract class to hold optional key/value pairs"""
+class OptionsDict(ABC):
+    """Abstract class to hold the options key/value pairs"""
 
     op_name: str = ""
     op_value = None
@@ -17,8 +17,8 @@ class OptionalDict(ABC):
         """Abstract method, which defines how to valudate a value"""
 
 
-class OptionalIntDict(OptionalDict):
-    """Holds a key/value pair for optional parameters of type Int"""
+class OptionsIntDict(OptionsDict):
+    """Holds a key/value pair for options of type Int"""
 
     def __init__(self, name: str, min_val: int, max_val: int):
         self.min_val = min_val
@@ -47,8 +47,8 @@ class OptionalIntDict(OptionalDict):
             )
 
 
-class OptionalIntBounds:
-    """Holds min/max/default values for optional parameters for type Int"""
+class OptionsIntBounds:
+    """Holds min/max/default values for options of type Int"""
 
     int_min: int
     int_max: int
@@ -60,80 +60,80 @@ class OptionalIntBounds:
         self.default = default
 
 
-class OptionalDictFactory(ABC):
-    """Abstract class that creates OptionalDict objects"""
+class OptionsDictFactory(ABC):
+    """Abstract class that creates OptionsDict objects"""
 
     MAX_KRNS_DELTA = 128
     MAX_DIGIT = 3
     MIN_KRNS_DELTA = MIN_DIGIT = 0
-    optionals = {
-        "krns_delta": OptionalIntBounds(MIN_KRNS_DELTA, MAX_KRNS_DELTA, 0),
-        "num_digits": OptionalIntBounds(MIN_DIGIT, MAX_DIGIT, None),
+    options = {
+        "krns_delta": OptionsIntBounds(MIN_KRNS_DELTA, MAX_KRNS_DELTA, 0),
+        "num_digits": OptionsIntBounds(MIN_DIGIT, MAX_DIGIT, None),
     }
 
     @staticmethod
     @abstractmethod
-    def create(name: str, value) -> OptionalDict:
-        """Abstract method, to define how to create an OptionalDict"""
+    def create(name: str, value) -> OptionsDict:
+        """Abstract method, to define how to create an OptionsDict"""
 
 
-class OptionalIntDictFactory(OptionalDictFactory):
-    """OptionalDict parameter factory for Int types"""
+class OptionsIntDictFactory(OptionsDictFactory):
+    """OptionsDict parameter factory for Int types"""
 
     @staticmethod
-    def create(name: str, value: int) -> OptionalIntDict:
-        """Create a OptionalInt object based on key/value pair"""
-        if name in OptionalIntDictFactory.optionals:
-            if isinstance(OptionalIntDictFactory.optionals[name], OptionalIntBounds):
-                optional_int = OptionalIntDict(
+    def create(name: str, value: int) -> OptionsIntDict:
+        """Create a OptionsInt object based on key/value pair"""
+        if name in OptionsIntDictFactory.options:
+            if isinstance(OptionsIntDictFactory.options[name], OptionsIntBounds):
+                options_int = OptionsIntDict(
                     name,
-                    OptionalIntDictFactory.optionals[name].int_min,
-                    OptionalIntDictFactory.optionals[name].int_max,
+                    OptionsIntDictFactory.options[name].int_min,
+                    OptionsIntDictFactory.options[name].int_max,
                 )
-                optional_int.op_value = value
-            # add other optional types here
+                options_int.op_value = value
+            # add other options types here
         else:
-            raise KeyError(f"Invalid optional name: '{name}'")
-        return optional_int
+            raise KeyError(f"Invalid options name: '{name}'")
+        return options_int
 
 
-class OptionalDictFactoryDispatcher:
+class OptionsDictFactoryDispatcher:
     """An object dispatcher based on key/value pair"""
 
     @staticmethod
-    def create(name: str, value) -> OptionalDict:
-        """Creat an OptionalDict object based on the type of value passed in"""
+    def create(name: str, value) -> OptionsDict:
+        """Creat an OptionsDict object based on the type of value passed in"""
         if value.isnumeric():
             value = int(value)
         match value:
             case int():
-                return OptionalIntDictFactory.create(name, value)
+                return OptionsIntDictFactory.create(name, value)
             case _:
                 raise ValueError(f"Current type '{type(value)}' is not supported.")
 
 
-class OptionalDictParser:
-    """Parses key/value pairs and returns a dictionary of optional parameters"""
+class OptionsDictParser:
+    """Parses key/value pairs and returns a dictionary of options"""
 
     @staticmethod
     def __default_values():
         default_dict = {}
-        for key, val in OptionalDictFactory.optionals.items():
+        for key, val in OptionsDictFactory.options.items():
             default_dict[key] = val.default
         return default_dict
 
     @staticmethod
-    def parse(optionals: list[str]):
-        """Parse the optional parameter list and return a dictionary with values"""
-        output_dict = OptionalDictParser.__default_values()
-        for option in optionals:
+    def parse(options: list[str]):
+        """Parse the options list and return a dictionary with values"""
+        output_dict = OptionsDictParser.__default_values()
+        for option in options:
             try:
                 key, value = option.split("=")
-                output_dict[key] = OptionalDictFactoryDispatcher.create(
+                output_dict[key] = OptionsDictFactoryDispatcher.create(
                     key, value
                 ).op_value
             except ValueError as err:
                 raise ValueError(
-                    f"Optional variables must be key/value pairs (e.g. krns_delta=1, num_digits=3): '{option}'"
+                    f"Options must be key/value pairs (e.g. krns_delta=1, num_digits=3): '{option}'"
                 ) from err
         return output_dict
