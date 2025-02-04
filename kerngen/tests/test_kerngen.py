@@ -69,6 +69,49 @@ def test_multiple_contexts(kerngen_path):
     assert result.returncode != 0
 
 
+def test_context_options_without_key(kerngen_path):
+    """Test kerngen raises an exception when more than one context is given"""
+    input_string = "CONTEXT BGV 16384 4 1\nData a 2\n"
+    result = execute_process(
+        [kerngen_path],
+        data_in=input_string,
+    )
+    assert not result.stdout
+    assert (
+        "ValueError: Options must be key/value pairs (e.g. krns_delta=1, num_digits=3): '1'"
+        in result.stderr
+    )
+    assert result.returncode != 0
+
+
+def test_context_unsupported_options_variable(kerngen_path):
+    """Test kerngen raises an exception when more than one context is given"""
+    input_string = "CONTEXT BGV 16384 4 test=3\nData a 2\n"
+    result = execute_process(
+        [kerngen_path],
+        data_in=input_string,
+    )
+    assert not result.stdout
+    assert "Invalid options name: 'test'" in result.stderr
+    assert result.returncode != 0
+
+
+@pytest.mark.parametrize("invalid", [-1, 256, 0.1, "str"])
+def test_context_option_invalid_values(kerngen_path, invalid):
+    """Test kerngen raises an exception if value is out of range for correct key"""
+    input_string = f"CONTEXT BGV 16384 4 krns_delta={invalid}\nData a 2\n"
+    result = execute_process(
+        [kerngen_path],
+        data_in=input_string,
+    )
+    assert not result.stdout
+    assert (
+        f"ValueError: Options must be key/value pairs (e.g. krns_delta=1, num_digits=3): 'krns_delta={invalid}'"
+        in result.stderr
+    )
+    assert result.returncode != 0
+
+
 def test_unrecognised_opname(kerngen_path):
     """Test kerngen raises an exception when receiving an unrecognised
     opname"""
@@ -99,7 +142,7 @@ def test_invalid_scheme(kerngen_path):
 @pytest.mark.parametrize("invalid_poly", [16000, 2**12, 2**13, 2**18])
 def test_invalid_poly_order(kerngen_path, invalid_poly):
     """Poly order should be powers of two >= 2^14 and <= 2^17"""
-    input_string = "CONTEXT BGV " + str(invalid_poly) + " 4 2\nADD a b c\n"
+    input_string = "CONTEXT BGV " + str(invalid_poly) + " 4\nADD a b c\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
