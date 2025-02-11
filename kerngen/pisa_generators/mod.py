@@ -27,15 +27,19 @@ from .ntt import INTT, NTT
 class Mod(HighOp):
     """Class representing mod down operation"""
 
+    MOD_P = "_mod_p"
+    MOD_QLAST = "_mod_qLast"
+
     context: KernelContext
     output: Polys
     input0: Polys
+    it_suffix: str = MOD_QLAST  # default to qlast, use mod_q otherwise
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform an mod switch down"""
         # Immediates
         last_q = self.input0.rns - 1
-        it = Immediate(name="it")
+        it = Immediate(name="it" + self.it_suffix)
         t = Immediate(name="t", rns=last_q)
         one, r2, iq = common_immediates(r2_rns=last_q, iq_rns=last_q)
 
