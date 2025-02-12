@@ -46,7 +46,7 @@ class Relin(HighOp):
             Comment("Multiply by relin key"),
             KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key, 2),
             Comment("Mod switch down to Q"),
-            Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk),
+            Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk, Mod.MOD_P),
             Comment("Add to original poly"),
             Add(self.context, self.output, mul_by_rlk_modded_down, add_original),
             Comment("End of relin kernel"),

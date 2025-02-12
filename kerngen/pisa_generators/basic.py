@@ -309,13 +309,13 @@ def duplicate_polys(input0: Polys, name: str) -> Polys:
 
 
 def common_immediates(
-    r2_rns=None, iq_rns=None
+    r2_rns=None, iq_rns=None, iq_suffix=""
 ) -> Tuple[Immediate, Immediate, Immediate]:
     """Generate commonly used immediates"""
     return (
         Immediate(name="one"),
         Immediate(name="R2", rns=r2_rns),
-        Immediate(name="iq", rns=iq_rns),
+        Immediate(name="iq" + iq_suffix, rns=iq_rns),
     )
 
 
