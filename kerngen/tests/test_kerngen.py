@@ -78,7 +78,7 @@ def test_context_options_without_key(kerngen_path):
     )
     assert not result.stdout
     assert (
-        "ValueError: Options must be key/value pairs (e.g. krns_delta=1, num_digits=3): '1'"
+        "ValueError: Options must be key/value pairs (e.g. num_digits=3): '1'"
         in result.stderr
     )
     assert result.returncode != 0
@@ -99,14 +99,14 @@ def test_context_unsupported_options_variable(kerngen_path):
 @pytest.mark.parametrize("invalid", [-1, 256, 0.1, "str"])
 def test_context_option_invalid_values(kerngen_path, invalid):
     """Test kerngen raises an exception if value is out of range for correct key"""
-    input_string = f"CONTEXT BGV 16384 3 2 krns_delta={invalid}\nData a 2\n"
+    input_string = f"CONTEXT BGV 16384 3 2 num_digits={invalid}\nData a 2\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
     )
     assert not result.stdout
     assert (
-        f"ValueError: Options must be key/value pairs (e.g. krns_delta=1, num_digits=3): 'krns_delta={invalid}'"
+        f"ValueError: Options must be key/value pairs (e.g. num_digits=3): 'num_digits={invalid}'"
         in result.stderr
     )
     assert result.returncode != 0
