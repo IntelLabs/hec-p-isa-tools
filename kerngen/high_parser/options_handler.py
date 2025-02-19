@@ -63,11 +63,9 @@ class OptionsIntBounds:
 class OptionsDictFactory(ABC):
     """Abstract class that creates OptionsDict objects"""
 
-    MAX_KRNS_DELTA = 128
     MAX_DIGIT = 3
-    MIN_KRNS_DELTA = MIN_DIGIT = 0
+    MIN_DIGIT = 0
     options = {
-        "krns_delta": OptionsIntBounds(MIN_KRNS_DELTA, MAX_KRNS_DELTA, 0),
         "num_digits": OptionsIntBounds(MIN_DIGIT, MAX_DIGIT, None),
     }
 
@@ -134,6 +132,6 @@ class OptionsDictParser:
                 ).op_value
             except ValueError as err:
                 raise ValueError(
-                    f"Options must be key/value pairs (e.g. krns_delta=1, num_digits=3): '{option}'"
+                    f"Options must be key/value pairs (e.g. num_digits=3): '{option}'"
                 ) from err
         return output_dict
