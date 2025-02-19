@@ -158,7 +158,7 @@ class Context(BaseModel):
     @classmethod
     def from_string(cls, line: str):
         """Construct context from a string"""
-        scheme, poly_order, max_rns, *optionals = line.split()
+        scheme, poly_order, key_rns, current_rns, *optionals = line.split()
         optional_dict = OptionsDictParser.parse(optionals)
         int_poly_order = int(poly_order)
         if (
@@ -170,15 +170,19 @@ class Context(BaseModel):
                 f"Poly order `{int_poly_order}` must be power of two >= {MIN_POLY_SIZE} and < {MAX_POLY_SIZE}"
             )
 
-        int_max_rns = int(max_rns)
-        int_key_rns = int_max_rns
-        int_key_rns += optional_dict.pop("krns_delta")
+        int_key_rns = int(key_rns)
+        int_current_rns = int(current_rns)
+
+        if int_key_rns <= int_current_rns:
+            raise ValueError(
+                f"Current RNS must be less than Key RNS: current_rns={current_rns}, key_rns={key_rns}"
+            )
 
         return cls(
             scheme=scheme.upper(),
             poly_order=int_poly_order,
-            max_rns=int_max_rns,
             key_rns=int_key_rns,
+            max_rns=int_current_rns,
             **optional_dict,
         )
 

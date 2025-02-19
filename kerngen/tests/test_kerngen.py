@@ -47,7 +47,7 @@ def test_op(kerngen_path, gen_op_data):
 def test_missing_context(kerngen_path):
     """Test kerngen raises an exception when context is not the first line of
     input"""
-    input_string = "ADD a b c\nCONTEXT BGV 16384 4\n"
+    input_string = "ADD a b c\nCONTEXT BGV 16384 4 3\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -59,7 +59,7 @@ def test_missing_context(kerngen_path):
 
 def test_multiple_contexts(kerngen_path):
     """Test kerngen raises an exception when more than one context is given"""
-    input_string = "CONTEXT BGV 16384 4\nData a 2\nCONTEXT BGV 16384 4\n"
+    input_string = "CONTEXT BGV 16384 4 2\nData a 2\nCONTEXT BGV 16384 4 2\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -71,7 +71,7 @@ def test_multiple_contexts(kerngen_path):
 
 def test_context_options_without_key(kerngen_path):
     """Test kerngen raises an exception when more than one context is given"""
-    input_string = "CONTEXT BGV 16384 4 1\nData a 2\n"
+    input_string = "CONTEXT BGV 16384 3 2 1\nData a 2\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -86,7 +86,7 @@ def test_context_options_without_key(kerngen_path):
 
 def test_context_unsupported_options_variable(kerngen_path):
     """Test kerngen raises an exception when more than one context is given"""
-    input_string = "CONTEXT BGV 16384 4 test=3\nData a 2\n"
+    input_string = "CONTEXT BGV 16384 3 2 test=3\nData a 2\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -99,7 +99,7 @@ def test_context_unsupported_options_variable(kerngen_path):
 @pytest.mark.parametrize("invalid", [-1, 256, 0.1, "str"])
 def test_context_option_invalid_values(kerngen_path, invalid):
     """Test kerngen raises an exception if value is out of range for correct key"""
-    input_string = f"CONTEXT BGV 16384 4 krns_delta={invalid}\nData a 2\n"
+    input_string = f"CONTEXT BGV 16384 3 2 krns_delta={invalid}\nData a 2\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -115,7 +115,7 @@ def test_context_option_invalid_values(kerngen_path, invalid):
 def test_unrecognised_opname(kerngen_path):
     """Test kerngen raises an exception when receiving an unrecognised
     opname"""
-    input_string = "CONTEXT BGV 16384 4\nOPERATION a b c\n"
+    input_string = "CONTEXT BGV 16384 3 2\nOPERATION a b c\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -129,7 +129,7 @@ def test_unrecognised_opname(kerngen_path):
 
 def test_invalid_scheme(kerngen_path):
     """Test kerngen raises an exception when receiving an invalid scheme"""
-    input_string = "CONTEXT SCHEME 16384 4\nADD a b c\n"
+    input_string = "CONTEXT SCHEME 16384 4 3\nADD a b c\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -142,7 +142,7 @@ def test_invalid_scheme(kerngen_path):
 @pytest.mark.parametrize("invalid_poly", [16000, 2**12, 2**13, 2**18])
 def test_invalid_poly_order(kerngen_path, invalid_poly):
     """Poly order should be powers of two >= 2^14 and <= 2^17"""
-    input_string = "CONTEXT BGV " + str(invalid_poly) + " 4\nADD a b c\n"
+    input_string = "CONTEXT BGV " + str(invalid_poly) + " 4 3\nADD a b c\n"
     result = execute_process(
         [kerngen_path],
         data_in=input_string,
@@ -181,7 +181,7 @@ def test_parse_results_multiple_context():
 def fixture_gen_op_data(request):
     """Given an op name, return both the input and expected output strings"""
     in_lines = (
-        "CONTEXT BGV 16384 4",
+        "CONTEXT BGV 16384 4 3",
         "Data a 2",
         "Data b 2",
         "Data c 2",
