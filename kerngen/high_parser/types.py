@@ -13,6 +13,8 @@ from pydantic import BaseModel
 
 from .pisa_operations import PIsaOp
 
+from .options_handler import OptionsDictParser
+
 
 class PolyOutOfBoundsError(Exception):
     """Exception for Poly attributes being out of bounds"""
@@ -149,18 +151,15 @@ class Context(BaseModel):
     scheme: str
     poly_order: int  # the N
     max_rns: int
+    # optional vars for context
     key_rns: int | None
+    num_digits: int | None
 
     @classmethod
     def from_string(cls, line: str):
         """Construct context from a string"""
-        scheme, poly_order, max_rns, *optional = line.split()
-        try:
-            krns, *rest = optional
-        except ValueError:
-            krns = None
-        if optional != [] and rest != []:
-            raise ValueError(f"too many parameters for context given: {line}")
+        scheme, poly_order, max_rns, *optionals = line.split()
+        optional_dict = OptionsDictParser.parse(optionals)
         int_poly_order = int(poly_order)
         if (
             int_poly_order < MIN_POLY_SIZE
@@ -172,12 +171,15 @@ class Context(BaseModel):
             )
 
         int_max_rns = int(max_rns)
-        int_key_rns = int_max_rns + int(krns) if krns else None
+        int_key_rns = int_max_rns
+        int_key_rns += optional_dict.pop("krns_delta")
+
         return cls(
             scheme=scheme.upper(),
             poly_order=int_poly_order,
             max_rns=int_max_rns,
             key_rns=int_key_rns,
+            **optional_dict,
         )
 
     @property
