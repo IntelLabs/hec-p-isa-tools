@@ -148,12 +148,16 @@ MAX_POLY_SIZE = 131072
 class Context(BaseModel):
     """Class representing a given context of the scheme"""
 
+    # required context params
     scheme: str
     poly_order: int  # the N
-    max_rns: int
+    key_rns: int
+    current_rns: int
     # optional vars for context
-    key_rns: int | None
     num_digits: int | None
+
+    # calculated based on required params
+    max_rns: int
 
     @classmethod
     def from_string(cls, line: str):
@@ -172,6 +176,7 @@ class Context(BaseModel):
 
         int_key_rns = int(key_rns)
         int_current_rns = int(current_rns)
+        int_max_rns = int_key_rns - 1
 
         if int_key_rns <= int_current_rns:
             raise ValueError(
@@ -182,7 +187,8 @@ class Context(BaseModel):
             scheme=scheme.upper(),
             poly_order=int_poly_order,
             key_rns=int_key_rns,
-            max_rns=int_current_rns,
+            current_rns=int_current_rns,
+            max_rns=int_max_rns,
             **optional_dict,
         )
 
