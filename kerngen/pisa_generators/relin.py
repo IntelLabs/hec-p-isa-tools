@@ -30,8 +30,10 @@ class Relin(HighOp):
         )
 
         mul_by_rlk = Polys("c2_rlk", parts=2, rns=self.context.key_rns)
+
         mul_by_rlk_modded_down = Polys.from_polys(mul_by_rlk)
         mul_by_rlk_modded_down.rns = self.input0.rns
+
         input_last_part, last_coeff, upto_last_coeffs = extract_last_part_polys(
             self.input0, self.context.key_rns
         )

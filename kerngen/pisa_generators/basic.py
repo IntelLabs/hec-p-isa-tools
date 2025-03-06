@@ -352,6 +352,7 @@ def partial_op(
     last_q: int,
 ):
     """ "A helper function to perform partial operation, such as add/sub on last half (input1) to all of input0"""
+
     return [
         op(
             context.label,
@@ -366,7 +367,7 @@ def partial_op(
         )
         for part, q, unit in it.product(
             range(polys.input_remaining_rns.parts),
-            range(polys.input_remaining_rns.rns),
+            range(polys.input_remaining_rns.start_rns, polys.input_remaining_rns.rns),
             range(context.units),
         )
     ]

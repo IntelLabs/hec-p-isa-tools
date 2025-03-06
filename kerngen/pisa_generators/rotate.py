@@ -28,6 +28,7 @@ class Rotate(HighOp):
         supports number of digits equal to the RNS size"""
         self.output.parts = 2
         self.input0.parts = 2
+
         relin_key = KeyPolys(
             "gk", parts=2, rns=self.context.key_rns, digits=self.input0.rns
         )
@@ -60,7 +61,7 @@ class Rotate(HighOp):
             Comment("Multiply by rotate key"),
             KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key, 1),
             Comment("Mod switch down to Q"),
-            Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk),
+            Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk, Mod.MOD_P),
             INTT(self.context, cd, start_input),
             NTT(self.context, cd, cd),
             Add(self.context, self.output, cd, first_part_rlk),
