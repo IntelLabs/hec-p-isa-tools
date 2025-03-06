@@ -11,7 +11,8 @@
     "MOD": ["Mod", "mod.py"],
     "MODUP": ["ModUp", "mod.py"],
     "RELIN": ["Relin", "relin.py"],
-    "ROTATE": ["Rotate", "rotate.py"]
+    "ROTATE": ["Rotate", "rotate.py"],
+    "ADDPLAIN": ["AddPlain","basic.py"]
   },
   "CKKS": {
     "ADD": ["Add", "basic.py"],
