@@ -24,8 +24,6 @@ class Relin(HighOp):
         supports number of digits equal to the RNS size"""
         self.output.parts = 2
         self.input0.parts = 3
-        self.input0.start_rns = (self.context.key_rns - 1) - self.context.current_rns
-        # self.input0.rns = self.context.current_rns
 
         relin_key = KeyPolys(
             "rlk", parts=2, rns=self.context.key_rns, digits=self.input0.rns
@@ -35,17 +33,13 @@ class Relin(HighOp):
 
         mul_by_rlk_modded_down = Polys.from_polys(mul_by_rlk)
         mul_by_rlk_modded_down.rns = self.input0.rns
-        # mul_by_rlk_modded_down.start_rns = (self.context.key_rns - 1) - self.context.current_rns
 
         input_last_part, last_coeff, upto_last_coeffs = extract_last_part_polys(
             self.input0, self.context.key_rns
         )
-        # input_last_part.start_rns = (self.context.key_rns - 1) - self.context.max_rns
-        # input_last_part.rns = self.context.current_rns
 
         add_original = Polys.from_polys(mul_by_rlk_modded_down)
         add_original.name = self.input0.name
-        # add_original.start_rns = (self.context.key_rns - 1) - self.context.max_rns
 
         return mixed_to_pisa_ops(
             Comment("Start of relin kernel"),

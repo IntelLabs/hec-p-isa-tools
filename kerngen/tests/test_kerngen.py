@@ -168,8 +168,12 @@ def test_parse_results_multiple_context():
     with pytest.raises(LookupError) as e:
         parse_results = ParseResults(
             [
-                Context(scheme="BGV", poly_order=16384, max_rns=1),
-                Context(scheme="CKKS", poly_order=16384, max_rns=1),
+                Context(
+                    scheme="BGV", poly_order=16384, key_rns=2, current_rns=1, max_rns=1
+                ),
+                Context(
+                    scheme="CKKS", poly_order=16384, key_rns=2, current_rns=1, max_rns=1
+                ),
             ],
             {},
         )

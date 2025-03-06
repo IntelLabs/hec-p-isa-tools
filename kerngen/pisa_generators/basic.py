@@ -368,7 +368,6 @@ def partial_op(
         for part, q, unit in it.product(
             range(polys.input_remaining_rns.parts),
             range(polys.input_remaining_rns.start_rns, polys.input_remaining_rns.rns),
-            # range(polys.input_remaining_rns.rns),
             range(context.units),
         )
     ]
