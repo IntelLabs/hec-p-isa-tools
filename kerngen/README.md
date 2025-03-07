@@ -104,7 +104,7 @@ All other commands are assumed to be operations. All operations are case
 insensitive, but the convention we use is the operations are capitalized. These
 are defined in the [manifest.json](./pisa_generators/manifest.json) file.
 ```
-CONTEXT BGV 8192 4
+CONTEXT BGV 8192 4 3
 DATA a 2
 DATA b 2
 DATA c 2
@@ -112,8 +112,8 @@ ADD c a b
 ```
 
 ## CONTEXT
-Context defines the global properties `(scheme, poly_order, max_rns,
-key_rns(optional))` of the input script.
+Context defines the global properties `(scheme, poly_ring_dimension, max_rns,
+current_rns)` of the input script.
 `CONTEXT` sets a global context for properties required by the kernels.
 - first field defines what we call scheme. In reality, it specifies the set of
 kernel instructions given in the manifest file, see
@@ -121,12 +121,8 @@ kernel instructions given in the manifest file, see
 - second field defines the polynomial size for the `DATA`. This is required by
 the generating kernels to define how many units (multiples of the native polynomial
 size, 8192 in HERACLES silicon case) are required and handled.
-- third field defines the max RNS, the global max number of how many 32 bit prime number moduli
-(HERACLES silicon case) are in the modulus chain that the kernels can have or need to handle.
-- (optional) fourth field defines the key RNS, the number of additional moduli
-that the relinearization key has relative to the third field. i.e. If `max_rns`
-is 3 and `key_rns` is 1 the total max RNS of the relinearization key will be 4.
-Note this field is only required for calling the `relin` kernel.
+- third field defines the key RNS, i.e. the total max RNS of the relinearization key, typically the global max number of how many 32 bit prime number moduli (HERACLES silicon case) are in the modulus chain that the kernels can have or need to handle + 1. 
+- fourth field defines the number of RNS terms in the current polynomial.
 
 ## DATA
 `DATA` defines polynomial symbols to be used and their attribute(s) (`num_parts`) where
