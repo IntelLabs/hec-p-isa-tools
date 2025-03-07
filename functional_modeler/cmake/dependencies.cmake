@@ -19,8 +19,8 @@ FetchContent_Declare(
 FetchContent_GetProperties(argmap)
 if (NOT argmap_POPULATED)
     FetchContent_Populate(argmap)
-    include_directories(${argmap_SOURCE_DIR})
 endif()
+include_directories(${argmap_SOURCE_DIR})
 
 FetchContent_Declare(
     snap
@@ -42,9 +42,9 @@ if (NOT snap_POPULATED)
     )
     add_library(snap OBJECT IMPORTED GLOBAL)
     set_target_properties(snap PROPERTIES IMPORTED_OBJECTS ${snap_SOURCE_DIR}/snap-core/Snap.o)
-    include_directories(${snap_SOURCE_DIR}/snap-core ${snap_SOURCE_DIR}/glib-core)
     message(STATUS "Finished building SNAP")
 endif()
+include_directories(${snap_SOURCE_DIR}/snap-core ${snap_SOURCE_DIR}/glib-core)
 
 if(ENABLE_DATA_FORMATS)
     FetchContent_Declare(
