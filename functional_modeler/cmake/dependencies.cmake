@@ -11,8 +11,8 @@ FetchContent_MakeAvailable(json_for_modern_cpp)
 
 FetchContent_Declare(
     argmap
-    # TODO at the mo, grabs the latest this should change once versioned
-    URL https://raw.githubusercontent.com/helibproject/argmap/main/argmap.h
+    # version from main, which (as of March 6th 2025) has not been updated since December 2023
+    URL https://raw.githubusercontent.com/helibproject/argmap/0e724938d0d4aed8c182f04ca345bfba8ede83ef/argmap.h
     DOWNLOAD_NO_EXTRACT TRUE
 )
 
@@ -47,13 +47,11 @@ if (NOT snap_POPULATED)
 endif()
 
 if(ENABLE_DATA_FORMATS)
-    find_package(HERACLES_DATA_FORMATS CONFIG)
-    if(NOT HERACLES_DATA_FORMATS_FOUND)
-        FetchContent_Declare(
-            heracles_data_formats
-            GIT_REPOSITORY git@github.com:IntelLabs/HERACLES-data-formats.git
-            GIT_TAG main
-        )
-        FetchContent_MakeAvailable(heracles_data_formats)
-    endif()
+    FetchContent_Declare(
+        heracles_data_formats
+        GIT_REPOSITORY https://github.com/IntelLabs/HERACLES-data-formats.git
+        GIT_TAG f3bc197530b2ba2c1651f61ca82ba7a614be2884 # HEAD of main branch as of 2025-02-25: "New Math functions and tests (#60)"
+    )
+
+    FetchContent_MakeAvailable(heracles_data_formats)
 endif()
