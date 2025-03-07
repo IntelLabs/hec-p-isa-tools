@@ -112,7 +112,7 @@ ADD c a b
 ```
 
 ## CONTEXT
-Context defines the global properties `(scheme, poly_ordering_dimensionr, max_rns,
+Context defines the global properties `(scheme, poly_ring_dimension, max_rns,
 current_rns)` of the input script.
 `CONTEXT` sets a global context for properties required by the kernels.
 - first field defines what we call scheme. In reality, it specifies the set of
