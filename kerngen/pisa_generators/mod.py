@@ -39,7 +39,6 @@ class Mod(HighOp):
         """Return the p-isa code to perform an mod switch down"""
         # Immediates
         last_q = self.input0.rns - 1
-        self.input0.start_rns = (self.context.key_rns - 1) - self.context.current_rns
 
         it = Immediate(name="it" + self.var_suffix)
         t = Immediate(name="t", rns=last_q)
