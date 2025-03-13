@@ -284,7 +284,21 @@ class KeyMul(HighOp):
                 )
                 for part, q, unit in it.product(
                     range(self.input1.start_parts, self.input1.parts),
-                    range(self.input0.start_rns, self.input0.rns),
+                    range(self.context.current_rns),
+                    range(self.context.units),
+                )
+            )
+            ls.extend(
+                op(
+                    self.context.label,
+                    self.output(part, q, unit),
+                    input0_tmp(self.input0_fixed_part, q, unit),
+                    self.input1(digit, part, q, unit),
+                    q,
+                )
+                for part, q, unit in it.product(
+                    range(self.input1.start_parts, self.input1.parts),
+                    range(self.context.max_rns, self.context.key_rns),
                     range(self.context.units),
                 )
             )
@@ -307,11 +321,11 @@ def extract_last_part_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Poly
     return input_last_part, last_coeff, upto_last_coeffs
 
 
-def split_last_rns_polys(input0: Polys) -> Tuple[Polys, Polys]:
+def split_last_rns_polys(input0: Polys, current_rns) -> Tuple[Polys, Polys]:
     """Split and extract last RNS of input0"""
-    return Polys.from_polys(input0, mode="last_rns"), Polys.from_polys(
-        input0, mode="drop_last_rns"
-    )
+    out = Polys.from_polys(input0)
+    out.rns = current_rns
+    return Polys.from_polys(input0, mode="last_rns"), out
 
 
 def duplicate_polys(input0: Polys, name: str) -> Polys:

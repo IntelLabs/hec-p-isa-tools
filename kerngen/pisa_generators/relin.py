@@ -5,7 +5,7 @@
 from dataclasses import dataclass
 from high_parser.pisa_operations import PIsaOp, Comment
 from high_parser import KernelContext, HighOp, KeyPolys, Polys
-from .basic import Add, KeyMul, mixed_to_pisa_ops, extract_last_part_polys, filter_rns
+from .basic import Add, KeyMul, mixed_to_pisa_ops, extract_last_part_polys
 
 from .mod import Mod
 from .decomp import DigitDecompExtend
@@ -40,20 +40,15 @@ class Relin(HighOp):
 
         add_original = Polys.from_polys(mul_by_rlk_modded_down)
         add_original.name = self.input0.name
-
-        return filter_rns(
-            self.context.current_rns,
-            self.context.max_rns,
-            mixed_to_pisa_ops(
-                Comment("Start of relin kernel"),
-                Comment("Digit decomposition and extend base from Q to PQ"),
-                DigitDecompExtend(self.context, last_coeff, input_last_part),
-                Comment("Multiply by relin key"),
-                KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key, 2),
-                Comment("Mod switch down to Q"),
-                Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk, Mod.MOD_P),
-                Comment("Add to original poly"),
-                Add(self.context, self.output, mul_by_rlk_modded_down, add_original),
-                Comment("End of relin kernel"),
-            ),
+        return mixed_to_pisa_ops(
+            Comment("Start of relin kernel"),
+            Comment("Digit decomposition and extend base from Q to PQ"),
+            DigitDecompExtend(self.context, last_coeff, input_last_part),
+            Comment("Multiply by relin key"),
+            KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key, 2),
+            Comment("Mod switch down to Q"),
+            Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk, Mod.MOD_P),
+            Comment("Add to original poly"),
+            Add(self.context, self.output, mul_by_rlk_modded_down, add_original),
+            Comment("End of relin kernel"),
         )

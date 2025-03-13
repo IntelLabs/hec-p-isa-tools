@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from high_parser.pisa_operations import PIsaOp, Comment
 from high_parser import KernelContext, HighOp, Polys, KeyPolys
 
-from .basic import Add, KeyMul, mixed_to_pisa_ops, extract_last_part_polys, filter_rns
+from .basic import Add, KeyMul, mixed_to_pisa_ops, extract_last_part_polys
 from .decomp import DigitDecompExtend
 from .mod import Mod
 from .ntt import INTT, NTT
@@ -54,20 +54,16 @@ class Rotate(HighOp):
         first_part_rlk.parts = 1
         first_part_rlk.start_parts = 0
 
-        return filter_rns(
-            self.context.current_rns,
-            self.context.max_rns,
-            mixed_to_pisa_ops(
-                Comment("Start of rotate kernel"),
-                Comment("Digit Decomp"),
-                DigitDecompExtend(self.context, last_coeff, input_last_part),
-                Comment("Multiply by rotate key"),
-                KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key, 1),
-                Comment("Mod switch down to Q"),
-                Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk, Mod.MOD_P),
-                INTT(self.context, cd, start_input),
-                NTT(self.context, cd, cd),
-                Add(self.context, self.output, cd, first_part_rlk),
-                Comment("End of rotate kernel"),
-            ),
+        return mixed_to_pisa_ops(
+            Comment("Start of rotate kernel"),
+            Comment("Digit Decomp"),
+            DigitDecompExtend(self.context, last_coeff, input_last_part),
+            Comment("Multiply by rotate key"),
+            KeyMul(self.context, mul_by_rlk, upto_last_coeffs, relin_key, 1),
+            Comment("Mod switch down to Q"),
+            Mod(self.context, mul_by_rlk_modded_down, mul_by_rlk, Mod.MOD_P),
+            INTT(self.context, cd, start_input),
+            NTT(self.context, cd, cd),
+            Add(self.context, self.output, cd, first_part_rlk),
+            Comment("End of rotate kernel"),
         )

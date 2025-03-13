@@ -47,7 +47,9 @@ class Mod(HighOp):
         )
 
         # Drop down input rns
-        input_last_rns, input_remaining_rns = split_last_rns_polys(self.input0)
+        input_last_rns, input_remaining_rns = split_last_rns_polys(
+            self.input0, self.context.current_rns
+        )
 
         # Temp.
         temp_input_last_rns = duplicate_polys(input_last_rns, "y")
