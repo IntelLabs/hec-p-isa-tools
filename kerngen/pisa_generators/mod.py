@@ -33,7 +33,7 @@ class Mod(HighOp):
     context: KernelContext
     output: Polys
     input0: Polys
-    var_suffix: str = MOD_QLAST  # default to qlast, use mod_q otherwise
+    var_suffix: str = MOD_QLAST  # default to qlast, use mod_p otherwise
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform an mod switch down"""

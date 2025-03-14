@@ -323,6 +323,11 @@ def extract_last_part_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Poly
 
 def split_last_rns_polys(input0: Polys, current_rns) -> Tuple[Polys, Polys]:
     """Split and extract last RNS of input0"""
+
+    if input0.rns <= current_rns:
+        return Polys.from_polys(input0, mode="last_rns"), Polys.from_polys(
+            input0, mode="drop_last_rns"
+        )
     out = Polys.from_polys(input0)
     out.rns = current_rns
     return Polys.from_polys(input0, mode="last_rns"), out
