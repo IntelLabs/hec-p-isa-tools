@@ -28,21 +28,30 @@ from .ntt import INTT, NTT
 class Rescale(HighOp):
     """Class representing mod down operation"""
 
+    MOD_QLAST = "_mod_qLast"
     context: KernelContext
     output: Polys
     input0: Polys
+    var_suffix: str = MOD_QLAST  # default to qlast
 
     def to_pisa(self) -> list[PIsaOp]:
         """Return the p-isa code to perform an mod switch down"""
+
         # Immediates
         last_q = self.input0.rns - 1
         one, r2, iq = common_immediates(r2_rns=last_q, iq_rns=last_q)
+
+        one, r2, iq = common_immediates(
+            r2_rns=last_q, iq_rns=last_q, iq_suffix=self.var_suffix
+        )
 
         q_last_half = Polys("qLastHalf", 1, self.input0.rns)
         q_i_last_half = Polys("qiLastHalf", 1, rns=last_q)
 
         # split input
-        input_last_rns, input_remaining_rns = split_last_rns_polys(self.input0)
+        input_last_rns, input_remaining_rns = split_last_rns_polys(
+            self.input0, self.context.current_rns
+        )
 
         # Create temp vars for input_last/remaining
         temp_input_last_rns = duplicate_polys(input_last_rns, "y")
