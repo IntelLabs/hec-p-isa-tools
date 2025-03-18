@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from high_parser.pisa_operations import PIsaOp, Comment
 from high_parser import KernelContext, HighOp, KeyPolys, Polys
 from .basic import Add, KeyMul, mixed_to_pisa_ops, extract_last_part_polys
+
 from .mod import Mod
 from .decomp import DigitDecompExtend
 
@@ -24,7 +25,6 @@ class Relin(HighOp):
         supports number of digits equal to the RNS size"""
         self.output.parts = 2
         self.input0.parts = 3
-
         relin_key = KeyPolys(
             "rlk", parts=2, rns=self.context.key_rns, digits=self.input0.rns
         )
@@ -40,7 +40,6 @@ class Relin(HighOp):
 
         add_original = Polys.from_polys(mul_by_rlk_modded_down)
         add_original.name = self.input0.name
-
         return mixed_to_pisa_ops(
             Comment("Start of relin kernel"),
             Comment("Digit decomposition and extend base from Q to PQ"),

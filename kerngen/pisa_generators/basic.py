@@ -263,6 +263,8 @@ class KeyMul(HighOp):
         for digit, op in get_pisa_op(self.input1.digits):
             input0_tmp = Polys.from_polys(self.input0)
             input0_tmp.name += "_" + ascii_letters[digit]
+
+            # mul/mac for 0-current_rns
             ls.extend(
                 op(
                     self.context.label,
@@ -273,7 +275,22 @@ class KeyMul(HighOp):
                 )
                 for part, q, unit in it.product(
                     range(self.input1.start_parts, self.input1.parts),
-                    range(self.input0.start_rns, self.input0.rns),
+                    range(self.context.current_rns),
+                    range(self.context.units),
+                )
+            )
+            # mul/mac for max_rns-krns terms
+            ls.extend(
+                op(
+                    self.context.label,
+                    self.output(part, q, unit),
+                    input0_tmp(self.input0_fixed_part, q, unit),
+                    self.input1(digit, part, q, unit),
+                    q,
+                )
+                for part, q, unit in it.product(
+                    range(self.input1.start_parts, self.input1.parts),
+                    range(self.context.max_rns, self.context.key_rns),
                     range(self.context.units),
                 )
             )
@@ -296,11 +313,17 @@ def extract_last_part_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Poly
     return input_last_part, last_coeff, upto_last_coeffs
 
 
-def split_last_rns_polys(input0: Polys) -> Tuple[Polys, Polys]:
+def split_last_rns_polys(input0: Polys, current_rns) -> Tuple[Polys, Polys]:
     """Split and extract last RNS of input0"""
-    return Polys.from_polys(input0, mode="last_rns"), Polys.from_polys(
-        input0, mode="drop_last_rns"
-    )
+    if input0.rns <= current_rns:
+        return Polys.from_polys(input0, mode="last_rns"), Polys.from_polys(
+            input0, mode="drop_last_rns"
+        )
+
+    # do not include consumed rns
+    remaining = Polys.from_polys(input0)
+    remaining.rns = current_rns
+    return Polys.from_polys(input0, mode="last_rns"), remaining
 
 
 def duplicate_polys(input0: Polys, name: str) -> Polys:

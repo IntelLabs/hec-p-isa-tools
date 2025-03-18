@@ -124,7 +124,9 @@ class Parser:
                 # Populate the polys map
                 data = Data.from_string(rest)
                 symbols_map[data.name] = Polys(
-                    name=data.name, parts=data.parts, rns=context.max_rns
+                    name=data.name,
+                    parts=data.parts,
+                    rns=context.current_rns,
                 )
                 return data
             case _:
