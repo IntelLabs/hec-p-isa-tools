@@ -1,5 +1,0 @@
-CONTEXT BGV 16384 1
-DATA a 1
-DATA b 1
-DATA c 1
-ADD c a b
