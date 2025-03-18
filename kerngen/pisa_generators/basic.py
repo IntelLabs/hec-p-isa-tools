@@ -9,7 +9,7 @@ from typing import ClassVar, Iterable, Tuple
 from string import ascii_letters
 
 import high_parser.pisa_operations as pisa_op
-from high_parser.pisa_operations import PIsaOp, Comment
+from high_parser.pisa_operations import PIsaOp
 from high_parser import (
     Immediate,
     HighOp,
@@ -43,17 +43,6 @@ def _mixed_to_pisa_ops(ops: Iterable[PIsaOp | list[PIsaOp] | HighOp]) -> list[PI
     ops_pisa_clusters: Iterable[list[PIsaOp | HighOp]] = map(helper, ops)
     # Flattens the list returned
     return [pisa_op for pisa_ops in ops_pisa_clusters for pisa_op in pisa_ops]
-
-
-def filter_rns(current_rns: int, max_rns: int, pisa_list: list[PIsaOp]):
-    """Filter out spent RNS from PIsaOps list"""
-    remove_pisa_q = range(current_rns, max_rns)
-    return list(
-        filter(
-            lambda pisa: (isinstance(pisa, Comment) or pisa.q not in remove_pisa_q),
-            pisa_list,
-        )
-    )
 
 
 @dataclass
