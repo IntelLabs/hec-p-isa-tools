@@ -263,6 +263,8 @@ class KeyMul(HighOp):
         for digit, op in get_pisa_op(self.input1.digits):
             input0_tmp = Polys.from_polys(self.input0)
             input0_tmp.name += "_" + ascii_letters[digit]
+
+            # mul/mac for 0-current_rns
             ls.extend(
                 op(
                     self.context.label,
@@ -277,6 +279,7 @@ class KeyMul(HighOp):
                     range(self.context.units),
                 )
             )
+            # mul/mac for max_rns-krns terms
             ls.extend(
                 op(
                     self.context.label,
@@ -312,14 +315,15 @@ def extract_last_part_polys(input0: Polys, rns: int) -> Tuple[Polys, Polys, Poly
 
 def split_last_rns_polys(input0: Polys, current_rns) -> Tuple[Polys, Polys]:
     """Split and extract last RNS of input0"""
-
     if input0.rns <= current_rns:
         return Polys.from_polys(input0, mode="last_rns"), Polys.from_polys(
             input0, mode="drop_last_rns"
         )
-    out = Polys.from_polys(input0)
-    out.rns = current_rns
-    return Polys.from_polys(input0, mode="last_rns"), out
+
+    # do not include consumed rns
+    remaining = Polys.from_polys(input0)
+    remaining.rns = current_rns
+    return Polys.from_polys(input0, mode="last_rns"), remaining
 
 
 def duplicate_polys(input0: Polys, name: str) -> Polys:
