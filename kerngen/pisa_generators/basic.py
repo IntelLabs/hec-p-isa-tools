@@ -397,34 +397,6 @@ def add_last_half(
     )
 
 
-@dataclass
-class AddPlain(HighOp):
-    """Class representing a add plain operation"""
-
-    context: KernelContext
-    output: Polys
-    input0: Polys
-    input1: Polys
-
-    def to_pisa(self) -> list[PIsaOp]:
-        """Return the p-isa code to perform a add plain operation"""
-        one, r2, _ = common_immediates(
-            r2_rns=self.context.max_rns, iq_rns=self.context.max_rns
-        )
-        first_part_input0 = Polys.from_polys(self.input0)
-        first_part_input0.parts = 1
-        first_part_input1 = Polys.from_polys(self.input1)
-        first_part_input1.parts = 1
-
-        last_part_input0 = Polys.from_polys(self.input0, mode="last_part")
-        last_part_output = Polys.from_polys(self.output, mode="last_part")
-        return mixed_to_pisa_ops(
-            Add(self.context, self.output, first_part_input0, first_part_input1),
-            Muli(self.context, last_part_output, last_part_input0, one),
-            Muli(self.context, last_part_output, last_part_output, r2),
-        )
-
-
 def sub_last_half(
     context: KernelContext,
     output: Polys,
