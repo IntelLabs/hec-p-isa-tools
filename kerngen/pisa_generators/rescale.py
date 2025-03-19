@@ -42,7 +42,7 @@ class Rescale(HighOp):
         one, r2, iq = common_immediates(r2_rns=last_q, iq_rns=last_q)
 
         one, r2, iq = common_immediates(
-            r2_rns=last_q, iq_rns=last_q, iq_suffix=self.var_suffix
+            r2_rns=last_q, iq_rns=last_q, iq_suffix=self.var_suffix + f"_{self.context.current_rns}"
         )
 
         q_last_half = Polys("qLastHalf", 1, self.input0.rns)
