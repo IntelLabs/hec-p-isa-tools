@@ -40,10 +40,12 @@ class Mod(HighOp):
         # Immediates
         last_q = self.input0.rns - 1
 
-        it = Immediate(name="it" + self.var_suffix)
+        it = Immediate(name="it" + self.var_suffix + f"_{self.context.current_rns}")
         t = Immediate(name="t", rns=last_q)
         one, r2, iq = common_immediates(
-            r2_rns=last_q, iq_rns=last_q, iq_suffix=self.var_suffix
+            r2_rns=last_q,
+            iq_rns=last_q,
+            iq_suffix=self.var_suffix + f"_{self.context.current_rns}",
         )
 
         # Drop down input rns
