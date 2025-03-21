@@ -39,14 +39,17 @@ class Rescale(HighOp):
 
         # Immediates
         last_q = self.input0.rns - 1
-        one, r2, iq = common_immediates(r2_rns=last_q, iq_rns=last_q)
 
         one, r2, iq = common_immediates(
-            r2_rns=last_q, iq_rns=last_q, iq_suffix=self.var_suffix
+            r2_rns=last_q,
+            iq_rns=last_q,
+            iq_suffix=self.var_suffix + f"_{self.context.current_rns}",
         )
 
         q_last_half = Polys("qLastHalf", 1, self.input0.rns)
-        q_i_last_half = Polys("qiLastHalf", 1, rns=last_q)
+        q_i_last_half = Polys(
+            "qiLastHalf" + f"_{self.context.current_rns}", 1, rns=last_q
+        )
 
         # split input
         input_last_rns, input_remaining_rns = split_last_rns_polys(
