@@ -8,7 +8,7 @@
     "SQUARE": ["Square", "square.py"],
     "NTT": ["NTT", "ntt.py"],
     "INTT": ["INTT", "ntt.py"],
-    "MOD": ["Mod", "mod.py"],
+    "MOD": ["ModOp", "mod.py"],
     "MODUP": ["ModUp", "mod.py"],
     "RELIN": ["Relin", "relin.py"],
     "ROTATE": ["Rotate", "rotate.py"]
