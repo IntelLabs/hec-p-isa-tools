@@ -167,10 +167,10 @@ class Mul(HighOp):
 
     def _keypolys_to_pisa(self, all_idxs: list[InIdxs]) -> list[PIsaOp]:
         ls = []
-        for digit, unit, q in it.product(
+        for digit, q, unit in it.product(
             range(self.input1.digits),  # NOTE digits from input1 NOT input0
-            range(self.context.units),
             range(self.input0.start_rns, self.input0.rns),
+            range(self.context.units),
         ):
             for out_idx, in_idxs in enumerate(all_idxs):
                 ls.extend(self.generate_unit(unit, q, out_idx, in_idxs, digit=digit))
@@ -179,8 +179,8 @@ class Mul(HighOp):
 
     def _polys_to_pisa(self, all_idxs: list[InIdxs]) -> list[PIsaOp]:
         ls = []
-        for unit, q in it.product(
-            range(self.context.units), range(self.input0.start_rns, self.input0.rns)
+        for q, unit in it.product(
+            range(self.input0.start_rns, self.input0.rns), range(self.context.units)
         ):
             for out_idx, in_idxs in enumerate(all_idxs):
                 ls.extend(self.generate_unit(unit, q, out_idx, in_idxs))
@@ -218,10 +218,10 @@ class Muli(HighOp):
                 self.input1(part, q, unit),
                 q,
             )
-            for unit, q, part in it.product(
-                range(self.context.units),
-                range(self.input0.start_rns, self.input0.rns),
+            for part, q, unit in it.product(
                 range(self.input0.start_parts, self.input0.parts),
+                range(self.input0.start_rns, self.input0.rns),
+                range(self.context.units),
             )
         ]
 
