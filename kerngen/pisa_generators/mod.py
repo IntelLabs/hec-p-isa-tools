@@ -19,6 +19,7 @@ from .basic import (
     muli_last_half,
     add_last_half,
     sub_last_half,
+    batch_rns,
 )
 from .ntt import INTT, NTT
 
@@ -187,15 +188,25 @@ class Mod(HighOp):
                 Muli(self.context, temp_input_last_rns, temp_input_last_rns, one),
                 Comment("Compute the remaining rns"),
             ]
-            + stages[1].pisa_ops
-            + [
-                NTT(self.context, temp_input_remaining_rns, temp_input_remaining_rns),
-            ]
-            + stages[2].pisa_ops
-            + [
-                Muli(self.context, self.output, temp_input_remaining_rns, iq),
-                Comment("End of mod kernel"),
-            ]
+            + batch_rns(
+                0,
+                self.context.current_rns,
+                mixed_to_pisa_ops(
+                    stages[1].pisa_ops
+                    + [
+                        NTT(
+                            self.context,
+                            temp_input_remaining_rns,
+                            temp_input_remaining_rns,
+                        ),
+                    ]
+                    + stages[2].pisa_ops
+                    + [
+                        Muli(self.context, self.output, temp_input_remaining_rns, iq),
+                        Comment("End of mod kernel"),
+                    ]
+                ),
+            )
         )
 
 
@@ -206,9 +217,9 @@ class ModOp(Mod):
     def to_pisa(self) -> list[PIsaOp]:
         """Optimize by calling Mod by 1 part at a time"""
         ls = []
-        for i in range(self.input0.parts):
-            self.input0.start_parts = i
-            self.input0.parts = i + 1
+        for p in range(self.input0.parts):
+            self.input0.start_parts = p
+            self.input0.parts = p + 1
             ls.extend(super().to_pisa())
         return ls
 

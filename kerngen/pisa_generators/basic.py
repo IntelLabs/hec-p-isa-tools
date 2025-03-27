@@ -9,7 +9,7 @@ from typing import ClassVar, Iterable, Tuple
 from string import ascii_letters
 
 import high_parser.pisa_operations as pisa_op
-from high_parser.pisa_operations import PIsaOp
+from high_parser.pisa_operations import PIsaOp, Comment
 from high_parser import (
     Immediate,
     HighOp,
@@ -18,6 +18,42 @@ from high_parser import (
     KeyPolys,
     KernelContext,
 )
+
+
+def filter_rns(current_rns: int, max_rns: int, pisa_list: list[PIsaOp]):
+    """Filter out spent RNS from PIsaOps list"""
+    remove_pisa_q = range(current_rns, max_rns)
+    return list(
+        filter(
+            lambda pisa: (isinstance(pisa, Comment) or pisa.q not in remove_pisa_q),
+            pisa_list,
+        )
+    )
+
+
+def batch_rns(start_rns, current_rns, pisa_list: list[PIsaOp], rns_batch_size=8):
+    """Batch pisa_list into groups of RNS==8"""
+    ls = []
+    start_b = end_b = 0
+    for b in range(start_rns, current_rns, rns_batch_size):
+        start_b = b
+        end_b = b + (
+            rns_batch_size
+            if (b + rns_batch_size <= current_rns and b >= rns_batch_size) or b == 0
+            else current_rns % rns_batch_size
+        )
+        # pylint: disable=cell-var-from-loop
+        ls.extend(
+            list(
+                filter(
+                    lambda pisa: (
+                        isinstance(pisa, Comment) or (start_b <= pisa.q < end_b)
+                    ),
+                    pisa_list,
+                )
+            )
+        )
+    return ls
 
 
 # TODO move this to kernel utils
