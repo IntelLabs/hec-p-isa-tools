@@ -53,6 +53,8 @@ def batch_rns(start_rns, current_rns, pisa_list: list[PIsaOp], rns_batch_size=8)
                 )
             )
         )
+    ls = list(filter(lambda pisa: not isinstance(pisa, Comment), ls))
+    ls.sort(key=lambda pisa: pisa.q)
     return ls
 
 
