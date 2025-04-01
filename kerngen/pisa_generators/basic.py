@@ -4,12 +4,14 @@
 """Module containing conversions or operations from isa to p-isa."""
 
 import itertools as it
+import re
 from dataclasses import dataclass
 from typing import ClassVar, Iterable, Tuple
 from string import ascii_letters
 
 import high_parser.pisa_operations as pisa_op
 from high_parser.pisa_operations import PIsaOp, Comment
+from high_parser.pisa_operations import BinaryOp, NTT as NTTOp
 from high_parser import (
     Immediate,
     HighOp,
@@ -33,7 +35,7 @@ def filter_rns(current_rns: int, max_rns: int, pisa_list: list[PIsaOp]):
 
 def batch_rns(start_rns, current_rns, pisa_list: list[PIsaOp], rns_batch_size=8):
     """Batch pisa_list into groups of RNS==8"""
-    ls = []
+    ls: list[PIsaOp] = []
     start_b = end_b = 0
     for b in range(start_rns, current_rns, rns_batch_size):
         start_b = b
@@ -55,7 +57,64 @@ def batch_rns(start_rns, current_rns, pisa_list: list[PIsaOp], rns_batch_size=8)
         )
     ls = list(filter(lambda pisa: not isinstance(pisa, Comment), ls))
     ls.sort(key=lambda pisa: pisa.q)
-    return ls
+
+    def remove_rns(pisa: PIsaOp):
+        """Helper function to remove RNS terms from modsw output"""
+        if isinstance(pisa, BinaryOp):
+            if "x_" in pisa.input0 or "y_" in pisa.input0:
+                pisa.input0 = re.sub(
+                    "(x|y)_([0-9]+)_[0-9]+_",
+                    r"\1_\2_" + f"{current_rns-1}_",
+                    pisa.input0,
+                )
+            if "x_" in pisa.input1 or "y_" in pisa.input1:
+                pisa.input1 = re.sub(
+                    "(x|y)_([0-9]+)_[0-9]+_",
+                    r"\1_\2_" + f"{current_rns-1}_",
+                    pisa.input1,
+                )
+            if "x_" in pisa.output or "y_" in pisa.output:
+                pisa.output = re.sub(
+                    "(x|y)_([0-9]+)_[0-9]+_",
+                    r"\1_\2_" + f"{current_rns-1}_",
+                    pisa.output,
+                )
+        if isinstance(pisa, NTTOp):
+            if (
+                "x_" in pisa.input0
+                and "x_" in pisa.input1
+                or "outtmp_" in pisa.input0
+                and "outtmp_" in pisa.input1
+            ):
+                pisa.input0 = re.sub(
+                    "(x|outtmp|y)_([0-9]+)_[0-9]+_",
+                    r"\1_\2_" + f"{current_rns-1}_",
+                    pisa.input0,
+                )
+                pisa.input1 = re.sub(
+                    "(x|outtmp|y)_([0-9]+)_[0-9]+_",
+                    r"\1_\2_" + f"{current_rns-1}_",
+                    pisa.input1,
+                )
+            if (
+                "x_" in pisa.output0
+                and "x_" in pisa.output1
+                or "outtmp_" in pisa.output0
+                and "outtmp_" in pisa.output1
+            ):
+                pisa.output0 = re.sub(
+                    "(x|outtmp|y)_([0-9]+)_[0-9]+_",
+                    r"\1_\2_" + f"{current_rns-1}_",
+                    pisa.output0,
+                )
+                pisa.output1 = re.sub(
+                    "(x|outtmp|y)_([0-9]+)_[0-9]+_",
+                    r"\1_\2_" + f"{current_rns-1}_",
+                    pisa.output1,
+                )
+        return pisa
+
+    return list(map(remove_rns, ls))
 
 
 # TODO move this to kernel utils
@@ -180,7 +239,7 @@ class Mul(HighOp):
         out_idx: int,
         in_idxs: InIdxs,
         *,
-        digit: int | None = None
+        digit: int | None = None,
     ):
         """Helper for a given unit and q generate the p-isa ops for a multiplication"""
 
