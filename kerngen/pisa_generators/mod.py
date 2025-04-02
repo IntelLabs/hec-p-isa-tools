@@ -189,7 +189,6 @@ class Mod(HighOp):
                 Comment("Compute the remaining rns"),
             ]
             + batch_rns(
-                0,
                 self.context.current_rns,
                 mixed_to_pisa_ops(
                     stages[1].pisa_ops

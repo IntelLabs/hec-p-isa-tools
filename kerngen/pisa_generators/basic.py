@@ -33,49 +33,30 @@ def filter_rns(current_rns: int, max_rns: int, pisa_list: list[PIsaOp]):
     )
 
 
-def batch_rns(start_rns, current_rns, pisa_list: list[PIsaOp], rns_batch_size=8):
+def batch_rns(current_rns, pisa_list: list[PIsaOp]):
     """Batch pisa_list into groups of RNS==8"""
-    ls: list[PIsaOp] = []
-    start_b = end_b = 0
-    for b in range(start_rns, current_rns, rns_batch_size):
-        start_b = b
-        end_b = b + (
-            rns_batch_size
-            if (b + rns_batch_size <= current_rns and b >= rns_batch_size) or b == 0
-            else current_rns % rns_batch_size
-        )
-        # pylint: disable=cell-var-from-loop
-        ls.extend(
-            list(
-                filter(
-                    lambda pisa: (
-                        isinstance(pisa, Comment) or (start_b <= pisa.q < end_b)
-                    ),
-                    pisa_list,
-                )
-            )
-        )
-    ls = list(filter(lambda pisa: not isinstance(pisa, Comment), ls))
+
+    ls = list(filter(lambda pisa: not isinstance(pisa, Comment), pisa_list))
     ls.sort(key=lambda pisa: pisa.q)
 
     def remove_rns(pisa: PIsaOp):
         """Helper function to remove RNS terms from modsw output"""
         if isinstance(pisa, BinaryOp):
-            if "x_" in pisa.input0 or "y_" in pisa.input0:
+            if "x_" in pisa.input0 or "y_" in pisa.input0 or "outtmp_" in pisa.input0:
                 pisa.input0 = re.sub(
-                    "(x|y)_([0-9]+)_[0-9]+_",
+                    "(x|y|outtmp)_([0-9]+)_[0-9]+_",
                     r"\1_\2_" + f"{current_rns-1}_",
                     pisa.input0,
                 )
-            if "x_" in pisa.input1 or "y_" in pisa.input1:
+            if "x_" in pisa.input1 or "y_" in pisa.input1 or "outtmp_" in pisa.input1:
                 pisa.input1 = re.sub(
-                    "(x|y)_([0-9]+)_[0-9]+_",
+                    "(x|y|outtmp)_([0-9]+)_[0-9]+_",
                     r"\1_\2_" + f"{current_rns-1}_",
                     pisa.input1,
                 )
-            if "x_" in pisa.output or "y_" in pisa.output:
+            if "x_" in pisa.output or "y_" in pisa.output or "outtmp_" in pisa.output:
                 pisa.output = re.sub(
-                    "(x|y)_([0-9]+)_[0-9]+_",
+                    "(x|y|outtmp)_([0-9]+)_[0-9]+_",
                     r"\1_\2_" + f"{current_rns-1}_",
                     pisa.output,
                 )
