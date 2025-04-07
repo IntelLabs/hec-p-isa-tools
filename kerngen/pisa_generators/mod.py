@@ -200,6 +200,20 @@ class Mod(HighOp):
 
 
 @dataclass
+class ModOp(Mod):
+    """Class representing mod down operation w/optimization"""
+
+    def to_pisa(self) -> list[PIsaOp]:
+        """Optimize by calling Mod by 1 part at a time"""
+        ls = []
+        for p in range(self.input0.parts):
+            self.input0.start_parts = p
+            self.input0.parts = p + 1
+            ls.extend(super().to_pisa())
+        return ls
+
+
+@dataclass
 class ModUp(HighOp):
     """Class representing mod switch up operation"""
 
