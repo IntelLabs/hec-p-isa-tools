@@ -33,6 +33,28 @@ def filter_rns(current_rns: int, max_rns: int, pisa_list: list[PIsaOp]):
     )
 
 
+def variable_reuse_transform(pisa_list: list[PIsaOp]):
+    """transforms a pisa list to increase variable reuse"""
+
+    def rename_pisa(pisa: PIsaOp):
+        """Renames x and Outtmp to increase reuse"""
+        if isinstance(pisa, BinaryOp):
+            if "x_" in pisa.input0:
+                pisa.input0 = re.sub("x_[0-9]+_[0-9]+", "x", pisa.input0)
+            if "x_" in pisa.input1:
+                pisa.input1 = re.sub("x_[0-9]+_[0-9]+", "x", pisa.input1)
+            if "x_" in pisa.output or "outtmp" in pisa.output:
+                pisa.output = re.sub("([x|outtmp])_[0-9]+_[0-9]+", r"\1", pisa.output)
+        if isinstance(pisa, NTTOp):
+            pisa.input0 = re.sub("([x|outtmp])_[0-9]+_[0-9]+", r"\1", pisa.input0)
+            pisa.input1 = re.sub("([x|outtmp])_[0-9]+_[0-9]+", r"\1", pisa.input1)
+            pisa.output0 = re.sub("([x|outtmp])_[0-9]+_[0-9]+", r"\1", pisa.output0)
+            pisa.output1 = re.sub("([x|outtmp])_[0-9]+_[0-9]+", r"\1", pisa.output1)
+        return pisa
+
+    return list(map(rename_pisa, pisa_list))
+
+
 def batch_rns(current_rns, pisa_list: list[PIsaOp]):
     """Batch pisa_list into groups of RNS==8"""
 

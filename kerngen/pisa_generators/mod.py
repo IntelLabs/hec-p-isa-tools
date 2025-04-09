@@ -20,6 +20,7 @@ from .basic import (
     add_last_half,
     sub_last_half,
     batch_rns,
+    variable_reuse_transform,
 )
 from .ntt import INTT, NTT
 
@@ -177,34 +178,38 @@ class Mod(HighOp):
         # Compute the `delta_i = t * [-t^-1 * c_i] mod ql` where `i` are the parts
         # The `one` acts as a select flag as whether or not R2 the Montgomery
         # factor should be applied
-        return mixed_to_pisa_ops(
-            [
-                Comment("Start of mod kernel"),
-                Comment("Compute the delta from last rns"),
-                INTT(self.context, temp_input_last_rns, input_last_rns),
-            ]
-            + stages[0].pisa_ops
-            + [
-                Muli(self.context, temp_input_last_rns, temp_input_last_rns, one),
-                Comment("Compute the remaining rns"),
-            ]
-            + batch_rns(
-                self.context.current_rns,
-                mixed_to_pisa_ops(
-                    stages[1].pisa_ops
-                    + [
-                        NTT(
-                            self.context,
-                            temp_input_remaining_rns,
-                            temp_input_remaining_rns,
-                        ),
-                    ]
-                    + stages[2].pisa_ops
-                    + [
-                        Muli(self.context, self.output, temp_input_remaining_rns, iq),
-                        Comment("End of mod kernel"),
-                    ]
-                ),
+        return variable_reuse_transform(
+            mixed_to_pisa_ops(
+                [
+                    Comment("Start of mod kernel"),
+                    Comment("Compute the delta from last rns"),
+                    INTT(self.context, temp_input_last_rns, input_last_rns),
+                ]
+                + stages[0].pisa_ops
+                + [
+                    Muli(self.context, temp_input_last_rns, temp_input_last_rns, one),
+                    Comment("Compute the remaining rns"),
+                ]
+                + batch_rns(
+                    self.context.current_rns,
+                    mixed_to_pisa_ops(
+                        stages[1].pisa_ops
+                        + [
+                            NTT(
+                                self.context,
+                                temp_input_remaining_rns,
+                                temp_input_remaining_rns,
+                            ),
+                        ]
+                        + stages[2].pisa_ops
+                        + [
+                            Muli(
+                                self.context, self.output, temp_input_remaining_rns, iq
+                            ),
+                            Comment("End of mod kernel"),
+                        ]
+                    ),
+                )
             )
         )
 
