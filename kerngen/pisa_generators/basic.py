@@ -86,7 +86,7 @@ class CartesianOp(HighOp):
                     second(0, q, unit),
                     q,
                 )
-                for part in range(first.parts)
+                for part in range(first.start_parts, first.parts)
             )
             ls.extend(
                 pisa_op.Copy(
@@ -389,7 +389,9 @@ def partial_op(
             last_q if options.op_last_q else q,
         )
         for part, q, unit in it.product(
-            range(polys.input_remaining_rns.parts),
+            range(
+                polys.input_remaining_rns.start_parts, polys.input_remaining_rns.parts
+            ),
             range(polys.input_remaining_rns.start_rns, polys.input_remaining_rns.rns),
             range(context.units),
         )
