@@ -13,48 +13,33 @@ primarily in use by the regulated industries and government.
 
 Most of the FHE schemes of today perform the computation using very large
 polynomial rings, thus requiring considerable compute power and data
-movement between main memory and the CPU's registers, which introduces a
-computational overhed. New hardware architectures to accelerate FHE focus
-on accelerating the computation over large polynomial rings as  well as
-accelerating the data movement between the memory and the compute elements.
+movement between main memory and the CPU's registers, which introduces large
+computational overheds. New FHE hardware accelerator architectures aim at
+accelerate the computation over large polynomial rings while minimizing
+the data movement between the memory and the compute elements.
 
-The Encrypted Computing SDK 
-will realize a multistage
-transformation (compiler) pipeline, inspired by the
-[LLVM Compiler Infrastructure](https://llvm.org/). We have adopted a
+The Encrypted Computing SDK introduces a multistage transformation
+(compiler) pipeline that breaks down the large polynomial computation into
+the various abstraction layers to make it easier for developers to target
+different hardware architectures as well as to develop new implementations
+of FHE schemes, and integration with existing 3rd Party libraries, compilers
+and transpilers. It is inspired by the
+[LLVM Compiler Infrastructure](https://llvm.org/), and adopts a
 modular approach based on language independent intermediate
 representations (IR) that promotes the separation of concerns at each
 stage of the pipeline and allowing for dedicated transformations and
 optimizations.
 
- HERACLES improves
-the performance of FHE by accelerating the computation over the large
-polynomials and optimizing the data movement involved in the computation.
-
-HERACLES introduces a new Polynomial Data type which does not exist in
-today's traditional CPUs. For this new polynomial data type, it supports
-a new set of novel and fundamental instructions, the Polynomial Instructions
+Intel’s [HERACLES accelerator technology](https://dl.acm.org/doi/10.1145/3560810.3565290)
+introduces a new Polynomial Data type which does not exist in today's
+traditional CPUs. For this new polynomial data type, it supports a
+new set of novel and fundamental instructions, the Polynomial Instructions
 Set Architecture (P-ISA), that operates directly on large polynomials in
-a SIMD fashion. We at Intel Labs are developing a new compiler pipeline,
-the Encrypted Computing SDK, to make it easier for developers to develop
-new implementations of FHE schemes and also integrate with existing libraries.
+a SIMD fashion. 
+
 
 <p>
 <img src="docs/images/HERACLES_SDK_Integration_3rd_Party.png" align="left" width="600" />
-
-The Encrypted Computing SDK (or HERACLES SDK) will realize a multistage
-transformation (compiler) pipeline, inspired by the
-[LLVM Compiler Infrastructure](https://llvm.org/). We have adopted a
-modular approach based on language independent intermediate
-representations (IR) that promotes the separation of concerns at each
-stage of the pipeline and allowing for dedicated transformations and
-optimizations.
-
-This approach also allows for integration with 3rd Party compilers and
-transpilers.
-
-Intel’s [HERACLES accelerator technology](https://dl.acm.org/doi/10.1145/3560810.3565290)
-aims at improving the computational performance of FHE.
 
 <br clear="left">
 <br/>
