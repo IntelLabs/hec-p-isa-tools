@@ -1,22 +1,33 @@
-# HERACLES Polynomial Instruction Set Architecture Tools
-[![CodeQL](https://github.com/ossf/scorecard-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/IntelLabs/hec-p-isa-tools/actions/workflows/codeql-analysis.yml)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/IntelLabs/hec-p-isa-tools/badge)](https://scorecard.dev/viewer/?uri=github.com/IntelLabs/hec-p-isa-tools)
+# Encrypted Computing Software Development Kit
+[![CodeQL](https://github.com/ossf/scorecard-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/IntelLabs/encrypted-computing-sdk/actions/workflows/codeql-analysis.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/IntelLabs/encrypted-computing-sdk/badge)](https://scorecard.dev/viewer/?uri=github.com/IntelLabs/encrypted-computing-sdk)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9276/badge)](https://www.bestpractices.dev/projects/9276)
 
 ## Overview
-Intel’s [HERACLES accelerator technology](https://dl.acm.org/doi/10.1145/3560810.3565290)
-aims at improving the computational performance of
-[Fully Homomorphic Encryption (FHE)](https://en.wikipedia.org/wiki/Homomorphic_encryption).
-FHE allows computation to be performed on
-encrypted data without having to decrypt the data which brings in
-profound and beneficial implications for data privacy and data confidentiality.
-However, these benefits come with a significant performance cost which has so far
-confined FHE based applications to specific use case archetypes primarily in use
-by the regulated industries and government.
+[Fully Homomorphic Encryption (FHE)](https://en.wikipedia.org/wiki/Homomorphic_encryption)
+allows computation to be performed on encrypted data without having to decrypt
+the data which brings in profound and beneficial implications for data privacy
+and data confidentiality. However, these benefits come with a significant performance
+cost which has so far confined FHE based applications to specific use case archetypes
+primarily in use by the regulated industries and government.
 
 Most of the FHE schemes of today perform the computation using very large
 polynomial rings, thus requiring considerable compute power and data
-movement between main memory and the CPU's registers. HERACLES improves
+movement between main memory and the CPU's registers, which introduces a
+computational overhed. New hardware architectures to accelerate FHE focus
+on accelerating the computation over large polynomial rings as  well as
+accelerating the data movement between the memory and the compute elements.
+
+The Encrypted Computing SDK 
+will realize a multistage
+transformation (compiler) pipeline, inspired by the
+[LLVM Compiler Infrastructure](https://llvm.org/). We have adopted a
+modular approach based on language independent intermediate
+representations (IR) that promotes the separation of concerns at each
+stage of the pipeline and allowing for dedicated transformations and
+optimizations.
+
+ HERACLES improves
 the performance of FHE by accelerating the computation over the large
 polynomials and optimizing the data movement involved in the computation.
 
@@ -41,6 +52,10 @@ optimizations.
 
 This approach also allows for integration with 3rd Party compilers and
 transpilers.
+
+Intel’s [HERACLES accelerator technology](https://dl.acm.org/doi/10.1145/3560810.3565290)
+aims at improving the computational performance of FHE.
+
 <br clear="left">
 <br/>
 <br/>
