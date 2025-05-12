@@ -1,5 +1,6 @@
-# NOTE pytest requires pydantic to be to be [1.7, 2.0)
-pydantic ~= 1.10
+# NOTE pytest requires pydantic to be  (1.10, 2.11)
+# CVE-2024-3772 (Vulnerability GHSA-mr82-8j83-vxmv) requires ~=1.10.13 0r ~=2.4.0
+pydantic ~= 1.10.13
 
 # for dev / commits
 black ~= 25.1
