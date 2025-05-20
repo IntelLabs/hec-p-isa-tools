@@ -22,16 +22,17 @@ The Encrypted Computing SDK introduces a multistage transformation
 (compiler) pipeline that breaks down the large polynomial computation into
 the various abstraction layers to make it easier for developers to target
 different hardware architectures as well as to develop new implementations
-of FHE schemes, and integration with existing 3rd Party libraries, compilers
-and transpilers. It is inspired by the
+of FHE schemes, and integrate with existing 3rd Party libraries, compilers
+and transpilers. The SDK is inspired by the
 [LLVM Compiler Infrastructure](https://llvm.org/), and adopts a
 modular approach based on language independent intermediate
-representations (IR) that promotes the separation of concerns at each
+representations (IRs) that promotes the separation of concerns at each
 stage of the pipeline and allowing for dedicated transformations and
 optimizations.
 
-Intel’s [HERACLES accelerator technology](https://dl.acm.org/doi/10.1145/3560810.3565290)
-introduces a new Polynomial Data type which does not exist in today's
+Our first target hardware platform is Intel’s 
+[HERACLES accelerator technology](https://dl.acm.org/doi/10.1145/3560810.3565290)
+which introduces a new Polynomial Data type which does not exist in today's
 traditional CPUs. For this new polynomial data type, it supports a
 new set of novel and fundamental instructions, the Polynomial Instructions
 Set Architecture (P-ISA), that operates directly on large polynomials in
@@ -66,9 +67,6 @@ We are currently at Phase 1, developing the P-ISA tools and Assembler tools
 component which comprises a) Kernel Generator, b) Program
 Mapper, c) Functional Modeler Simulator, and d) HERACLES Assembler.
 Each tool in this repo is self contained and has its own local README.
-
-Current development is focussed on the Kernel Generator.
-Follow the instructions [here](./kerngen) to start experimenting with it.
 
 # Contributing
 Intel P-ISA Tools project welcomes external contributions through pull
