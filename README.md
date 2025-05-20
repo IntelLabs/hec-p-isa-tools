@@ -39,32 +39,32 @@ a SIMD fashion.
 
 
 <p>
-<img src="docs/images/HERACLES_SDK_Integration_3rd_Party.png" align="left" width="600" />
+<img src="docs/images/SDK_Integration_3rd_party.png" align="left" width="600" />
 
 <br clear="left">
 <br/>
 <br/>
 </p>
 
-## HERACLES SDK Roadmap: Phased Approach
+## Encrypted Computing SDK Roadmap: Phased Approach
 <p>
-<img src="docs/images/HERACLES_SDK_Phased_Approach.png" width=80% height=80% />
+<img src="docs/images/SDK_Roadmap.png" width=80% height=80% />
 <br/>
 <br/>
 <br/>
 </p>
 
-### HERACLES SDK Phase 1: Components and Tasks
+### Encrypted Computing SDK Phase 1: Components and Tasks
 <p>
-<img src="docs/images/HERACLES_SDK_Phase_1.png" width=80% height=80% />
+<img src="docs/images/SDK_Phase_1.png" width=80% height=80% />
 <br>
 <br/>
 <br/>
 </p>
 
-We are currently at Phase 1, more specifically developing the P-ISA Tools
-component which comprises three main tools, a) Kernel Generator, b) Program
-Mapper, and c) Functional Modeler Simulator.
+We are currently at Phase 1, developing the P-ISA tools and Assembler tools
+component which comprises a) Kernel Generator, b) Program
+Mapper, c) Functional Modeler Simulator, and d) HERACLES Assembler.
 Each tool in this repo is self contained and has its own local README.
 
 Current development is focussed on the Kernel Generator.
