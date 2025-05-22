@@ -93,6 +93,6 @@ the tests pass.
 
 # Feedback
 We encourage feedback and suggestions via
-[GitHub Issues](https://github.com/IntelLabs/hec-p-isa-tools/issues) as well
+[GitHub Issues](https://github.com/IntelLabs/encrypted-computing-sdk/issues) as well
 as via
-[GitHub Discussions](https://github.com/IntelLabs/hec-p-isa-tools/discussions).
+[GitHub Discussions](https://github.com/IntelLabs/encrypted-computing-sdk/discussions).
