@@ -73,7 +73,7 @@ Intel P-ISA Tools project welcomes external contributions through pull
 requests to the `main` branch.
 
 Please refer to the [Contributing](CONTRIBUTING.md) and
-[Code of Conduct](CODE_OF_CONDUCT) documents for additional information on
+[Code of Conduct](CODE_OF_CONDUCT.md) documents for additional information on
 the contribution acceptance guidelines.
 
 We use signed commits, please remember to sign your commits before making a
