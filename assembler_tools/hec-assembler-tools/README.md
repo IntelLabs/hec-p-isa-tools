@@ -9,7 +9,6 @@ The tools in this directory are the reference implementation of and Assembler co
    1. [Assembler Instruction Specs](#asm_specs)
 4. [Executing the Assembler](#executing_asm)
    1. [Running for a Pre-Generated Kernel](#executing_single)
-   2. [Running for a Batch of Operations](#executing_batch)
 5. [Debug Tools](./debug_tools/README.md)
 
 ## Dependencies <a name="dependencies"></a>
@@ -112,28 +111,3 @@ python3 he_prep.py -h
 python3 he_as.py -h
 python3 he_link.py -h
 ```
-
-### Running for a Batch of Operations <a name="executing_batch"></a>
-
-This project provides script `gen_he_ops.py` that allows for assembling a batch of P-ISA kernels generated for HE operations. It calls the generator script internally to generate a batch of kernels, and then runs them through the assembler.
-
-Since the script to generate P-ISA kernels resides in another repo (HERACLES-SEAL-isa-mapping), we must specify the location of the cloned external repo using the environment variable `HERACLES_MAPPING_PATH`. Correctly setting this variable should result in the following path being valid: `$HERACLES_MAPPING_PATH/kernels/run_he_ops.py` .
-
-Provided script, `gen_he_ops.py`, takes in a YAML configuration file that specifies parameters for operations to assemble. To obtain a template for the configuration file, use the script itself with the `--dump` command line flag. Use `-h` flag for more information.
-
-```bash
-# save template for configuration file to ./config.yaml
-python3 gen_he_ops.py config.yaml --dump
-```
-
-Set the parameters in the configuration file to match your needs and then execute the script as shown below (code for Linux terminal).
-
-```bash
-# env variable pointing to HERACLES-SEAL-isa-mapping
-export HERACLES_MAPPING_PATH=/path/to/HERACLES-SEAL-isa-mapping
-python3 gen_he_ops.py config.yaml
-```
-
-Based on your chosen configuration, this will generate kernels, run them through the assembler and place all the outputs (and intermediate files) in the output directory specified in the configuration file.
-
-This way of executing is mostly intended for testing purposes.
