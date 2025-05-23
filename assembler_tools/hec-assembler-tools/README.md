@@ -52,19 +52,6 @@ On a successful run, given a P-ISA kernel in file `filename.csv` (and correspond
 The format for the output files and instruction set can be found at [HCGF Instruction Specification](docsrc/specs.md).
 
 ## Executing the Assembler <a name="executing_asm"></a>
-
-There are two ways to execute the assembler:
-
-- [Running on a pre-generated kernel](#executing_single): uses the main interface of the assembler to assemble a single pre-existing kernel.
-
-  This method is intended for a production chain.
-
-or
-
-- [Running for a batch of kernels](#executing_batch): uses a provided script wrapper to generate a collection of kernels and runs them through the assembler.
-
-  This method is intended for testing purposes as it generates test kernels using external tools before assembling.
-
 ### Running for a Pre-Generated Kernel <a name="executing_single"></a>
 
 Given a P-ISA kernel (`filename.csv`) and corresponding memory mapping file (`filename.mem`), there are three steps to assemble them into HERACLES code.
